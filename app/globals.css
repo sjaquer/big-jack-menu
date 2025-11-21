@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #171717;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +12,33 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Overrides de color - usan el hex proporcionado por el usuario: #d73d1d */
+:root {
+  --bj-accent: #d73d1d;
+}
+
+/* Sobrescribir utilidades comunes de Tailwind para mantener el diseño sin cambiar HTML */
+.text-yellow-500 { color: var(--bj-accent) !important; }
+.bg-yellow-500 { background-color: var(--bj-accent) !important; }
+.bg-yellow-500\/50 { background-color: rgba(215,57,29,0.5) !important; }
+.text-orange-500 { color: var(--bj-accent) !important; }
+.bg-orange-600 { background-color: var(--bj-accent) !important; }
+.bg-orange-500 { background-color: var(--bj-accent) !important; }
+.text-orange-400 { color: var(--bj-accent) !important; }
+.border-orange-500 { border-color: var(--bj-accent) !important; }
+.shadow-orange-900\/50 { box-shadow: 0 10px 15px -3px rgba(215,57,29,0.5), 0 4px 6px -2px rgba(215,57,29,0.25) !important; }
+
+/* Algunos componentes usan estilos inline de color de texto con clases compuestas */
+.text-yellow-500\.font-bold { color: var(--bj-accent) !important; }
+
+/* Ajuste para badges y bordes con transparencia */
+.bg-yellow-500\.text-black { background-color: var(--bj-accent) !important; color: #000 !important; }
+
+/* Si usas otras utilidades de amarillo/naranja, añádelas aquí siguiendo el mismo patrón */
+
