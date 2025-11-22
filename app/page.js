@@ -1,8 +1,30 @@
 "use client";
 import Head from "next/head";
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
-import { ShoppingCart, Trash2, Plus, Minus, Send, X, MapPin, Clock, Navigation, User, CreditCard, Banknote, Smartphone, Sparkles, Flame, PhoneCall } from "lucide-react";
+import {
+  ShoppingCart,
+  Trash2,
+  Plus,
+  Minus,
+  Send,
+  X,
+  MapPin,
+  Clock,
+  Navigation,
+  User,
+  CreditCard,
+  Banknote,
+  Smartphone,
+  Sparkles,
+  Flame,
+  PhoneCall,
+  Instagram,
+  Music2,
+  MessageCircle,
+  ClipboardList,
+  RefreshCw,
+} from "lucide-react";
 
 export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
@@ -20,29 +42,6 @@ export default function BigJackMenu() {
   const [paymentMethod, setPaymentMethod] = useState("efectivo"); // efectivo | yape | plin | tarjeta (tarjeta deshabilitada)
   const [notes, setNotes] = useState(""); // notas adicionales
   const [recentlyAdded, setRecentlyAdded] = useState(null); // resaltar última acción
-  const audioContextRef = useRef(null);
-
-  const playAddSound = useCallback(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioCtx();
-      }
-      const ctx = audioContextRef.current;
-      if (ctx.state === "suspended") ctx.resume();
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-      oscillator.type = "triangle";
-      oscillator.frequency.setValueAtTime(880, ctx.currentTime);
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      oscillator.start();
-      oscillator.stop(ctx.currentTime + 0.12);
-    } catch {}
-  }, []);
 
   // Cargar estado desde localStorage al iniciar
   useEffect(() => {
@@ -51,7 +50,11 @@ export default function BigJackMenu() {
       if (saved) {
         /* eslint-disable react-hooks/set-state-in-effect */
         setCustomerName(saved.customerName || "");
-        setOrderType(saved.orderType || "pickup");
+        const persistedOrderType =
+          saved.orderType && saved.orderType !== "pickup"
+            ? "pickup"
+            : saved.orderType || "pickup";
+        setOrderType(persistedOrderType);
         setDeliveryAddress(saved.deliveryAddress || "");
         setDeliveryReference(saved.deliveryReference || "");
         setPickupTime(saved.pickupTime || "now");
@@ -100,6 +103,48 @@ export default function BigJackMenu() {
     heroPriceRangeRaw[1] === -Infinity ? heroPriceRangeRaw[0] || 0 : heroPriceRangeRaw[1],
   ];
 
+  const socialLinks = [
+    {
+      id: "whatsapp",
+      label: "WhatsApp",
+      description: "Pide directo",
+      href: `https://wa.me/${restaurantInfo.contact.whatsapp}`,
+      icon: MessageCircle,
+      accent: "bg-green-500/20 border-green-500/40 text-green-300",
+    },
+    {
+      id: "instagram",
+      label: "Instagram",
+      description: "Historias y reels",
+      href: `https://instagram.com/${restaurantInfo.contact.instagram?.replace("@", "")}`,
+      icon: Instagram,
+      accent: "bg-pink-500/20 border-pink-500/40 text-pink-200",
+    },
+    {
+      id: "tiktok",
+      label: "TikTok",
+      description: "Clips diarios",
+      href: restaurantInfo.contact.tiktok,
+      icon: Music2,
+      accent: "bg-white/10 border-white/30 text-white",
+    },
+  ];
+  const deliveryAvailable = false;
+  const fastTrackHighlights = [
+    {
+      title: "Explora visualmente",
+      desc: "Fotos reales con precios y diferencias simple/doble claras.",
+    },
+    {
+      title: "Acciones accesibles",
+      desc: "Botones amplios y navegación pensada para uso con una mano.",
+    },
+    {
+      title: "Resumen inmediato",
+      desc: "Carrito compacto y resumen listo para WhatsApp en segundos.",
+    },
+  ];
+
   const scrollToMenu = () => {
     if (typeof document === "undefined") return;
     const el = document.getElementById("menu-section");
@@ -136,7 +181,6 @@ export default function BigJackMenu() {
     });
     setRecentlyAdded(uniqueId);
     setIsCartOpen(true);
-    playAddSound();
     setTimeout(() => {
       setRecentlyAdded((current) => (current === uniqueId ? null : current));
     }, 1200);
@@ -164,7 +208,7 @@ export default function BigJackMenu() {
   };
 
   const getUserLocation = () => {
-    if (!navigator.geolocation) {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
       alert("Tu navegador no soporta geolocalización.");
       return;
     }
@@ -181,6 +225,50 @@ export default function BigJackMenu() {
     );
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  const copyCartSummary = () => {
+    if (cart.length === 0) {
+      alert("Agrega productos antes de copiar el resumen.");
+      return;
+    }
+    const summary = [
+      "Resumen Big Jack",
+      ...cart.map((item) => `${item.quantity}x ${item.name} (${item.optionLabel}) - S/ ${(item.price * item.quantity).toFixed(2)}`),
+      `Total: S/ ${total.toFixed(2)}`,
+    ].join("\n");
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(summary)
+        .then(() => alert("Resumen copiado al portapapeles."))
+        .catch(() => alert(summary));
+    } else {
+      alert(summary);
+    }
+  };
+
+  const resetCheckoutForm = () => {
+    setCustomerName("");
+    setOrderType("pickup");
+    setDeliveryAddress("");
+    setDeliveryReference("");
+    setPickupTime("now");
+    setScheduledTime("");
+    setLocationLink("");
+    setPaymentMethod("efectivo");
+    setNotes("");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("bj_checkout");
+    }
+  };
+
+  const handleSelectOrderType = (type) => {
+    if (type === "delivery" && !deliveryAvailable) return;
+    setOrderType(type);
+  };
+
   const sendOrderToWhatsapp = () => {
     if (cart.length === 0) return;
     if (!customerName.trim()) {
@@ -192,26 +280,26 @@ export default function BigJackMenu() {
       return;
     }
 
-    let message = `🔥 *PEDIDO BIG JACK* 🔥\n\n`;
-    message += `👤 *Cliente:* ${customerName}\n`;
-    message += `📦 *Tipo:* ${orderType === "delivery" ? "DELIVERY 🛵" : "RECOJO EN TIENDA 🥡"}\n`;
+    let message = `*PEDIDO BIG JACK*\n\n`;
+    message += `*Cliente:* ${customerName}\n`;
+    message += `*Tipo:* ${orderType === "delivery" ? "Delivery" : "Recojo en tienda"}\n`;
 
     if (orderType === "delivery") {
-      message += `📍 *Dirección:* ${deliveryAddress || "Ubicación compartida"}\n`;
-      if (deliveryReference) message += `🏠 *Ref:* ${deliveryReference}\n`;
-      if (locationLink) message += `🗺 *Mapa:* ${locationLink}\n`;
+      message += `*Dirección:* ${deliveryAddress || "Ubicación compartida"}\n`;
+      if (deliveryReference) message += `*Referencia:* ${deliveryReference}\n`;
+      if (locationLink) message += `*Mapa:* ${locationLink}\n`;
     } else {
-      message += `⏰ *Hora:* ${pickupTime === "now" ? "AHORA MISMO (5-10 min)" : `Programado: ${scheduledTime}`}\n`;
+      message += `*Hora:* ${pickupTime === "now" ? "Recojo inmediato (5-10 min)" : `Programado: ${scheduledTime}`}\n`;
     }
 
-    message += `\n🍔 *DETALLE DEL PEDIDO:*\n`;
+    message += `\n*Detalle del pedido:*\n`;
     cart.forEach((item) => {
-      message += `▪️ ${item.quantity}x ${item.name} (${item.optionLabel}) - S/ ${(item.price * item.quantity).toFixed(2)}\n`;
+      message += `- ${item.quantity}x ${item.name} (${item.optionLabel}) - S/ ${(item.price * item.quantity).toFixed(2)}\n`;
     });
     
-    message += `\n💰 *TOTAL A PAGAR: S/ ${total.toFixed(2)}*`;
-    message += `\n\n💳 *Método de pago:* ${paymentMethod.toUpperCase()}`;
-    if (notes.trim()) message += `\n📝 *Notas:* ${notes.trim()}`;
+    message += `\n*Total a pagar:* S/ ${total.toFixed(2)}`;
+    message += `\n\n*Método de pago:* ${paymentMethod.toUpperCase()}`;
+    if (notes.trim()) message += `\n*Notas:* ${notes.trim()}`;
 
     const url = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
@@ -276,31 +364,49 @@ export default function BigJackMenu() {
             <p className="text-neutral-300 text-lg">
               Elige tus burgers antes de llegar, envía el pedido a WhatsApp y nosotros lo vamos preparando. Pensado para oficinas, universitarios y riders que quieren todo rápido.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <a
-                href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
-                target="_blank"
-                rel="noreferrer"
-                className="px-5 py-3 rounded-full bg-yellow-500 text-black font-bold flex items-center gap-2 shadow-lg shadow-yellow-900/50"
-              >
-                <Send size={18} /> Pedir ahora
-              </a>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
               <button
                 onClick={scrollToMenu}
-                className="px-5 py-3 rounded-full border border-neutral-700 text-white/80 hover:text-white hover:border-yellow-500 transition"
+                className="px-5 py-3 rounded-full bg-yellow-500 text-black font-bold flex items-center gap-2 shadow-lg shadow-yellow-900/50 w-full sm:w-auto justify-center"
+              >
+                <Send size={18} /> Ver y pedir
+              </button>
+              <button
+                onClick={scrollToMenu}
+                className="px-5 py-3 rounded-full border border-neutral-700 text-white/80 hover:text-white hover:border-yellow-500 transition w-full sm:w-auto justify-center flex items-center gap-2"
               >
                 Ver menú completo
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="sm:hidden space-y-3" aria-label="Redes sociales Big Jack">
+              <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Conecta y comparte</p>
+              <div className="grid gap-2">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`w-full rounded-2xl border px-4 py-3 flex items-center justify-between ${link.accent}`}
+                  >
+                    <div>
+                      <p className="text-sm font-semibold">{link.label}</p>
+                      <p className="text-[11px] uppercase tracking-[0.3em] opacity-70">{link.description}</p>
+                    </div>
+                    <link.icon size={20} />
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {[{
                 label: "Listo en",
                 value: "15 min",
                 sub: "si recoges"
               }, {
                 label: "Pedidos felices",
-                value: "+4k",
-                sub: "desde 2020"
+                value: "¡Nuevo!",
+                sub: "Apertura reciente"
               }, {
                 label: "Promo activa",
                 value: "TikTok",
@@ -345,53 +451,51 @@ export default function BigJackMenu() {
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-6 -right-4 w-56 bg-neutral-900/90 border border-neutral-800 rounded-2xl p-4 text-sm shadow-xl shadow-black/40">
+            <div className="absolute -bottom-6 -right-4 w-64 bg-neutral-900/95 border border-neutral-800 rounded-2xl p-4 text-sm shadow-xl shadow-black/40 hidden md:flex md:flex-col gap-2" aria-label="Redes sociales">
               <p className="font-semibold text-white flex items-center gap-2">
-                <PhoneCall size={16} /> Flujo ultra rápido
+                <PhoneCall size={16} /> Sigue el fuego
               </p>
-              <ol className="list-decimal list-inside text-neutral-400 text-xs mt-2 space-y-1">
-                <li>Selecciona tu combo</li>
-                <li>Compártelo por WhatsApp</li>
-                <li>Recoge o espera al rider 🔔</li>
-              </ol>
-              <a
-                href={restaurantInfo.contact.tiktok}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11px] text-yellow-400 underline mt-2 inline-flex"
-              >
-                Ver historias y promos
-              </a>
+              {socialLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`rounded-xl border px-3 py-2 flex items-center justify-between ${link.accent}`}
+                >
+                  <div>
+                    <p className="text-sm font-semibold">{link.label}</p>
+                    <p className="text-[10px] uppercase tracking-[0.3em] opacity-70">{link.description}</p>
+                  </div>
+                  <link.icon size={18} />
+                </a>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* MICRO STEPS */}
-      <section className="max-w-6xl mx-auto px-4 py-8 grid gap-4 md:grid-cols-3">
-        {[{
-          title: "Explora visualmente",
-          desc: "Fotos reales, precios y diferencias simple/doble claros.",
-        }, {
-          title: "Añade con efecto",
-          desc: "Animaciones, sonido suave y carrito flotante siempre visible.",
-        }, {
-          title: "Envío directo",
-          desc: "Un clic abre WhatsApp con el pedido formateado listo para enviar.",
-        }].map((feature) => (
-          <div key={feature.title} className="border border-neutral-800 rounded-3xl bg-neutral-900/60 p-5 hover:border-yellow-500/60 transition">
-            <p className="text-sm text-yellow-500 font-bold mb-1">FAST TRACK</p>
-            <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-            <p className="text-neutral-400 text-sm">{feature.desc}</p>
-          </div>
-        ))}
+      {/* FAST TRACK */}
+      <section className="max-w-6xl mx-auto px-4 py-6">
+        <div className="flex gap-3 overflow-x-auto pb-3 snap-x">
+          {fastTrackHighlights.map((feature) => (
+            <div
+              key={feature.title}
+              className="min-w-[240px] flex-1 border border-neutral-800 rounded-2xl bg-neutral-900/60 p-4 hover:border-yellow-500/60 transition snap-start"
+            >
+              <p className="text-[11px] text-yellow-500 font-bold tracking-[0.3em] mb-2">FAST TRACK</p>
+              <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ENCUÉNTRANOS (MAPA) */}
-      <section className="bg-neutral-800 px-4 py-8 border-b border-neutral-700">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-          <div className="w-full rounded-xl overflow-hidden border border-neutral-700">
-            <div className="w-full h-64 md:h-80">
+      <section className="bg-neutral-900 px-4 py-6 border-b border-neutral-800">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+          <div className="w-full rounded-xl overflow-hidden border border-neutral-800">
+            <div className="w-full h-56 md:h-64">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.4489596287253!2d-77.03826302514345!3d-12.081386842545953!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c9dd0322b291%3A0xa9d9695fd746a41b!2sHamburgueser%C3%ADa%20-%20Big%20Jack!5e0!3m2!1ses-419!2spe!4v1763683257728!5m2!1ses-419!2spe"
                 className="w-full h-full"
@@ -403,13 +507,14 @@ export default function BigJackMenu() {
             </div>
           </div>
           <div>
-            <h3 className="text-xl font-bold text-yellow-500 mb-2">Encuéntranos</h3>
-            <p className="text-neutral-400 mb-3">{restaurantInfo.contact.address}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-1">Visítanos</p>
+            <h3 className="text-2xl font-bold text-white mb-2">Encuéntranos en Lince</h3>
+            <p className="text-neutral-400 mb-4">{restaurantInfo.contact.address}</p>
             <div className="flex gap-2 flex-wrap">
               <a href={restaurantInfo.contact.googleMapsLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-yellow-500 text-black font-bold px-4 py-2 rounded-lg">Abrir en Google Maps</a>
-              <a href={`https://wa.me/${restaurantInfo.contact.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg">Pedir por WhatsApp</a>
+              <a href={`https://wa.me/${restaurantInfo.contact.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-neutral-900 text-white border border-neutral-700 px-4 py-2 rounded-lg">Pedir por WhatsApp</a>
             </div>
-            <p className="text-xs text-neutral-500 mt-3">Usa el mapa para compartir tu ubicación al pedir delivery o para llegar a recoger tu pedido.</p>
+            <p className="text-xs text-neutral-500 mt-3">Comparte este mapa al pedir delivery o úsalo como guía si vienes a recoger.</p>
           </div>
         </div>
       </section>
@@ -444,7 +549,7 @@ export default function BigJackMenu() {
             <h2 className="text-2xl font-black text-white">{selectedCategory === "TODOS" ? "Todo el menú" : selectedCategory}</h2>
           </div>
           <p className="text-neutral-400 text-sm max-w-sm text-right hidden md:block">
-            Toca en las versiones Simple o Doble para añadir directo al carrito. Cada botón reproduce una animación suave y sonido discreto.
+            Toca en las versiones Simple o Doble para añadir directo al carrito. Cada botón muestra una animación suave para confirmar la acción.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -541,13 +646,34 @@ export default function BigJackMenu() {
                 <X size={24} />
               </button>
             </div>
+            <div className="px-5 py-3 border-b border-neutral-800 bg-neutral-900 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide">
+              <button
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:border-yellow-500 hover:text-white transition"
+                onClick={copyCartSummary}
+              >
+                <ClipboardList size={14} /> Copiar resumen
+              </button>
+              <button
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:border-yellow-500 hover:text-white transition disabled:opacity-40"
+                onClick={clearCart}
+                disabled={cart.length === 0}
+              >
+                <Trash2 size={14} /> Vaciar carrito
+              </button>
+              <button
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:border-yellow-500 hover:text-white transition"
+                onClick={resetCheckoutForm}
+              >
+                <RefreshCw size={14} /> Limpiar datos
+              </button>
+            </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-6">
               {/* LISTA DE ITEMS */}
               {cart.length === 0 ? (
                 <div className="text-center py-10 text-neutral-500">
-                  <p className="text-lg mb-2">Tu carrito está vacío 🍔</p>
-                  <p className="text-sm">¡Agrega unas burgers brutales!</p>
+                  <p className="text-lg mb-2 font-semibold text-white">Tu carrito está vacío.</p>
+                  <p className="text-sm text-neutral-400">Selecciona un producto para comenzar tu pedido.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -619,14 +745,20 @@ export default function BigJackMenu() {
                         <label className="block text-xs text-neutral-400 mb-2">Tipo de pedido</label>
                         <div className="grid grid-cols-2 gap-2">
                           <button
-                            onClick={()=>setOrderType("pickup")}
+                            type="button"
+                            onClick={()=>handleSelectOrderType("pickup")}
                             className={`h-12 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-all ${orderType==='pickup'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'}`}
-                          >🥡 Recojo</button>
+                          >Recojo en local</button>
                           <button
-                            onClick={()=>setOrderType("delivery")}
-                            className={`h-12 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-all ${orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'}`}
-                          >🛵 Delivery</button>
+                            type="button"
+                            onClick={()=>handleSelectOrderType("delivery")}
+                            disabled={!deliveryAvailable}
+                            className={`h-12 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-800 text-neutral-500'} ${!deliveryAvailable ? 'cursor-not-allowed opacity-60' : 'hover:border-neutral-500 hover:bg-neutral-800'}`}
+                          >Delivery (próximamente)</button>
                         </div>
+                        {!deliveryAvailable && (
+                          <p className="text-[11px] text-neutral-500 mt-2">Delivery volverá a estar disponible pronto.</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -669,7 +801,7 @@ export default function BigJackMenu() {
                         </div>
                         <div className="flex flex-col gap-2">
                           <button onClick={getUserLocation} className={`w-full py-2 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-colors ${locationLink ? 'bg-green-600/20 border-green-600 text-green-400' : 'bg-blue-600/20 border-blue-600/50 text-blue-400 hover:bg-blue-600/30'}`}>
-                            <MapPin size={16} /> {locationLink ? 'Ubicación Guardada ✅' : 'Compartir Ubicación Actual'}
+                            <MapPin size={16} /> {locationLink ? 'Ubicación guardada' : 'Compartir ubicación actual'}
                           </button>
                           {locationLink && <p className="text-xs text-green-500 text-center">Se incluirá el enlace de tu ubicación en el pedido.</p>}
                         </div>
@@ -682,11 +814,11 @@ export default function BigJackMenu() {
                              <button
                                 onClick={()=>setPickupTime("now")}
                                 className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center gap-2 transition-all ${pickupTime==='now'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-900 border-neutral-700 text-neutral-400'}`}
-                              >🔥 Ahora</button>
+                              >Recoger ahora</button>
                               <button
                                 onClick={()=>setPickupTime("schedule")}
                                 className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center gap-2 transition-all ${pickupTime==='schedule'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-900 border-neutral-700 text-neutral-400'}`}
-                              >📅 Programar</button>
+                              >Programar horario</button>
                           </div>
                         </div>
 

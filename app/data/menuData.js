@@ -7,15 +7,15 @@ export const restaurantInfo = {
   logo: "/images/big-jack-logo.png", // opcional: coloca tu logo en public/images
   contact: {
     whatsapp: "51970513912",
-    instagram: "@bigjack.pe",
-    tiktok: "https://www.tiktok.com/@bigjack.pe",
+    instagram: "@bigjackpe",
+    tiktok: "https://www.tiktok.com/@bigjackpe",
     address: "Jirón Bartolomé Herrera 133, Lince",
     googleMapsLink: "https://maps.app.goo.gl/RFkecMjMDjZhQcxG6"
   }
 };
 
 export const categories = [
-  "LAS INTOCABLES",
+  "BURGERS",
   "GUARNICION",
   "BEBIDAS"
 ];
@@ -23,7 +23,7 @@ export const categories = [
 export const menuItems = [
   {
     id: 1,
-    category: "LAS INTOCABLES",
+    category: "BURGERS",
     name: "Bacon Jack",
     description: "Carne jugosa, queso cheddar, tiras de tocino crocante y salsa especial.",
     image: "/images/baconjack.webp",
@@ -35,7 +35,7 @@ export const menuItems = [
   },
   {
     id: 2,
-    category: "LAS INTOCABLES",
+    category: "BURGERS",
     name: "Royal Jack",
     description: "Carne jugosa, queso cheddar, jamón inglés y huevo frito en su punto.",
     image: "/images/royaljack.webp",
@@ -47,7 +47,7 @@ export const menuItems = [
   },
   {
     id: 3,
-    category: "LAS INTOCABLES",
+    category: "BURGERS",
     name: "Grill Jack",
     description: "Carne, chorizo parrillero, queso cheddar, chimichurri y un toque de mostaza.",
     image: "/images/grilljack.webp",
@@ -59,7 +59,7 @@ export const menuItems = [
   },
   {
     id: 4,
-    category: "LAS INTOCABLES",
+    category: "BURGERS",
     name: "J. a lo Pobre",
     description: "Carne, queso cheddar, huevo frito y el toque dulce del plátano maduro.",
     image: "/images/jackpobre.webp",
