@@ -2,7 +2,7 @@
 import Head from "next/head";
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
-import { ShoppingCart, Trash2, Plus, Minus, Send, X, MapPin, Clock, Navigation, User, CreditCard, Banknote, Smartphone, Sparkles, Flame, PhoneCall } from "lucide-react";
+import { ShoppingCart, Trash2, Plus, Minus, Send, X, MapPin, Clock, Navigation, User, CreditCard, Banknote, Smartphone, Sparkles, Flame, PhoneCall, Instagram, Music } from "lucide-react";
 
 export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
@@ -241,20 +241,22 @@ export default function BigJackMenu() {
           url: restaurantInfo.contact.googleMapsLink,
         }) }} />
       </Head>
-      {/* HEADER */}
+      {/* HEADER - MOBILE OPTIMIZED */}
       <header className="sticky top-0 z-50 bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-800 shadow-lg">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-black tracking-tighter text-yellow-500">{restaurantInfo.name}</h1>
-            <p className="text-xs text-neutral-400 hidden sm:block">{restaurantInfo.slogan}</p>
+        <div className="max-w-5xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl md:text-2xl font-black tracking-tighter text-yellow-500 truncate">{restaurantInfo.name}</h1>
+            <p className="text-xs text-neutral-400 hidden sm:block truncate">{restaurantInfo.slogan}</p>
           </div>
           <button 
             onClick={() => setIsCartOpen(!isCartOpen)}
-            className="relative p-2 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-colors"
+            className="relative p-3 md:p-2.5 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 active:scale-95 transition-all shadow-lg hover:shadow-xl flex-shrink-0 touch-manipulation min-w-[52px] min-h-[52px] md:min-w-[48px] md:min-h-[48px] flex items-center justify-center"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+            aria-label="Ver carrito"
           >
-            <ShoppingCart size={24} />
+            <ShoppingCart size={24} className="md:w-6 md:h-6" />
             {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold min-w-[22px] min-h-[22px] md:min-w-[20px] md:min-h-[20px] flex items-center justify-center rounded-full px-1 shadow-md">
                 {cart.reduce((acc, item) => acc + item.quantity, 0)}
               </span>
             )}
@@ -276,18 +278,20 @@ export default function BigJackMenu() {
             <p className="text-neutral-300 text-lg">
               Elige tus burgers antes de llegar, envía el pedido a WhatsApp y nosotros lo vamos preparando. Pensado para oficinas, universitarios y riders que quieren todo rápido.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
-                className="px-5 py-3 rounded-full bg-yellow-500 text-black font-bold flex items-center gap-2 shadow-lg shadow-yellow-900/50"
+                className="px-6 py-4 md:px-7 md:py-5 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center gap-2 shadow-lg shadow-yellow-900/50 text-base md:text-lg hover:bg-yellow-400 active:scale-95 transition-all touch-manipulation min-h-[56px]"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
-                <Send size={18} /> Pedir ahora
+                <Send size={20} className="md:w-6 md:h-6" /> Pedir ahora
               </a>
               <button
                 onClick={scrollToMenu}
-                className="px-5 py-3 rounded-full border border-neutral-700 text-white/80 hover:text-white hover:border-yellow-500 transition"
+                className="px-6 py-4 md:px-7 md:py-5 rounded-full border-2 border-neutral-700 text-white/90 hover:text-white hover:border-yellow-500 hover:bg-yellow-500/10 active:scale-95 transition-all text-base md:text-lg font-semibold touch-manipulation min-h-[56px]"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 Ver menú completo
               </button>
@@ -367,6 +371,94 @@ export default function BigJackMenu() {
         </div>
       </section>
 
+      {/* REDES SOCIALES - MOBILE OPTIMIZED */}
+      <section className="bg-gradient-to-b from-neutral-900 to-neutral-950 border-b border-neutral-800 px-4 py-8 md:py-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-6 md:mb-8">
+            <h2 className="text-2xl md:text-3xl font-black text-white mb-2">
+              Síguenos en <span className="text-yellow-500">Redes Sociales</span>
+            </h2>
+            <p className="text-neutral-400 text-sm md:text-base max-w-2xl mx-auto">
+              Entérate de nuestras promos diarias, historias exclusivas y participa en sorteos
+            </p>
+          </div>
+          
+          {/* Botones grandes para móvil y desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 max-w-4xl mx-auto">
+            {/* WhatsApp */}
+            <a
+              href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+              target="_blank"
+              rel="noreferrer"
+              className="group relative overflow-hidden bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 md:gap-4 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-2xl min-h-[140px] md:min-h-[180px] touch-manipulation"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative z-10 bg-white/20 rounded-full p-4 md:p-5 group-hover:scale-110 transition-transform">
+                <Send size={32} className="md:w-10 md:h-10" />
+              </div>
+              <div className="relative z-10 text-center">
+                <p className="text-xl md:text-2xl font-black mb-1">WhatsApp</p>
+                <p className="text-sm md:text-base text-white/90 font-semibold">Pide ahora</p>
+              </div>
+            </a>
+
+            {/* Instagram */}
+            <a
+              href={`https://www.instagram.com/${(restaurantInfo.contact.instagram || '@bigjack.pe').replace('@', '')}`}
+              target="_blank"
+              rel="noreferrer"
+              className="group relative overflow-hidden bg-gradient-to-br from-pink-600 via-purple-600 to-orange-500 hover:from-pink-500 hover:via-purple-500 hover:to-orange-400 text-white rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 md:gap-4 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-2xl min-h-[140px] md:min-h-[180px] touch-manipulation"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative z-10 bg-white/20 rounded-full p-4 md:p-5 group-hover:scale-110 transition-transform">
+                <Instagram size={32} className="md:w-10 md:h-10" />
+              </div>
+              <div className="relative z-10 text-center">
+                <p className="text-xl md:text-2xl font-black mb-1">Instagram</p>
+                <p className="text-sm md:text-base text-white/90 font-semibold">{restaurantInfo.contact.instagram}</p>
+              </div>
+            </a>
+
+            {/* TikTok */}
+            <a
+              href={restaurantInfo.contact.tiktok || 'https://www.tiktok.com/@bigjack.pe'}
+              target="_blank"
+              rel="noreferrer"
+              className="group relative overflow-hidden bg-gradient-to-br from-black via-neutral-900 to-neutral-800 hover:from-neutral-900 hover:via-neutral-800 hover:to-neutral-700 text-white rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 md:gap-4 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-2xl border-2 border-cyan-500/30 hover:border-cyan-500/60 min-h-[140px] md:min-h-[180px] touch-manipulation"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative z-10 bg-gradient-to-br from-cyan-500 to-pink-500 rounded-full p-4 md:p-5 group-hover:scale-110 transition-transform">
+                <Music size={32} className="md:w-10 md:h-10 text-black" />
+              </div>
+              <div className="relative z-10 text-center">
+                <p className="text-xl md:text-2xl font-black mb-1">TikTok</p>
+                <p className="text-sm md:text-base text-white/90 font-semibold">Ver promos</p>
+              </div>
+            </a>
+          </div>
+
+          {/* Flujo rápido mejorado para móvil */}
+          <div className="mt-8 md:mt-10 bg-neutral-800/60 border border-neutral-700 rounded-2xl md:rounded-3xl p-5 md:p-6 max-w-3xl mx-auto">
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="flex-shrink-0 bg-yellow-500/10 rounded-xl p-3 md:p-4">
+                <PhoneCall className="text-yellow-500 w-6 h-6 md:w-8 md:h-8" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg md:text-xl font-bold text-white mb-2">Flujo ultra rápido</h3>
+                <ol className="list-decimal list-inside text-neutral-300 text-sm md:text-base space-y-1.5 md:space-y-2">
+                  <li>Selecciona tu combo en el menú</li>
+                  <li>Compártelo por WhatsApp con un clic</li>
+                  <li>Recoge en tienda o espera al rider 🔔</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* MICRO STEPS */}
       <section className="max-w-6xl mx-auto px-4 py-8 grid gap-4 md:grid-cols-3">
         {[{
@@ -404,30 +496,49 @@ export default function BigJackMenu() {
           </div>
           <div>
             <h3 className="text-xl font-bold text-yellow-500 mb-2">Encuéntranos</h3>
-            <p className="text-neutral-400 mb-3">{restaurantInfo.contact.address}</p>
-            <div className="flex gap-2 flex-wrap">
-              <a href={restaurantInfo.contact.googleMapsLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-yellow-500 text-black font-bold px-4 py-2 rounded-lg">Abrir en Google Maps</a>
-              <a href={`https://wa.me/${restaurantInfo.contact.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg">Pedir por WhatsApp</a>
+            <p className="text-neutral-400 text-sm md:text-base mb-4">{restaurantInfo.contact.address}</p>
+            <div className="flex flex-col sm:flex-row gap-2.5 md:gap-2">
+              <a 
+                href={restaurantInfo.contact.googleMapsLink} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="inline-flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-black font-bold px-5 py-3.5 md:py-3 rounded-lg md:rounded-xl text-sm md:text-base transition-all touch-manipulation min-h-[52px] shadow-lg"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+              >
+                <MapPin size={18} />
+                Abrir en Google Maps
+              </a>
+              <a 
+                href={`https://wa.me/${restaurantInfo.contact.whatsapp}`} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 active:scale-95 text-white font-bold px-5 py-3.5 md:py-3 rounded-lg md:rounded-xl text-sm md:text-base transition-all touch-manipulation min-h-[52px] shadow-lg"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+              >
+                <Send size={18} />
+                Pedir por WhatsApp
+              </a>
             </div>
-            <p className="text-xs text-neutral-500 mt-3">Usa el mapa para compartir tu ubicación al pedir delivery o para llegar a recoger tu pedido.</p>
+            <p className="text-xs md:text-sm text-neutral-500 mt-3">Usa el mapa para compartir tu ubicación al pedir delivery o para llegar a recoger tu pedido.</p>
           </div>
         </div>
       </section>
 
-      {/* CATEGORÍAS */}
-      <div className="sticky top-[73px] z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 py-4">
-        <div className="max-w-6xl mx-auto px-4 flex gap-3 overflow-x-auto">
+      {/* CATEGORÍAS - MOBILE OPTIMIZED */}
+      <div className="sticky top-[73px] z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 py-3 md:py-4">
+        <div className="max-w-6xl mx-auto px-4 flex gap-2 md:gap-3 overflow-x-auto pb-1 scrollbar-hide">
           {["TODOS", ...categories].map((cat) => {
             const isActive = selectedCategory === cat;
             return (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-xs md:text-sm font-black tracking-wide transition-all border ${
+                className={`px-5 md:px-6 py-3 md:py-3.5 rounded-full text-sm md:text-base font-black tracking-wide transition-all border-2 whitespace-nowrap touch-manipulation min-h-[48px] active:scale-95 ${
                   isActive
-                    ? "bg-yellow-500 text-black border-yellow-500 shadow shadow-yellow-900/40"
-                    : "bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-yellow-500/50"
+                    ? "bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/40"
+                    : "bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-yellow-500/50 hover:bg-neutral-800"
                 }`}
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 {cat}
               </button>
@@ -486,26 +597,27 @@ export default function BigJackMenu() {
                     </div>
                   </div>
                   <p className="text-neutral-400 text-sm leading-relaxed line-clamp-3">{item.description}</p>
-                  <div className="grid gap-2">
+                  <div className="grid gap-2.5 md:gap-2">
                     {optionsToRender.map((option) => {
                       const isRecent = recentlyAdded === `${item.id}-${option.id}`;
                       return (
                         <button
                           key={option.id}
                           onClick={() => handleAddProduct(item, option.id)}
-                          className={`w-full rounded-2xl border px-4 py-3 text-left bg-neutral-900/70 transition-all flex flex-col gap-1 ${
+                          className={`w-full rounded-2xl border-2 px-4 py-4 md:py-3 text-left bg-neutral-900/70 transition-all flex flex-col gap-1.5 md:gap-1 hover:scale-[1.02] active:scale-95 touch-manipulation min-h-[60px] md:min-h-[auto] ${
                             isRecent
-                              ? "border-green-400/80 bg-green-500/10 shadow shadow-green-900/40"
-                              : "border-neutral-800 hover:border-yellow-500/70"
+                              ? "border-green-400/80 bg-green-500/10 shadow-lg shadow-green-900/40"
+                              : "border-neutral-800 hover:border-yellow-500/70 hover:bg-neutral-800/80"
                           }`}
+                          style={{ WebkitTapHighlightColor: 'transparent' }}
                         >
-                          <div className="flex items-center justify-between text-sm font-semibold">
-                            <span>{option.label}</span>
-                            <span className="text-yellow-400">S/ {option.price.toFixed(2)}</span>
+                          <div className="flex items-center justify-between text-sm md:text-sm font-semibold">
+                            <span className="text-base md:text-sm">{option.label}</span>
+                            <span className="text-yellow-400 text-base md:text-sm">S/ {option.price.toFixed(2)}</span>
                           </div>
-                          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-neutral-500">
-                            <span>Añadir</span>
-                            <Plus size={12} />
+                          <div className="flex items-center justify-between text-[11px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.3em] text-neutral-500 font-bold">
+                            <span>Añadir al carrito</span>
+                            <Plus size={14} className="md:w-3 md:h-3" />
                           </div>
                         </button>
                       );
@@ -604,27 +716,29 @@ export default function BigJackMenu() {
                     </div>
                     <div className="grid gap-3">
                       <div>
-                        <label className="block text-xs text-neutral-400 mb-1">Nombre</label>
+                        <label className="block text-xs md:text-sm text-neutral-400 mb-1.5 font-medium">Nombre</label>
                         <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
+                          <User className="absolute left-3 md:left-3.5 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
                           <input
                             value={customerName}
                             onChange={(e)=>setCustomerName(e.target.value)}
                             placeholder="Ej: Juan Pérez"
-                            className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-3 pl-10 pr-3 text-sm focus:border-yellow-500 outline-none transition-colors"
+                            className="w-full bg-neutral-900 border-2 border-neutral-700 rounded-lg py-3.5 md:py-3 pl-11 md:pl-10 pr-3 text-base md:text-sm focus:border-yellow-500 outline-none transition-colors min-h-[52px] md:min-h-[auto]"
                           />
                         </div>
                       </div>
                       <div>
                         <label className="block text-xs text-neutral-400 mb-2">Tipo de pedido</label>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-2.5">
                           <button
                             onClick={()=>setOrderType("pickup")}
-                            className={`h-12 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-all ${orderType==='pickup'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'}`}
+                            className={`min-h-[56px] rounded-lg text-sm md:text-base font-bold border-2 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation ${orderType==='pickup'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'}`}
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
                           >🥡 Recojo</button>
                           <button
                             onClick={()=>setOrderType("delivery")}
-                            className={`h-12 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-all ${orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'}`}
+                            className={`min-h-[56px] rounded-lg text-sm md:text-base font-bold border-2 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation ${orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'}`}
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
                           >🛵 Delivery</button>
                         </div>
                       </div>
@@ -642,50 +756,56 @@ export default function BigJackMenu() {
                     </div>
                     
                     {orderType==='delivery' ? (
-                      <div className="space-y-3">
+                      <div className="space-y-3.5">
                         <div>
-                          <label className="block text-xs text-neutral-400 mb-1">Dirección</label>
+                          <label className="block text-xs md:text-sm text-neutral-400 mb-1.5 font-medium">Dirección</label>
                           <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
+                            <MapPin className="absolute left-3 md:left-3.5 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
                             <input
                               value={deliveryAddress}
                               onChange={(e)=>setDeliveryAddress(e.target.value)}
                               placeholder="Calle / Av. y Número"
-                              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-3 pl-10 pr-3 text-sm focus:border-yellow-500 outline-none transition-colors"
+                              className="w-full bg-neutral-900 border-2 border-neutral-700 rounded-lg py-3.5 md:py-3 pl-11 md:pl-10 pr-3 text-base md:text-sm focus:border-yellow-500 outline-none transition-colors min-h-[52px] md:min-h-[auto]"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-xs text-neutral-400 mb-1">Referencia</label>
+                          <label className="block text-xs md:text-sm text-neutral-400 mb-1.5 font-medium">Referencia</label>
                           <div className="relative">
-                            <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
+                            <Navigation className="absolute left-3 md:left-3.5 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
                             <input
                               value={deliveryReference}
                               onChange={(e)=>setDeliveryReference(e.target.value)}
                               placeholder="Ej: Frente al parque"
-                              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-3 pl-10 pr-3 text-sm focus:border-yellow-500 outline-none transition-colors"
+                              className="w-full bg-neutral-900 border-2 border-neutral-700 rounded-lg py-3.5 md:py-3 pl-11 md:pl-10 pr-3 text-base md:text-sm focus:border-yellow-500 outline-none transition-colors min-h-[52px] md:min-h-[auto]"
                             />
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <button onClick={getUserLocation} className={`w-full py-2 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-colors ${locationLink ? 'bg-green-600/20 border-green-600 text-green-400' : 'bg-blue-600/20 border-blue-600/50 text-blue-400 hover:bg-blue-600/30'}`}>
-                            <MapPin size={16} /> {locationLink ? 'Ubicación Guardada ✅' : 'Compartir Ubicación Actual'}
+                          <button 
+                            onClick={getUserLocation} 
+                            className={`w-full min-h-[56px] rounded-lg text-sm md:text-base font-bold border-2 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation ${locationLink ? 'bg-green-600/20 border-green-600 text-green-400' : 'bg-blue-600/20 border-blue-600/50 text-blue-400 hover:bg-blue-600/30'}`}
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
+                          >
+                            <MapPin size={18} /> {locationLink ? 'Ubicación Guardada ✅' : 'Compartir Ubicación Actual'}
                           </button>
-                          {locationLink && <p className="text-xs text-green-500 text-center">Se incluirá el enlace de tu ubicación en el pedido.</p>}
+                          {locationLink && <p className="text-xs md:text-sm text-green-500 text-center font-medium">Se incluirá el enlace de tu ubicación en el pedido.</p>}
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-3.5">
                         <div>
-                          <label className="block text-xs text-neutral-400 mb-1">¿Cuándo recoges?</label>
-                          <div className="grid grid-cols-2 gap-2 mb-3">
+                          <label className="block text-xs md:text-sm text-neutral-400 mb-1.5 font-medium">¿Cuándo recoges?</label>
+                          <div className="grid grid-cols-2 gap-2.5 mb-3">
                              <button
                                 onClick={()=>setPickupTime("now")}
-                                className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center gap-2 transition-all ${pickupTime==='now'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-900 border-neutral-700 text-neutral-400'}`}
+                                className={`min-h-[52px] rounded-lg text-sm md:text-base font-bold border-2 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation ${pickupTime==='now'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:bg-neutral-800'}`}
+                                style={{ WebkitTapHighlightColor: 'transparent' }}
                               >🔥 Ahora</button>
                               <button
                                 onClick={()=>setPickupTime("schedule")}
-                                className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center gap-2 transition-all ${pickupTime==='schedule'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-900 border-neutral-700 text-neutral-400'}`}
+                                className={`min-h-[52px] rounded-lg text-sm md:text-base font-bold border-2 flex items-center justify-center gap-2 transition-all active:scale-95 touch-manipulation ${pickupTime==='schedule'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:bg-neutral-800'}`}
+                                style={{ WebkitTapHighlightColor: 'transparent' }}
                               >📅 Programar</button>
                           </div>
                         </div>
@@ -754,7 +874,7 @@ export default function BigJackMenu() {
                       <span className="text-xs px-2 py-1 bg-neutral-700 rounded-full">Paso 3</span>
                     </div>
                     <div className="grid gap-3">
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2.5">
                         {[
                           {id: 'efectivo', label: 'Efectivo', icon: Banknote},
                           {id: 'yape', label: 'Yape', icon: Smartphone},
@@ -767,24 +887,25 @@ export default function BigJackMenu() {
                             disabled={m.disabled}
                             title={m.disabled ? 'Próximamente' : undefined}
                             aria-disabled={m.disabled ? 'true' : 'false'}
-                            className={`h-12 rounded-lg text-xs font-bold border flex flex-col items-center justify-center gap-1 transition-all ${paymentMethod===m.id ? 'bg-yellow-500 text-black border-yellow-500 shadow shadow-yellow-900/30' : 'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'} ${m.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`min-h-[64px] rounded-lg text-xs md:text-sm font-bold border-2 flex flex-col items-center justify-center gap-1.5 transition-all touch-manipulation ${paymentMethod===m.id ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30 scale-105' : 'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800 active:scale-95'} ${m.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
                           >
-                            <m.icon size={14} />
-                            <div className="flex items-center gap-2">
-                              <span>{m.label}</span>
-                              {m.disabled && <span className="text-[10px] text-neutral-400">Próximamente</span>}
+                            <m.icon size={18} className="md:w-4 md:h-4" />
+                            <div className="flex flex-col items-center gap-0.5">
+                              <span className="leading-tight">{m.label}</span>
+                              {m.disabled && <span className="text-[9px] md:text-[10px] text-neutral-400 leading-tight">Próximamente</span>}
                             </div>
                           </button>
                         ))}
                       </div>
                       <div>
-                        <label className="block text-xs text-neutral-400 mb-1">Notas (Opcional)</label>
+                        <label className="block text-xs md:text-sm text-neutral-400 mb-1.5 font-medium">Notas (Opcional)</label>
                         <textarea
                           value={notes}
                           onChange={(e)=>setNotes(e.target.value)}
-                          rows={2}
+                          rows={3}
                           placeholder="Ej: Sin cebolla, entregar en portería..."
-                          className="w-full bg-neutral-900 border border-neutral-700 rounded-lg p-3 text-sm focus:border-yellow-500 outline-none resize-y"
+                          className="w-full bg-neutral-900 border-2 border-neutral-700 rounded-lg p-3.5 md:p-3 text-base md:text-sm focus:border-yellow-500 outline-none resize-y min-h-[80px]"
                         />
                       </div>
                     </div>
@@ -793,17 +914,18 @@ export default function BigJackMenu() {
               )}
             </div>
 
-            <div className="p-5 border-t border-neutral-800 bg-neutral-900">
-              <div className="flex justify-between items-center mb-4 text-lg font-bold">
-                <span>Total</span>
-                <span className="text-yellow-500 text-2xl">S/ {total.toFixed(2)}</span>
+            <div className="p-4 md:p-5 border-t border-neutral-800 bg-neutral-900">
+              <div className="flex justify-between items-center mb-4 md:mb-5">
+                <span className="text-base md:text-lg font-bold">Total</span>
+                <span className="text-yellow-500 text-2xl md:text-3xl font-black">S/ {total.toFixed(2)}</span>
               </div>
               <button
                 onClick={sendOrderToWhatsapp}
                 disabled={cart.length === 0}
-                className="w-full py-4 bg-green-600 hover:bg-green-500 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-lg shadow-lg shadow-green-900/20"
+                className="w-full py-5 md:py-4 bg-green-600 hover:bg-green-500 active:scale-95 disabled:bg-neutral-700 disabled:cursor-not-allowed disabled:active:scale-100 text-white font-black rounded-2xl md:rounded-xl transition-all flex items-center justify-center gap-2.5 text-lg md:text-xl shadow-xl shadow-green-900/30 hover:shadow-2xl touch-manipulation min-h-[64px]"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
-                <Send size={20} />
+                <Send size={24} className="md:w-5 md:h-5" />
                 PEDIR POR WHATSAPP
               </button>
             </div>
