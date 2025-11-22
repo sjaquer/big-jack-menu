@@ -405,7 +405,7 @@ export default function BigJackMenu() {
 
             {/* Instagram */}
             <a
-              href={`https://www.instagram.com/${restaurantInfo.contact.instagram?.replace('@', '') || 'bigjack.pe'}`}
+              href={`https://www.instagram.com/${(restaurantInfo.contact.instagram || '@bigjack.pe').replace('@', '')}`}
               target="_blank"
               rel="noreferrer"
               className="group relative overflow-hidden bg-gradient-to-br from-pink-600 via-purple-600 to-orange-500 hover:from-pink-500 hover:via-purple-500 hover:to-orange-400 text-white rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 md:gap-4 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-2xl min-h-[140px] md:min-h-[180px] touch-manipulation"
