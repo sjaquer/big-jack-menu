@@ -1,8 +1,8 @@
 "use client";
 import Head from "next/head";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
-import { ShoppingCart, Trash2, Plus, Minus, Send, X, MapPin, Clock, Navigation, User, CreditCard, Banknote, Smartphone } from "lucide-react";
+import { ShoppingCart, Trash2, Plus, Minus, Send, X, MapPin, Clock, Navigation, User, CreditCard, Banknote, Smartphone, Sparkles, Flame, PhoneCall } from "lucide-react";
 
 export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
@@ -19,12 +19,37 @@ export default function BigJackMenu() {
   const [locationLink, setLocationLink] = useState(""); // Link de Google Maps del usuario
   const [paymentMethod, setPaymentMethod] = useState("efectivo"); // efectivo | yape | plin | tarjeta (tarjeta deshabilitada)
   const [notes, setNotes] = useState(""); // notas adicionales
+  const [recentlyAdded, setRecentlyAdded] = useState(null); // resaltar última acción
+  const audioContextRef = useRef(null);
+
+  const playAddSound = useCallback(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioCtx();
+      }
+      const ctx = audioContextRef.current;
+      if (ctx.state === "suspended") ctx.resume();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = "triangle";
+      oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.12);
+    } catch {}
+  }, []);
 
   // Cargar estado desde localStorage al iniciar
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("bj_checkout"));
       if (saved) {
+        /* eslint-disable react-hooks/set-state-in-effect */
         setCustomerName(saved.customerName || "");
         setOrderType(saved.orderType || "pickup");
         setDeliveryAddress(saved.deliveryAddress || "");
@@ -33,6 +58,7 @@ export default function BigJackMenu() {
         setScheduledTime(saved.scheduledTime || "");
         setPaymentMethod(saved.paymentMethod || "efectivo");
         setNotes(saved.notes || "");
+        /* eslint-enable react-hooks/set-state-in-effect */
       }
     } catch {}
   }, []);
@@ -60,21 +86,65 @@ export default function BigJackMenu() {
     return menuItems.filter((item) => item.category === selectedCategory);
   }, [selectedCategory]);
 
+  const heroHighlight = menuItems[0];
+  const heroPriceRangeRaw = heroHighlight?.options?.length
+    ? heroHighlight.options.reduce(
+        (acc, opt) => {
+          return [Math.min(acc[0], opt.price), Math.max(acc[1], opt.price)];
+        },
+        [Infinity, -Infinity]
+      )
+    : [0, 0];
+  const heroPriceRange = [
+    heroPriceRangeRaw[0] === Infinity ? 0 : heroPriceRangeRaw[0],
+    heroPriceRangeRaw[1] === -Infinity ? heroPriceRangeRaw[0] || 0 : heroPriceRangeRaw[1],
+  ];
+
+  const scrollToMenu = () => {
+    if (typeof document === "undefined") return;
+    const el = document.getElementById("menu-section");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   // Calcular total memoizado
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
 
   // Funciones del carrito
-  const addToCart = (product) => {
+  const addToCart = (product, option) => {
+    if (!option) return;
+    const uniqueId = `${product.id}-${option.id || "default"}`;
     setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const existing = prev.find((item) => item.id === uniqueId);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === uniqueId ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [
+        ...prev,
+        {
+          id: uniqueId,
+          productId: product.id,
+          name: product.name,
+          optionId: option.id,
+          optionLabel: option.label,
+          price: option.price,
+          image: product.image,
+          quantity: 1,
+        },
+      ];
     });
+    setRecentlyAdded(uniqueId);
     setIsCartOpen(true);
+    playAddSound();
+    setTimeout(() => {
+      setRecentlyAdded((current) => (current === uniqueId ? null : current));
+    }, 1200);
+  };
+
+  const handleAddProduct = (product, optionId) => {
+    const option = product.options?.find((opt) => opt.id === optionId) || product.options?.[0];
+    addToCart(product, option);
   };
 
   const removeFromCart = (id) => {
@@ -136,7 +206,7 @@ export default function BigJackMenu() {
 
     message += `\n🍔 *DETALLE DEL PEDIDO:*\n`;
     cart.forEach((item) => {
-      message += `▪️ ${item.quantity}x ${item.name} - S/ ${(item.price * item.quantity).toFixed(2)}\n`;
+      message += `▪️ ${item.quantity}x ${item.name} (${item.optionLabel}) - S/ ${(item.price * item.quantity).toFixed(2)}\n`;
     });
     
     message += `\n💰 *TOTAL A PAGAR: S/ ${total.toFixed(2)}*`;
@@ -192,33 +262,130 @@ export default function BigJackMenu() {
         </div>
       </header>
 
-      {/* HERO / BANNER */}
-      <div className="bg-neutral-800 py-12 px-4 text-center border-b border-neutral-700 relative overflow-hidden">
-        <div className="relative z-10">
-          <h2 className="text-4xl md:text-5xl font-black mb-2 text-white">
-            HAMBURGUESAS <span className="text-yellow-500">BRUTALES</span>
-          </h2>
-          <p className="text-neutral-400 max-w-lg mx-auto mb-6">
-            {restaurantInfo.slogan}. Pide ahora y te lo llevamos volando.
-          </p>
-          
-          {/* SOCIAL MEDIA PROMO */}
-          <div className="inline-flex flex-col items-center gap-2 bg-neutral-900/50 p-4 rounded-xl border border-neutral-700 backdrop-blur-sm">
-            <p className="text-sm font-bold text-yellow-500 animate-pulse">¡OFERTAS IMPERDIBLES EN TIKTOK!</p>
-            <a 
-              href={restaurantInfo.contact.tiktok} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-2 rounded-lg transition-colors text-sm font-bold"
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-              </svg>
-              Síguenos en TikTok
-            </a>
+      {/* HERO EXPERIENCE */}
+      <section className="relative overflow-hidden border-b border-neutral-800 bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-900">
+        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(215,61,29,0.4),_transparent_60%)]" />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 grid gap-10 md:grid-cols-[1.2fr_0.8fr] items-center">
+          <div className="space-y-6">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.3em] text-yellow-400 uppercase">
+              <Sparkles size={14} /> Pre-orden digital
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black leading-tight text-white">
+              Menu exprés para <span className="text-yellow-500">pedir por WhatsApp</span> sin colas.
+            </h2>
+            <p className="text-neutral-300 text-lg">
+              Elige tus burgers antes de llegar, envía el pedido a WhatsApp y nosotros lo vamos preparando. Pensado para oficinas, universitarios y riders que quieren todo rápido.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-5 py-3 rounded-full bg-yellow-500 text-black font-bold flex items-center gap-2 shadow-lg shadow-yellow-900/50"
+              >
+                <Send size={18} /> Pedir ahora
+              </a>
+              <button
+                onClick={scrollToMenu}
+                className="px-5 py-3 rounded-full border border-neutral-700 text-white/80 hover:text-white hover:border-yellow-500 transition"
+              >
+                Ver menú completo
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              {[{
+                label: "Listo en",
+                value: "15 min",
+                sub: "si recoges"
+              }, {
+                label: "Pedidos felices",
+                value: "+4k",
+                sub: "desde 2020"
+              }, {
+                label: "Promo activa",
+                value: "TikTok",
+                sub: "Historias diarias"
+              }].map((stat) => (
+                <div key={stat.label} className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-4 text-center">
+                  <p className="text-xs uppercase text-neutral-500 tracking-widest">{stat.label}</p>
+                  <p className="text-2xl font-black text-white">{stat.value}</p>
+                  <p className="text-xs text-neutral-400">{stat.sub}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="relative">
+            <div className="rounded-[32px] border border-neutral-800 bg-neutral-900/70 p-5 shadow-2xl shadow-yellow-900/40 backdrop-blur">
+              <div className="text-xs uppercase text-yellow-400 font-bold flex items-center gap-2 mb-3">
+                <Flame size={16} /> Destacado del día
+              </div>
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-neutral-800 mb-4">
+                {heroHighlight ? (
+                  <img
+                    src={heroHighlight.image}
+                    alt={heroHighlight.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full grid place-content-center text-neutral-600">Pronto nuevas fotos</div>
+                )}
+              </div>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs text-neutral-500 uppercase tracking-[0.3em]">{heroHighlight?.category || "Burger"}</p>
+                  <h3 className="text-2xl font-black text-white">{heroHighlight?.name || restaurantInfo.name}</h3>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-neutral-500 uppercase">Desde</p>
+                  <p className="text-3xl font-black text-yellow-500">S/ {heroPriceRange[0].toFixed(2)}</p>
+                  <p className="text-xs text-neutral-500">hasta S/ {heroPriceRange[1].toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -bottom-6 -right-4 w-56 bg-neutral-900/90 border border-neutral-800 rounded-2xl p-4 text-sm shadow-xl shadow-black/40">
+              <p className="font-semibold text-white flex items-center gap-2">
+                <PhoneCall size={16} /> Flujo ultra rápido
+              </p>
+              <ol className="list-decimal list-inside text-neutral-400 text-xs mt-2 space-y-1">
+                <li>Selecciona tu combo</li>
+                <li>Compártelo por WhatsApp</li>
+                <li>Recoge o espera al rider 🔔</li>
+              </ol>
+              <a
+                href={restaurantInfo.contact.tiktok}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] text-yellow-400 underline mt-2 inline-flex"
+              >
+                Ver historias y promos
+              </a>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* MICRO STEPS */}
+      <section className="max-w-6xl mx-auto px-4 py-8 grid gap-4 md:grid-cols-3">
+        {[{
+          title: "Explora visualmente",
+          desc: "Fotos reales, precios y diferencias simple/doble claros.",
+        }, {
+          title: "Añade con efecto",
+          desc: "Animaciones, sonido suave y carrito flotante siempre visible.",
+        }, {
+          title: "Envío directo",
+          desc: "Un clic abre WhatsApp con el pedido formateado listo para enviar.",
+        }].map((feature) => (
+          <div key={feature.title} className="border border-neutral-800 rounded-3xl bg-neutral-900/60 p-5 hover:border-yellow-500/60 transition">
+            <p className="text-sm text-yellow-500 font-bold mb-1">FAST TRACK</p>
+            <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
+            <p className="text-neutral-400 text-sm">{feature.desc}</p>
+          </div>
+        ))}
+      </section>
 
       {/* ENCUÉNTRANOS (MAPA) */}
       <section className="bg-neutral-800 px-4 py-8 border-b border-neutral-700">
@@ -248,75 +415,106 @@ export default function BigJackMenu() {
       </section>
 
       {/* CATEGORÍAS */}
-      <div className="sticky top-[73px] z-40 bg-neutral-900 py-4 border-b border-neutral-800 overflow-x-auto">
-        <div className="max-w-5xl mx-auto px-4 flex gap-2 min-w-max">
-          <button
-            onClick={() => setSelectedCategory("TODOS")}
-            className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-              selectedCategory === "TODOS"
-                ? "bg-white text-black"
-                : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"
-            }`}
-          >
-            TODOS
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                selectedCategory === cat
-                  ? "bg-yellow-500 text-black"
-                  : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+      <div className="sticky top-[73px] z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 py-4">
+        <div className="max-w-6xl mx-auto px-4 flex gap-3 overflow-x-auto">
+          {["TODOS", ...categories].map((cat) => {
+            const isActive = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2.5 rounded-full text-xs md:text-sm font-black tracking-wide transition-all border ${
+                  isActive
+                    ? "bg-yellow-500 text-black border-yellow-500 shadow shadow-yellow-900/40"
+                    : "bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-yellow-500/50"
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* LISTA DE PRODUCTOS */}
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <div key={item.id} className="bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 hover:border-yellow-500/50 transition-all group">
-              {/* Imagen Placeholder o Real */}
-              <div className="h-48 bg-neutral-700 relative overflow-hidden">
-                {item.image ? (
-                  <img 
-                    src={item.image} 
-                    alt={item.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {e.target.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK"}}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-neutral-500">
-                    Sin imagen
-                  </div>
-                )}
-                {item.popular && (
-                  <span className="absolute top-2 right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">
-                    POPULAR
-                  </span>
-                )}
-              </div>
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-white leading-tight">{item.name}</h3>
-                  <span className="text-yellow-500 font-bold text-lg">S/ {item.price.toFixed(2)}</span>
+      <main id="menu-section" className="max-w-6xl mx-auto px-4 py-10">
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div>
+            <p className="text-sm text-neutral-500">Categoría seleccionada</p>
+            <h2 className="text-2xl font-black text-white">{selectedCategory === "TODOS" ? "Todo el menú" : selectedCategory}</h2>
+          </div>
+          <p className="text-neutral-400 text-sm max-w-sm text-right hidden md:block">
+            Toca en las versiones Simple o Doble para añadir directo al carrito. Cada botón reproduce una animación suave y sonido discreto.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredItems.map((item) => {
+            const optionsToRender = item.options?.length
+              ? item.options
+              : [{ id: "regular", label: "Regular", price: item.price || 0 }];
+            const basePrice = optionsToRender.reduce((min, opt) => Math.min(min, opt.price), optionsToRender[0].price);
+            return (
+              <div key={item.id} className="border border-neutral-800 rounded-[28px] bg-gradient-to-b from-neutral-900 to-neutral-950 hover:border-yellow-500/60 transition-transform duration-300 hover:-translate-y-1">
+                <div className="relative h-56 overflow-hidden rounded-t-[28px] border-b border-neutral-800 bg-neutral-800">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-neutral-500">Pronto imagen</div>
+                  )}
+                  {item.popular && (
+                    <span className="absolute top-4 left-4 bg-yellow-500 text-black text-xs font-black px-3 py-1 rounded-full shadow-lg">
+                      HIT
+                    </span>
+                  )}
                 </div>
-                <p className="text-neutral-400 text-sm mb-4 line-clamp-2">{item.description}</p>
-                <button
-                  onClick={() => addToCart(item)}
-                  className="w-full py-3 bg-neutral-700 hover:bg-white hover:text-black text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  <Plus size={18} />
-                  AGREGAR
-                </button>
+                <div className="p-6 space-y-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.3em] text-yellow-500">{item.category}</p>
+                      <h3 className="text-2xl font-bold text-white leading-tight">{item.name}</h3>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-neutral-500 uppercase">Desde</p>
+                      <p className="text-xl font-black text-yellow-500">S/ {basePrice.toFixed(2)}</p>
+                    </div>
+                  </div>
+                  <p className="text-neutral-400 text-sm leading-relaxed line-clamp-3">{item.description}</p>
+                  <div className="grid gap-2">
+                    {optionsToRender.map((option) => {
+                      const isRecent = recentlyAdded === `${item.id}-${option.id}`;
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => handleAddProduct(item, option.id)}
+                          className={`w-full rounded-2xl border px-4 py-3 text-left bg-neutral-900/70 transition-all flex flex-col gap-1 ${
+                            isRecent
+                              ? "border-green-400/80 bg-green-500/10 shadow shadow-green-900/40"
+                              : "border-neutral-800 hover:border-yellow-500/70"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between text-sm font-semibold">
+                            <span>{option.label}</span>
+                            <span className="text-yellow-400">S/ {option.price.toFixed(2)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-neutral-500">
+                            <span>Añadir</span>
+                            <Plus size={12} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
 
@@ -365,6 +563,7 @@ export default function BigJackMenu() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-bold text-sm mb-1">{item.name}</h4>
+                        <p className="text-xs text-neutral-500 mb-1">{item.optionLabel}</p>
                         <p className="text-yellow-500 font-bold text-sm">S/ {(item.price * item.quantity).toFixed(2)}</p>
                         
                         <div className="flex items-center gap-3 mt-2">
