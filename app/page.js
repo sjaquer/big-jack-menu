@@ -405,7 +405,7 @@ export default function BigJackMenu() {
 
             {/* Instagram */}
             <a
-              href={`https://www.instagram.com/${restaurantInfo.contact.instagram.replace('@', '')}`}
+              href={`https://www.instagram.com/${restaurantInfo.contact.instagram?.replace('@', '') || 'bigjack.pe'}`}
               target="_blank"
               rel="noreferrer"
               className="group relative overflow-hidden bg-gradient-to-br from-pink-600 via-purple-600 to-orange-500 hover:from-pink-500 hover:via-purple-500 hover:to-orange-400 text-white rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 md:gap-4 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-2xl min-h-[140px] md:min-h-[180px] touch-manipulation"
@@ -423,7 +423,7 @@ export default function BigJackMenu() {
 
             {/* TikTok */}
             <a
-              href={restaurantInfo.contact.tiktok}
+              href={restaurantInfo.contact.tiktok || 'https://www.tiktok.com/@bigjack.pe'}
               target="_blank"
               rel="noreferrer"
               className="group relative overflow-hidden bg-gradient-to-br from-black via-neutral-900 to-neutral-800 hover:from-neutral-900 hover:via-neutral-800 hover:to-neutral-700 text-white rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 md:gap-4 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-2xl border-2 border-cyan-500/30 hover:border-cyan-500/60 min-h-[140px] md:min-h-[180px] touch-manipulation"

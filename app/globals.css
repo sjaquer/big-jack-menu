@@ -59,6 +59,11 @@ body {
   }
 }
 
+/* Utility class for tap highlight - can be used on any element */
+.no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Performance optimization: hardware acceleration for animations */
 .touch-manipulation {
   touch-action: manipulation;
