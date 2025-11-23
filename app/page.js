@@ -1,5 +1,7 @@
 "use client";
 import Head from "next/head";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
 import {
@@ -11,6 +13,7 @@ import {
   X,
   MapPin,
   Clock,
+  AlertTriangle,
   Navigation,
   User,
   CreditCard,
@@ -22,14 +25,20 @@ import {
   Instagram,
   Music2,
   MessageCircle,
-  ClipboardList,
-  RefreshCw,
+  Clipboard,
+  Check,
 } from "lucide-react";
+import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
+
+const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
+const COMPLEMENT_CATEGORIES = ["GUARNICION", "BEBIDAS"];
 
 export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("TODOS");
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
   
   // Estados para el Checkout
   const [orderType, setOrderType] = useState("pickup"); // 'pickup' | 'delivery'
@@ -42,6 +51,8 @@ export default function BigJackMenu() {
   const [paymentMethod, setPaymentMethod] = useState("efectivo"); // efectivo | yape | plin | tarjeta (tarjeta deshabilitada)
   const [notes, setNotes] = useState(""); // notas adicionales
   const [recentlyAdded, setRecentlyAdded] = useState(null); // resaltar última acción
+  const [modalProduct, setModalProduct] = useState(null);
+  const [modalOptionId, setModalOptionId] = useState(null);
 
   // Cargar estado desde localStorage al iniciar
   useEffect(() => {
@@ -65,6 +76,50 @@ export default function BigJackMenu() {
       }
     } catch {}
   }, []);
+  // Cargar y sincronizar carrito desde localStorage
+  useEffect(() => {
+    try {
+      const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      if (Array.isArray(savedCart) && savedCart.length > 0) {
+        setCart(enforceComplementRules(savedCart));
+      }
+    } catch (e) {}
+
+    const handleStorage = () => {
+      try {
+        const latest = JSON.parse(localStorage.getItem("cart") || "[]");
+        setCart(enforceComplementRules(Array.isArray(latest) ? latest : []));
+      } catch (e) {}
+    };
+
+    // Escucha tanto eventos reales de storage (otros tabs) como el evento manual
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
+
+  // Estado de abierto/cerrado y temporizador
+  const [isOpen, setIsOpen] = useState(true);
+  const [nextOpenMs, setNextOpenMs] = useState(null);
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      const open = isOpenNow(now);
+      setIsOpen(Boolean(open));
+      const next = getNextOpenDate(now);
+      if (next) setNextOpenMs(next.getTime() - now.getTime());
+      else setNextOpenMs(null);
+      // guardar para client components que quieran leer el estado
+      try { localStorage.setItem("bj_isOpen", JSON.stringify({ isOpen: !!open, nextOpen: next ? next.getTime() : null })); } catch(e){}
+    };
+    update();
+    const t = setInterval(update, 1000);
+    return () => clearInterval(t);
+  }, []);
   // Guardar estado del formulario en localStorage (debounce simple)
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -82,6 +137,7 @@ export default function BigJackMenu() {
     }, 400);
     return () => clearTimeout(timeout);
   }, [customerName, orderType, deliveryAddress, deliveryReference, pickupTime, scheduledTime, paymentMethod, notes]);
+
 
   // Filtrar productos por categoría
   const filteredItems = useMemo(() => {
@@ -153,23 +209,86 @@ export default function BigJackMenu() {
 
   // Calcular total memoizado
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
+  const hasPrimaryProduct = useMemo(
+    () => cart.some((item) => PRIMARY_CATEGORIES.includes(item.category)),
+    [cart]
+  );
+  const modalSelectedOption = useMemo(() => {
+    if (!modalProduct) return null;
+    return modalProduct.options?.find((opt) => opt.id === modalOptionId) || null;
+  }, [modalProduct, modalOptionId]);
+
+  const enforceComplementRules = (items) => {
+    const containsPrimary = items.some((entry) =>
+      PRIMARY_CATEGORIES.includes(entry.category)
+    );
+    if (containsPrimary) return items;
+    return items.filter((entry) => !COMPLEMENT_CATEGORIES.includes(entry.category));
+  };
+
+  // Persistir carrito en localStorage cuando cambia
+  useEffect(() => {
+    try {
+      const payload = JSON.stringify(cart || []);
+      localStorage.setItem("cart", payload);
+    } catch (e) {}
+  }, [cart]);
+
+  const openProductModal = (product, optionId) => {
+    const preferredOption =
+      product.options?.find((opt) => opt.id === optionId) || product.options?.[0];
+    setModalProduct(product);
+    setModalOptionId(preferredOption?.id || null);
+  };
+
+  const closeProductModal = () => {
+    setModalProduct(null);
+    setModalOptionId(null);
+  };
+
+  const confirmModalAdd = () => {
+    if (!modalProduct || !modalSelectedOption) return;
+    handleAddProduct(modalProduct, modalSelectedOption.id);
+    closeProductModal();
+  };
+
+  // Modal de producto se abre mediante botón directo en el menú
 
   // Funciones del carrito
   const addToCart = (product, option) => {
+    // Bloquear si estamos fuera de horario
+    if (!isOpen) {
+      alert("Lo sentimos, estamos cerrados ahora. No es posible realizar pedidos fuera del horario de atención.");
+      return;
+    }
     if (!option) return;
+    const isComplementProduct = COMPLEMENT_CATEGORIES.includes(product.category);
+    if (isComplementProduct && !hasPrimaryProduct) {
+      alert("Para añadir acompañamientos primero agrega una hamburguesa.");
+      return;
+    }
     const uniqueId = `${product.id}-${option.id || "default"}`;
     setCart((prev) => {
       const existing = prev.find((item) => item.id === uniqueId);
       if (existing) {
-        return prev.map((item) =>
-          item.id === uniqueId ? { ...item, quantity: item.quantity + 1 } : item
+        return enforceComplementRules(
+          prev.map((item) =>
+          item.id === uniqueId
+            ? {
+                ...item,
+                category: item.category || product.category,
+                quantity: item.quantity + 1,
+              }
+            : item
+          )
         );
       }
-      return [
+      return enforceComplementRules([
         ...prev,
         {
           id: uniqueId,
           productId: product.id,
+          category: product.category,
           name: product.name,
           optionId: option.id,
           optionLabel: option.label,
@@ -177,7 +296,7 @@ export default function BigJackMenu() {
           image: product.image,
           quantity: 1,
         },
-      ];
+      ]);
     });
     setRecentlyAdded(uniqueId);
     setIsCartOpen(true);
@@ -192,18 +311,20 @@ export default function BigJackMenu() {
   };
 
   const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    setCart((prev) => enforceComplementRules(prev.filter((item) => item.id !== id)));
   };
 
   const updateQuantity = (id, delta) => {
     setCart((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const newQuantity = Math.max(1, item.quantity + delta);
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      })
+      enforceComplementRules(
+        prev.map((item) => {
+          if (item.id === id) {
+            const newQuantity = Math.max(1, item.quantity + delta);
+            return { ...item, quantity: newQuantity };
+          }
+          return item;
+        })
+      )
     );
   };
 
@@ -225,45 +346,6 @@ export default function BigJackMenu() {
     );
   };
 
-  const clearCart = () => {
-    setCart([]);
-  };
-
-  const copyCartSummary = () => {
-    if (cart.length === 0) {
-      alert("Agrega productos antes de copiar el resumen.");
-      return;
-    }
-    const summary = [
-      "Resumen Big Jack",
-      ...cart.map((item) => `${item.quantity}x ${item.name} (${item.optionLabel}) - S/ ${(item.price * item.quantity).toFixed(2)}`),
-      `Total: S/ ${total.toFixed(2)}`,
-    ].join("\n");
-    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-      navigator.clipboard
-        .writeText(summary)
-        .then(() => alert("Resumen copiado al portapapeles."))
-        .catch(() => alert(summary));
-    } else {
-      alert(summary);
-    }
-  };
-
-  const resetCheckoutForm = () => {
-    setCustomerName("");
-    setOrderType("pickup");
-    setDeliveryAddress("");
-    setDeliveryReference("");
-    setPickupTime("now");
-    setScheduledTime("");
-    setLocationLink("");
-    setPaymentMethod("efectivo");
-    setNotes("");
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("bj_checkout");
-    }
-  };
-
   const handleSelectOrderType = (type) => {
     if (type === "delivery" && !deliveryAvailable) return;
     setOrderType(type);
@@ -271,6 +353,10 @@ export default function BigJackMenu() {
 
   const sendOrderToWhatsapp = () => {
     if (cart.length === 0) return;
+    if (!isOpen) {
+      alert("Estamos cerrados ahora. El envío de pedidos por WhatsApp está deshabilitado hasta la próxima apertura.");
+      return;
+    }
     if (!customerName.trim()) {
       alert("Por favor ingresa tu nombre.");
       return;
@@ -306,7 +392,7 @@ export default function BigJackMenu() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-white font-sans pb-20">
+    <div className="flex flex-col min-h-screen bg-neutral-900 text-white font-sans">
       <Head>
         <title>{restaurantInfo.name} | Menú Digital</title>
         <meta name="description" content={`${restaurantInfo.slogan} — Pide online o recoge en tienda. ${restaurantInfo.contact.address}`} />
@@ -330,23 +416,75 @@ export default function BigJackMenu() {
         }) }} />
       </Head>
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-800 shadow-lg">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-black tracking-tighter text-yellow-500">{restaurantInfo.name}</h1>
-            <p className="text-xs text-neutral-400 hidden sm:block">{restaurantInfo.slogan}</p>
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 backdrop-blur-md border-b-2 border-yellow-500/20 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex justify-between items-center py-3 sm:py-4">
+            {/* Logo y título */}
+            <div className="flex-1">
+              <Link href="/" className="block">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tighter text-yellow-500 hover:text-yellow-400 transition-colors">
+                  {restaurantInfo.name}
+                </h1>
+                <p className="text-xs text-neutral-400 hidden sm:block mt-0.5">{restaurantInfo.slogan}</p>
+              </Link>
+            </div>
+
+            {/* Info rápida - Solo desktop */}
+            <div className="hidden lg:flex items-center gap-6 mx-6">
+              <div className="flex items-center gap-2 text-xs">
+                <Clock size={16} className="text-yellow-500" />
+                <div>
+                  <p className="text-neutral-400">Lun-Jue: 4-11PM</p>
+                  <p className="text-neutral-300 font-semibold">Vie-Dom: 12-11PM</p>
+                </div>
+              </div>
+              <a
+                href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
+              >
+                <MessageCircle size={18} />
+                WhatsApp
+              </a>
+            </div>
+
+            {/* Botón de carrito */}
+            <button 
+              onClick={() => setIsCartOpen(!isCartOpen)}
+              className="relative p-3 bg-yellow-500 text-black rounded-2xl hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/20 active:scale-95"
+              aria-label="Abrir carrito"
+            >
+              <ShoppingCart size={24} />
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-black w-6 h-6 flex items-center justify-center rounded-full shadow-lg animate-pulse">
+                  {cart.reduce((acc, item) => acc + item.quantity, 0)}
+                </span>
+              )}
+            </button>
           </div>
-          <button 
-            onClick={() => setIsCartOpen(!isCartOpen)}
-            className="relative p-2 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-colors"
-          >
-            <ShoppingCart size={24} />
-            {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                {cart.reduce((acc, item) => acc + item.quantity, 0)}
-              </span>
-            )}
-          </button>
+
+          {/* Barra de acciones rápidas móvil */}
+          <div className="lg:hidden pb-3 flex items-center justify-between gap-3 border-t border-neutral-800 pt-3">
+            <a
+              href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-green-600 hover:bg-green-500 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
+            >
+              <MessageCircle size={16} />
+              Pedir por WhatsApp
+            </a>
+            <a
+              href={restaurantInfo.contact.googleMapsLink}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-white text-sm font-semibold transition-all active:scale-95"
+            >
+              <MapPin size={16} />
+              Ubicación
+            </a>
+          </div>
         </div>
       </header>
 
@@ -475,6 +613,24 @@ export default function BigJackMenu() {
         </div>
       </section>
 
+      {/* Overlay de CERRADO (bloqueo) */}
+      {!isOpen && (
+        <div className="fixed inset-0 z-60 grid place-items-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="max-w-md w-full bg-neutral-900 border-2 border-red-600 rounded-3xl p-6 text-center">
+            <h2 className="text-2xl font-black text-red-400 mb-2">Estamos cerrados</h2>
+            <p className="text-sm text-neutral-300 mb-4">Ahora no estamos disponibles para recibir pedidos. Puedes ver el menú, pero el pedido estará deshabilitado hasta la próxima apertura.</p>
+            <div className="bg-neutral-800/60 border border-neutral-700 rounded-xl p-4 mb-4">
+              <p className="text-xs text-neutral-400">Abrimos en</p>
+              <p className="text-lg font-bold text-white">{nextOpenMs ? formatMsToCountdown(nextOpenMs) : "Pronto"}</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => { const el = document.getElementById('menu-section'); if (el) el.scrollIntoView({behavior:'smooth'}); }} className="flex-1 px-4 py-3 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-semibold">Ver Menú</button>
+              <button onClick={() => { window.location.href = '/libro-de-reclamaciones'; }} className="px-4 py-3 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold">Libro de Reclamaciones</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* FAST TRACK */}
       <section className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex gap-3 overflow-x-auto pb-3 snap-x">
@@ -520,52 +676,62 @@ export default function BigJackMenu() {
       </section>
 
       {/* CATEGORÍAS */}
-      <div className="sticky top-[73px] z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 py-4">
-        <div className="max-w-6xl mx-auto px-4 flex gap-3 overflow-x-auto">
-          {["TODOS", ...categories].map((cat) => {
-            const isActive = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-xs md:text-sm font-black tracking-wide transition-all border ${
-                  isActive
-                    ? "bg-yellow-500 text-black border-yellow-500 shadow shadow-yellow-900/40"
-                    : "bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-yellow-500/50"
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
+      <div className="sticky top-[73px] z-40 bg-gradient-to-b from-neutral-950 to-neutral-900/95 backdrop-blur-lg border-b-2 border-neutral-800 py-5 shadow-lg">
+        <div className="max-w-6xl mx-auto px-4">
+          <p className="text-xs uppercase tracking-widest text-neutral-500 font-bold mb-3">Filtra por categoría</p>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {["TODOS", ...categories].map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`min-h-[48px] px-6 py-3 rounded-2xl text-sm font-black tracking-wide transition-all border-2 whitespace-nowrap active:scale-95 ${
+                    isActive
+                      ? "bg-yellow-500 text-black border-yellow-500 shadow-xl shadow-yellow-500/30"
+                      : "bg-neutral-900 text-neutral-300 border-neutral-700 hover:border-yellow-500/60 hover:bg-neutral-800"
+                  }`}
+                >
+                  {cat === "TODOS" ? "🍔 TODO" : cat}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* LISTA DE PRODUCTOS */}
       <main id="menu-section" className="max-w-6xl mx-auto px-4 py-10">
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div>
-            <p className="text-sm text-neutral-500">Categoría seleccionada</p>
-            <h2 className="text-2xl font-black text-white">{selectedCategory === "TODOS" ? "Todo el menú" : selectedCategory}</h2>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-widest text-yellow-500 font-bold">Estás viendo</p>
+            <h2 className="text-3xl sm:text-4xl font-black text-white">{selectedCategory === "TODOS" ? "Menú Completo" : selectedCategory}</h2>
+            <p className="text-sm text-neutral-400">{filteredItems.length} {filteredItems.length === 1 ? 'producto disponible' : 'productos disponibles'}</p>
           </div>
-          <p className="text-neutral-400 text-sm max-w-sm text-right hidden md:block">
-            Toca en las versiones Simple o Doble para añadir directo al carrito. Cada botón muestra una animación suave para confirmar la acción.
-          </p>
+          <div className="bg-neutral-900/80 border-2 border-neutral-800 rounded-2xl p-4 max-w-md">
+                <p className="text-xs text-neutral-400 leading-relaxed flex items-start gap-2">
+              <Sparkles size={16} className="text-yellow-500" />
+              <span><span className="font-semibold text-white">Tip:</span> Toca cualquier imagen para ver detalles completos o usa los botones para añadir rápido al carrito.</span>
+            </p>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredItems.map((item) => {
+            const isComplement = COMPLEMENT_CATEGORIES.includes(item.category);
+            const isPrimary = PRIMARY_CATEGORIES.includes(item.category);
+            const complementBlocked = isComplement && !hasPrimaryProduct;
             const optionsToRender = item.options?.length
               ? item.options
               : [{ id: "regular", label: "Regular", price: item.price || 0 }];
             const basePrice = optionsToRender.reduce((min, opt) => Math.min(min, opt.price), optionsToRender[0].price);
             return (
               <div key={item.id} className="border border-neutral-800 rounded-[28px] bg-gradient-to-b from-neutral-900 to-neutral-950 hover:border-yellow-500/60 transition-transform duration-300 hover:-translate-y-1">
-                <div className="relative h-56 overflow-hidden rounded-t-[28px] border-b border-neutral-800 bg-neutral-800">
+                <Link href={`/product/${item.slug}`} className="relative h-56 block overflow-hidden rounded-t-[28px] border-b border-neutral-800 bg-neutral-800 cursor-pointer group">
                   {item.image ? (
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       onError={(e) => {
                         e.currentTarget.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK";
                       }}
@@ -578,7 +744,12 @@ export default function BigJackMenu() {
                       HIT
                     </span>
                   )}
-                </div>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-white font-bold text-sm bg-yellow-500 text-black px-4 py-2 rounded-full">
+                      Ver detalles
+                    </span>
+                  </div>
+                </Link>
                 <div className="p-6 space-y-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -591,30 +762,70 @@ export default function BigJackMenu() {
                     </div>
                   </div>
                   <p className="text-neutral-400 text-sm leading-relaxed line-clamp-3">{item.description}</p>
-                  <div className="grid gap-2">
-                    {optionsToRender.map((option) => {
-                      const isRecent = recentlyAdded === `${item.id}-${option.id}`;
-                      return (
+                  <div className="grid gap-3">
+                    {isPrimary ? (
+                      <>
                         <button
-                          key={option.id}
-                          onClick={() => handleAddProduct(item, option.id)}
-                          className={`w-full rounded-2xl border px-4 py-3 text-left bg-neutral-900/70 transition-all flex flex-col gap-1 ${
-                            isRecent
-                              ? "border-green-400/80 bg-green-500/10 shadow shadow-green-900/40"
-                              : "border-neutral-800 hover:border-yellow-500/70"
-                          }`}
+                          onClick={() => openProductModal(item)}
+                          className="w-full min-h-[56px] rounded-2xl border-2 border-yellow-500/70 bg-yellow-500/10 text-white px-5 py-4 text-base font-bold hover:bg-yellow-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
-                          <div className="flex items-center justify-between text-sm font-semibold">
-                            <span>{option.label}</span>
-                            <span className="text-yellow-400">S/ {option.price.toFixed(2)}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-neutral-500">
-                            <span>Añadir</span>
-                            <Plus size={12} />
-                          </div>
+                          <ShoppingCart size={20} />
+                          Personalizar y añadir
                         </button>
-                      );
-                    })}
+                        <div className="text-xs text-neutral-500">
+                          {optionsToRender.map((option) => (
+                            <span key={option.id} className="inline-flex items-center gap-1 mr-3">
+                              <span className="text-neutral-400">{option.label}:</span>
+                              <span className="text-yellow-400 font-semibold">S/ {option.price.toFixed(2)}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {optionsToRender.map((option) => {
+                          const isRecent = recentlyAdded === `${item.id}-${option.id}`;
+                          return (
+                            <button
+                              key={option.id}
+                              onClick={() => handleAddProduct(item, option.id)}
+                              disabled={complementBlocked}
+                              className={`w-full min-h-[60px] rounded-2xl border-2 px-5 py-4 text-left bg-neutral-900/70 transition-all flex flex-col gap-2 active:scale-95 ${
+                                isRecent
+                                  ? "border-green-400/80 bg-green-500/10 shadow-lg shadow-green-900/40"
+                                  : "border-neutral-800 hover:border-yellow-500/70 hover:bg-neutral-900"
+                              } ${
+                                complementBlocked ? "opacity-50 cursor-not-allowed hover:border-neutral-800 active:scale-100" : ""
+                              }`}
+                            >
+                              <div className="flex items-center justify-between text-base font-bold">
+                                <span className="text-white">{option.label}</span>
+                                <span className="text-yellow-400 text-lg">S/ {option.price.toFixed(2)}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs uppercase tracking-wider text-neutral-400">
+                                <span className="flex items-center gap-2">
+                                  {complementBlocked ? (
+                                    <><AlertTriangle size={14} className="text-orange-400" /> <span>Requiere hamburguesa</span></>
+                                  ) : isRecent ? (
+                                    <><Check size={14} className="text-green-400" /> <span>Agregado</span></>
+                                  ) : (
+                                    <><Plus size={14} /> <span>Añadir al carrito</span></>
+                                  )}
+                                </span>
+                                {!complementBlocked && <Plus size={16} className={isRecent ? "text-green-400" : ""} />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                        {complementBlocked && (
+                          <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-xl p-3 text-center">
+                            <p className="text-xs sm:text-sm text-orange-300 font-semibold flex items-center justify-center gap-2">
+                              <ShoppingCart size={14} /> Agrega una hamburguesa primero para habilitar complementos
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -622,6 +833,95 @@ export default function BigJackMenu() {
           })}
         </div>
       </main>
+
+      {/* MODAL SELECCIÓN DE HAMBURGUESA */}
+      {modalProduct && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={closeProductModal}
+          ></div>
+          <div className="relative w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl overflow-hidden">
+            <div className="p-5 flex items-start gap-4 border-b border-neutral-800">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-800 flex-shrink-0">
+                {modalProduct.image ? (
+                  <img
+                    src={modalProduct.image}
+                    alt={modalProduct.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full grid place-content-center text-neutral-500 text-sm">
+                    Sin imagen
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] uppercase tracking-[0.3em] text-yellow-500 mb-1">{modalProduct.category}</p>
+                <h3 className="text-2xl font-bold text-white leading-tight mb-2">{modalProduct.name}</h3>
+                <p className="text-sm text-neutral-400 line-clamp-3">{modalProduct.description}</p>
+              </div>
+              <button
+                onClick={closeProductModal}
+                className="text-neutral-400 hover:text-white"
+                aria-label="Cerrar"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Elige la versión</p>
+              <div className="grid gap-2">
+                {modalProduct.options?.map((option) => {
+                  const isActive = modalOptionId === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setModalOptionId(option.id)}
+                      className={`w-full min-h-[68px] rounded-2xl border-2 px-5 py-4 text-left transition-all active:scale-95 ${
+                        isActive
+                          ? "border-yellow-500 bg-yellow-500/10 text-white shadow-lg shadow-yellow-500/20"
+                          : "border-neutral-800 bg-neutral-900/70 text-neutral-200 hover:border-yellow-500/50 hover:bg-neutral-900"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-base font-bold">{option.label}</p>
+                          <p className="text-xs text-neutral-400">Ideal para {option.label.toLowerCase()}</p>
+                        </div>
+                        <span className="text-yellow-400 font-black text-xl">S/ {option.price.toFixed(2)}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="bg-neutral-950 border-2 border-neutral-800 rounded-2xl p-5 flex items-center justify-between">
+                <span className="text-neutral-400 font-semibold">Subtotal</span>
+                <span className="text-2xl font-black text-yellow-500">
+                  {modalSelectedOption ? `S/ ${modalSelectedOption.price.toFixed(2)}` : "—"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  onClick={closeProductModal}
+                  className="min-h-[56px] rounded-2xl border-2 border-neutral-700 bg-neutral-900 text-white font-bold hover:bg-neutral-800 transition-all active:scale-95"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmModalAdd}
+                  disabled={!modalSelectedOption}
+                  className="min-h-[56px] rounded-2xl bg-yellow-500 text-black font-black disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed transition-all active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart size={20} />
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL CARRITO (Móvil y Desktop) */}
       {isCartOpen && (
@@ -644,27 +944,6 @@ export default function BigJackMenu() {
                 className="p-2 hover:bg-neutral-800 rounded-full transition-colors"
               >
                 <X size={24} />
-              </button>
-            </div>
-            <div className="px-5 py-3 border-b border-neutral-800 bg-neutral-900 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide">
-              <button
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:border-yellow-500 hover:text-white transition"
-                onClick={copyCartSummary}
-              >
-                <ClipboardList size={14} /> Copiar resumen
-              </button>
-              <button
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:border-yellow-500 hover:text-white transition disabled:opacity-40"
-                onClick={clearCart}
-                disabled={cart.length === 0}
-              >
-                <Trash2 size={14} /> Vaciar carrito
-              </button>
-              <button
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:border-yellow-500 hover:text-white transition"
-                onClick={resetCheckoutForm}
-              >
-                <RefreshCw size={14} /> Limpiar datos
               </button>
             </div>
 
@@ -723,38 +1002,44 @@ export default function BigJackMenu() {
               {cart.length > 0 && (
                 <div className="space-y-6">
                   {/* Paso 1: Datos Básicos */}
-                  <div className="bg-neutral-800/60 rounded-xl border border-neutral-700 p-4 space-y-4 animate-in fade-in">
+                  <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-bold text-yellow-500 flex items-center gap-2"><User size={18} /> Tus Datos</h3>
-                      <span className="text-xs px-2 py-1 bg-neutral-700 rounded-full">Paso 1</span>
+                      <h3 className="text-lg font-bold text-yellow-500 flex items-center gap-2"><User size={20} /> Tus datos</h3>
+                      <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 1</span>
                     </div>
-                    <div className="grid gap-3">
+                    <div className="grid gap-5">
                       <div>
-                        <label className="block text-xs text-neutral-400 mb-1">Nombre</label>
+                        <label className="block text-sm font-semibold text-white mb-2">Tu nombre completo</label>
                         <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                           <input
                             value={customerName}
                             onChange={(e)=>setCustomerName(e.target.value)}
-                            placeholder="Ej: Juan Pérez"
-                            className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-3 pl-10 pr-3 text-sm focus:border-yellow-500 outline-none transition-colors"
+                            placeholder="Ej: Juan Pérez García"
+                            className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-2xl py-4 pl-12 pr-4 text-base focus:border-yellow-500 outline-none transition-colors text-white placeholder:text-neutral-500"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs text-neutral-400 mb-2">Tipo de pedido</label>
-                        <div className="grid grid-cols-2 gap-2">
+                        <label className="block text-sm font-semibold text-white mb-3">¿Cómo recibes tu pedido?</label>
+                        <div className="grid grid-cols-1 gap-3">
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("pickup")}
-                            className={`h-12 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-all ${orderType==='pickup'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'}`}
-                          >Recojo en local</button>
+                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${orderType==='pickup'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                          >
+                            <Clock size={24} />
+                            Recojo en local (15-20 min)
+                          </button>
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("delivery")}
                             disabled={!deliveryAvailable}
-                            className={`h-12 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-900/30':'bg-neutral-900 border-neutral-800 text-neutral-500'} ${!deliveryAvailable ? 'cursor-not-allowed opacity-60' : 'hover:border-neutral-500 hover:bg-neutral-800'}`}
-                          >Delivery (próximamente)</button>
+                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-500'} ${!deliveryAvailable ? 'cursor-not-allowed opacity-40' : 'hover:border-neutral-500'}`}
+                          >
+                            <MapPin size={24} />
+                            Delivery (próximamente)
+                          </button>
                         </div>
                         {!deliveryAvailable && (
                           <p className="text-[11px] text-neutral-500 mt-2">Delivery volverá a estar disponible pronto.</p>
@@ -764,68 +1049,79 @@ export default function BigJackMenu() {
                   </div>
 
                   {/* Paso 2: Condicional según tipo */}
-                  <div className="bg-neutral-800/60 rounded-xl border border-neutral-700 p-4 space-y-4 animate-in fade-in">
+                  <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-bold text-yellow-500 flex items-center gap-2">
-                        {orderType==='delivery' ? <MapPin size={18} /> : <Clock size={18} />} 
-                        {orderType==='delivery' ? 'Entrega' : 'Recojo'}
+                      <h3 className="text-lg font-bold text-yellow-500 flex items-center gap-2">
+                        {orderType==='delivery' ? <MapPin size={20} /> : <Clock size={20} />} 
+                        {orderType==='delivery' ? 'Información de entrega' : 'Horario de recojo'}
                       </h3>
-                      <span className="text-xs px-2 py-1 bg-neutral-700 rounded-full">Paso 2</span>
+                      <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 2</span>
                     </div>
                     
                     {orderType==='delivery' ? (
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         <div>
-                          <label className="block text-xs text-neutral-400 mb-1">Dirección</label>
+                          <label className="block text-sm font-semibold text-white mb-2">Dirección de entrega</label>
                           <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                             <input
                               value={deliveryAddress}
                               onChange={(e)=>setDeliveryAddress(e.target.value)}
-                              placeholder="Calle / Av. y Número"
-                              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-3 pl-10 pr-3 text-sm focus:border-yellow-500 outline-none transition-colors"
+                              placeholder="Calle / Av. y número"
+                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-yellow-500 outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-xs text-neutral-400 mb-1">Referencia</label>
+                          <label className="block text-sm font-semibold text-white mb-2">Referencia adicional</label>
                           <div className="relative">
-                            <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
+                            <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                             <input
                               value={deliveryReference}
                               onChange={(e)=>setDeliveryReference(e.target.value)}
-                              placeholder="Ej: Frente al parque"
-                              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-3 pl-10 pr-3 text-sm focus:border-yellow-500 outline-none transition-colors"
+                              placeholder="Ej: Frente al parque principal"
+                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-yellow-500 outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
-                        <div className="flex flex-col gap-2">
-                          <button onClick={getUserLocation} className={`w-full py-2 rounded-lg text-sm font-bold border flex items-center justify-center gap-2 transition-colors ${locationLink ? 'bg-green-600/20 border-green-600 text-green-400' : 'bg-blue-600/20 border-blue-600/50 text-blue-400 hover:bg-blue-600/30'}`}>
-                            <MapPin size={16} /> {locationLink ? 'Ubicación guardada' : 'Compartir ubicación actual'}
+                        <div className="flex flex-col gap-3">
+                          <button 
+                            type="button"
+                            onClick={getUserLocation} 
+                            className={`w-full min-h-[56px] rounded-xl text-base font-bold border-2 flex items-center justify-center gap-2 transition-all ${locationLink ? 'bg-green-600/20 border-green-600 text-green-400' : 'bg-blue-600/20 border-blue-600/50 text-blue-400 hover:bg-blue-600/30'}`}>
+                            <MapPin size={20} /> {locationLink ? 'Ubicación guardada ✓' : 'Compartir mi ubicación actual'}
                           </button>
-                          {locationLink && <p className="text-xs text-green-500 text-center">Se incluirá el enlace de tu ubicación en el pedido.</p>}
+                          {locationLink && <p className="text-xs text-green-500 text-center font-semibold">Tu ubicación se incluirá en el pedido.</p>}
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         <div>
-                          <label className="block text-xs text-neutral-400 mb-1">¿Cuándo recoges?</label>
-                          <div className="grid grid-cols-2 gap-2 mb-3">
+                          <label className="block text-sm font-semibold text-white mb-3">¿Cuándo lo recoges?</label>
+                          <div className="grid grid-cols-1 gap-3">
                              <button
+                                type="button"
                                 onClick={()=>setPickupTime("now")}
-                                className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center gap-2 transition-all ${pickupTime==='now'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-900 border-neutral-700 text-neutral-400'}`}
-                              >Recoger ahora</button>
+                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='now'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                              >
+                                <Clock size={20} />
+                                Ahora mismo (15-20 min)
+                              </button>
                               <button
+                                type="button"
                                 onClick={()=>setPickupTime("schedule")}
-                                className={`py-2 px-3 rounded-lg text-xs font-bold border flex items-center justify-center gap-2 transition-all ${pickupTime==='schedule'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-900 border-neutral-700 text-neutral-400'}`}
-                              >Programar horario</button>
+                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='schedule'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                              >
+                                <Clock size={20} />
+                                Programar hora
+                              </button>
                           </div>
                         </div>
 
                         {pickupTime==='schedule' && (
                           <div className="animate-in slide-in-from-top-2 duration-200">
-                            <label className="block text-xs text-neutral-400 mb-2">Selecciona una hora</label>
-                            <div className="grid grid-cols-3 gap-2 mb-2">
+                            <label className="block text-sm text-neutral-300 mb-3">Selecciona una hora</label>
+                            <div className="grid grid-cols-2 gap-3 mb-4">
                               {/* Generar slots de tiempo próximos */}
                               {(() => {
                                 const slots = [];
@@ -839,9 +1135,10 @@ export default function BigJackMenu() {
                                 }
                                 return slots.map(time => (
                                   <button
+                                    type="button"
                                     key={time}
                                     onClick={()=>setScheduledTime(time)}
-                                    className={`py-2 rounded-md text-xs font-bold border transition-all ${scheduledTime===time ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'}`}
+                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===time ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                                   >
                                     {time}
                                   </button>
@@ -849,21 +1146,21 @@ export default function BigJackMenu() {
                               })()}
                             </div>
                             <div className="relative">
-                               <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
+                               <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                                <input
                                 type="time"
                                 value={scheduledTime}
                                 onChange={(e)=>setScheduledTime(e.target.value)}
-                                className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-3 pl-10 pr-3 text-sm focus:border-yellow-500 outline-none text-center"
+                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-yellow-500 outline-none text-center text-white"
                               />
                             </div>
-                            <p className="text-[10px] text-neutral-500 mt-1 text-center">O elige una hora específica arriba</p>
+                            <p className="text-xs text-neutral-400 mt-2 text-center">O elige una hora personalizada</p>
                           </div>
                         )}
                         
                         {pickupTime==='now' && (
-                          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 text-xs text-yellow-500 font-semibold flex gap-2 items-center animate-in fade-in">
-                            <Clock size={14} /> Prepararemos tu pedido en aprox. 15-20 minutos.
+                          <div className="bg-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-4 text-sm text-yellow-400 font-semibold flex gap-3 items-center animate-in fade-in">
+                            <Clock size={18} /> Prepararemos tu pedido en aprox. 15-20 minutos
                           </div>
                         )}
                         
@@ -871,22 +1168,22 @@ export default function BigJackMenu() {
                           href={restaurantInfo.contact.googleMapsLink}
                           target="_blank"
                           rel="noreferrer"
-                          className="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors mt-2"
+                          className="w-full min-h-[56px] bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-colors border-2 border-neutral-700"
                         >
-                          <Navigation size={16} /> Ver ubicación del local
+                          <Navigation size={18} /> Ver ubicación del local
                         </a>
                       </div>
                     )}
                   </div>
 
                   {/* Paso 3: Pago y Notas */}
-                  <div className="bg-neutral-800/60 rounded-xl border border-neutral-700 p-4 space-y-4 animate-in fade-in">
+                  <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-bold text-yellow-500 flex items-center gap-2"><CreditCard size={18} /> Pago</h3>
-                      <span className="text-xs px-2 py-1 bg-neutral-700 rounded-full">Paso 3</span>
+                      <h3 className="text-lg font-bold text-yellow-500 flex items-center gap-2"><CreditCard size={20} /> Método de pago</h3>
+                      <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 3</span>
                     </div>
-                    <div className="grid gap-3">
-                      <div className="grid grid-cols-2 gap-2">
+                    <div className="grid gap-5">
+                      <div className="grid grid-cols-1 gap-3">
                         {[
                           {id: 'efectivo', label: 'Efectivo', icon: Banknote},
                           {id: 'yape', label: 'Yape', icon: Smartphone},
@@ -894,29 +1191,30 @@ export default function BigJackMenu() {
                           {id: 'tarjeta', label: 'Tarjeta', icon: CreditCard, disabled: true}
                         ].map(m => (
                           <button
+                            type="button"
                             key={m.id}
                             onClick={() => { if (!m.disabled) setPaymentMethod(m.id); }}
                             disabled={m.disabled}
                             title={m.disabled ? 'Próximamente' : undefined}
                             aria-disabled={m.disabled ? 'true' : 'false'}
-                            className={`h-12 rounded-lg text-xs font-bold border flex flex-col items-center justify-center gap-1 transition-all ${paymentMethod===m.id ? 'bg-yellow-500 text-black border-yellow-500 shadow shadow-yellow-900/30' : 'bg-neutral-900 border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:bg-neutral-800'} ${m.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`min-h-[64px] rounded-xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${paymentMethod===m.id ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${m.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
-                            <m.icon size={14} />
+                            <m.icon size={22} />
                             <div className="flex items-center gap-2">
                               <span>{m.label}</span>
-                              {m.disabled && <span className="text-[10px] text-neutral-400">Próximamente</span>}
+                              {m.disabled && <span className="text-xs text-neutral-400 ml-1">(Próximamente)</span>}
                             </div>
                           </button>
                         ))}
                       </div>
                       <div>
-                        <label className="block text-xs text-neutral-400 mb-1">Notas (Opcional)</label>
+                        <label className="block text-sm font-semibold text-white mb-2">Instrucciones especiales (Opcional)</label>
                         <textarea
                           value={notes}
                           onChange={(e)=>setNotes(e.target.value)}
-                          rows={2}
-                          placeholder="Ej: Sin cebolla, entregar en portería..."
-                          className="w-full bg-neutral-900 border border-neutral-700 rounded-lg p-3 text-sm focus:border-yellow-500 outline-none resize-y"
+                          rows={3}
+                          placeholder="Ej: Sin cebolla, sin mayonesa, entregar en portería..."
+                          className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl p-4 text-base focus:border-yellow-500 outline-none resize-none text-white placeholder:text-neutral-500"
                         />
                       </div>
                     </div>
@@ -925,23 +1223,175 @@ export default function BigJackMenu() {
               )}
             </div>
 
-            <div className="p-5 border-t border-neutral-800 bg-neutral-900">
-              <div className="flex justify-between items-center mb-4 text-lg font-bold">
-                <span>Total</span>
-                <span className="text-yellow-500 text-2xl">S/ {total.toFixed(2)}</span>
+            <div className="p-6 border-t-2 border-neutral-800 bg-neutral-900">
+              <div className="flex justify-between items-center mb-5 text-xl font-bold">
+                <span className="text-white">Total</span>
+                <span className="text-yellow-500 text-3xl">S/ {total.toFixed(2)}</span>
               </div>
               <button
                 onClick={sendOrderToWhatsapp}
                 disabled={cart.length === 0}
-                className="w-full py-4 bg-green-600 hover:bg-green-500 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-lg shadow-lg shadow-green-900/20"
+                className="w-full min-h-[68px] bg-green-600 hover:bg-green-500 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 text-lg shadow-xl shadow-green-900/30 active:scale-[0.98]"
               >
-                <Send size={20} />
-                PEDIR POR WHATSAPP
+                <Send size={22} />
+                  ENVIAR PEDIDO POR WHATSAPP
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Footer Mejorado */}
+      <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-yellow-500/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          {/* Sección principal */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
+            {/* Sobre nosotros */}
+            <div className="space-y-5 lg:col-span-1">
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-black text-yellow-500 mb-2">{restaurantInfo.name}</h3>
+                <p className="text-neutral-400 text-sm leading-relaxed">
+                  {restaurantInfo.slogan}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-neutral-600 font-bold mb-3">Síguenos</p>
+                <div className="flex gap-3">
+                  <a
+                    href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-11 h-11 bg-green-600/20 border border-green-600/40 hover:bg-green-600 hover:border-green-500 rounded-xl flex items-center justify-center transition-all group"
+                    title="WhatsApp"
+                  >
+                    <MessageCircle size={20} className="text-green-400 group-hover:text-white transition-colors" />
+                  </a>
+                  <a
+                    href={`https://instagram.com/${restaurantInfo.contact.instagram.replace('@', '')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-11 h-11 bg-pink-600/20 border border-pink-600/40 hover:bg-pink-600 hover:border-pink-500 rounded-xl flex items-center justify-center transition-all group"
+                    title="Instagram"
+                  >
+                    <Instagram size={20} className="text-pink-400 group-hover:text-white transition-colors" />
+                  </a>
+                  <a
+                    href={restaurantInfo.contact.tiktok}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-11 h-11 bg-white/10 border border-white/30 hover:bg-white hover:border-white rounded-xl flex items-center justify-center transition-all group"
+                    title="TikTok"
+                  >
+                    <Music2 size={20} className="text-white/80 group-hover:text-black transition-colors" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Contacto y Ubicación */}
+            <div className="space-y-5">
+              <div>
+                <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
+                  <MapPin size={18} className="text-yellow-500" /> Ubicación
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <p className="text-neutral-400 leading-relaxed">
+                    {restaurantInfo.contact.address}
+                  </p>
+                  <a
+                    href={restaurantInfo.contact.googleMapsLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-white font-semibold transition-all active:scale-95"
+                  >
+                    <Navigation size={16} />
+                    Abrir en Google Maps
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Horarios */}
+            <div className="space-y-5">
+              <div>
+                <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
+                  <Clock size={18} className="text-yellow-500" /> Horarios
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-400">Lun - Jue</span>
+                        <span className="text-white font-semibold">4:00 PM - 11:00 PM</span>
+                      </div>
+                      <div className="border-t border-neutral-800 pt-2 flex justify-between items-center">
+                        <span className="text-neutral-400">Vie - Dom</span>
+                        <span className="text-yellow-500 font-bold">12:00 PM - 11:00 PM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <a
+                    href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-500 rounded-xl text-white font-bold transition-all active:scale-95"
+                  >
+                    <PhoneCall size={16} />
+                    Llamar ahora
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Información Legal */}
+            <div className="space-y-5">
+              <div>
+                <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
+                  <Clipboard size={18} className="text-yellow-500" /> Legal
+                </h4>
+                <div className="space-y-4">
+                  <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-4 space-y-2 text-sm">
+                    <p className="text-neutral-400">
+                      <span className="font-semibold text-white">RUC:</span> {restaurantInfo.ruc}
+                    </p>
+                    <p className="text-neutral-400">
+                      <span className="font-semibold text-white">Razón Social:</span><br />
+                      <span className="text-xs">Big Jack Perú S.A.C.</span>
+                    </p>
+                  </div>
+                  <Link
+                    href="/libro-de-reclamaciones"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-bold transition-all shadow-xl shadow-yellow-500/20 active:scale-95 w-full justify-center"
+                  >
+                    <Clipboard size={16} />
+                    Libro de Reclamaciones
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Separador */}
+          <div className="border-t-2 border-neutral-800 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
+              <p className="text-neutral-500 text-center md:text-left">
+                © {new Date().getFullYear()} <span className="font-bold text-neutral-400">{restaurantInfo.name}</span>. Todos los derechos reservados.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
+                <a
+                  href="#menu-section"
+                  className="text-xs text-neutral-400 hover:text-yellow-500 transition-colors font-semibold"
+                >
+                  Volver al menú
+                </a>
+                <p className="text-xs flex items-center gap-2 text-neutral-500">
+                  Desarrollado con <Sparkles size={14} className="text-yellow-500" /> en Perú
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

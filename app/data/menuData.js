@@ -4,6 +4,18 @@
 export const restaurantInfo = {
   name: "BIG JACK",
   slogan: "Hamburguesas brutales — Sabor que prende fuego",
+  ruc: "15614908278",
+  // Horarios por día (0 = Domingo, 1 = Lunes, ..., 6 = Sábado)
+  // Cada día define { open: "HH:MM", close: "HH:MM" } en horario local
+  hours: {
+    0: { open: "12:00", close: "23:00" }, // Domingo
+    1: { open: "16:00", close: "23:00" }, // Lunes
+    2: { open: "16:00", close: "23:00" }, // Martes
+    3: { open: "16:00", close: "23:00" }, // Miércoles
+    4: { open: "16:00", close: "23:00" }, // Jueves
+    5: { open: "12:00", close: "23:00" }, // Viernes
+    6: { open: "12:00", close: "23:00" }, // Sábado
+  },
   logo: "/images/big-jack-logo.png", // opcional: coloca tu logo en public/images
   contact: {
     whatsapp: "51970513912",
@@ -15,7 +27,7 @@ export const restaurantInfo = {
 };
 
 export const categories = [
-  "BURGERS",
+  "LAS INTOCABLES",
   "GUARNICION",
   "BEBIDAS"
 ];
@@ -23,7 +35,8 @@ export const categories = [
 export const menuItems = [
   {
     id: 1,
-    category: "BURGERS",
+    slug: "bacon-jack",
+    category: "LAS INTOCABLES",
     name: "Bacon Jack",
     description: "Carne jugosa, queso cheddar, tiras de tocino crocante y salsa especial.",
     image: "/images/baconjack.webp",
@@ -35,7 +48,8 @@ export const menuItems = [
   },
   {
     id: 2,
-    category: "BURGERS",
+    slug: "royal-jack",
+    category: "LAS INTOCABLES",
     name: "Royal Jack",
     description: "Carne jugosa, queso cheddar, jamón inglés y huevo frito en su punto.",
     image: "/images/royaljack.webp",
@@ -47,7 +61,8 @@ export const menuItems = [
   },
   {
     id: 3,
-    category: "BURGERS",
+    slug: "grill-jack",
+    category: "LAS INTOCABLES",
     name: "Grill Jack",
     description: "Carne, chorizo parrillero, queso cheddar, chimichurri y un toque de mostaza.",
     image: "/images/grilljack.webp",
@@ -59,8 +74,9 @@ export const menuItems = [
   },
   {
     id: 4,
-    category: "BURGERS",
-    name: "J. a lo Pobre",
+    slug: "jack-a-lo-pobre",
+    category: "LAS INTOCABLES",
+    name: "Jack a lo Pobre",
     description: "Carne, queso cheddar, huevo frito y el toque dulce del plátano maduro.",
     image: "/images/jackpobre.webp",
     popular: false,
@@ -71,6 +87,7 @@ export const menuItems = [
   },
   {
     id: 20,
+    slug: "papas-fritas",
     category: "GUARNICION",
     name: "Papas Fritas",
     description: "Papas fritas crujientes.",
@@ -80,6 +97,7 @@ export const menuItems = [
   },
   {
     id: 30,
+    slug: "inka-cola",
     category: "BEBIDAS",
     name: "Inka Cola",
     description: "Refresco frío.",
@@ -89,6 +107,7 @@ export const menuItems = [
   },
   {
     id: 31,
+    slug: "coca-cola",
     category: "BEBIDAS",
     name: "Coca Cola",
     description: "Refresco clásico frío.",
