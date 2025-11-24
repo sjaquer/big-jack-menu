@@ -55,6 +55,8 @@ export default function BigJackMenu() {
   const [recentlyAdded, setRecentlyAdded] = useState(null); // resaltar última acción
   const [modalProduct, setModalProduct] = useState(null);
   const [modalOptionId, setModalOptionId] = useState(null);
+  const [suggestionVisible, setSuggestionVisible] = useState(false);
+  const [suggestionFor, setSuggestionFor] = useState(null);
 
   // Cargar estado desde localStorage al iniciar
   useEffect(() => {
@@ -78,6 +80,36 @@ export default function BigJackMenu() {
       }
     } catch {}
   }, []);
+
+      {/* Mini ventana de sugerencia para complementos */}
+      {suggestionVisible && (
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-24 z-60 px-4">
+          <div className="max-w-xl w-full bg-neutral-900 border-2 border-neutral-800 rounded-2xl p-4 flex items-center gap-3 shadow-2xl">
+            <div className="flex-1">
+              <p className="font-bold text-white">¿Quieres agregar un complemento?</p>
+              <p className="text-sm text-neutral-400">Agrega papas o una bebida para completar tu pedido.</p>
+            </div>
+            {suggestedGuarn && (
+              <button
+                onClick={() => addSuggestedItem(suggestedGuarn)}
+                className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-sm text-white"
+              >
+                Papas • S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}
+              </button>
+            )}
+            {suggestedDrink && (
+              <button
+                onClick={() => addSuggestedItem(suggestedDrink)}
+                className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-sm text-white"
+              >
+                Bebida • S/ {suggestedDrink.options?.[0]?.price?.toFixed(2)}
+              </button>
+            )}
+            <button onClick={handleOpenCartFromSuggestion} className="px-4 py-2 bg-yellow-500 text-black rounded-2xl font-bold">Ir al carrito</button>
+            <button onClick={handleCloseSuggestion} className="ml-2 text-sm text-neutral-400">No gracias</button>
+          </div>
+        </div>
+      )}
   // Cargar y sincronizar carrito desde localStorage
   useEffect(() => {
     try {
@@ -203,6 +235,10 @@ export default function BigJackMenu() {
     },
   ];
 
+  // Sugerencias (primer complemento disponible por categoría)
+  const suggestedGuarn = menuItems.find((it) => it.category === "GUARNICION");
+  const suggestedDrink = menuItems.find((it) => it.category === "BEBIDAS");
+
   const scrollToMenu = () => {
     if (typeof document === "undefined") return;
     const el = document.getElementById("menu-section");
@@ -257,7 +293,7 @@ export default function BigJackMenu() {
   // Modal de producto se abre mediante botón directo en el menú
 
   // Funciones del carrito
-  const addToCart = (product, option) => {
+  const addToCart = (product, option, showSuggestion = true) => {
     // Bloquear si estamos fuera de horario
     if (!isOpen) {
       alert("Lo sentimos, estamos cerrados ahora. No es posible realizar pedidos fuera del horario de atención.");
@@ -301,7 +337,11 @@ export default function BigJackMenu() {
       ]);
     });
     setRecentlyAdded(uniqueId);
-    setIsCartOpen(true);
+    // En lugar de abrir el carrito inmediatamente, mostramos una sugerencia
+    // para agregar complementos (papas / bebida) si aplica. Podemos suprimir
+    // la sugerencia cuando se llame desde la propia sugerencia.
+    setSuggestionFor({ productId: product.id, uniqueId });
+    if (showSuggestion) setSuggestionVisible(true);
     setTimeout(() => {
       setRecentlyAdded((current) => (current === uniqueId ? null : current));
     }, 1200);
@@ -329,6 +369,26 @@ export default function BigJackMenu() {
       )
     );
   };
+
+  // --- Sugerencias de complementos (mini ventana) ---
+  const addSuggestedItem = (product) => {
+    if (!product) return;
+    const option = product.options?.[0] || { id: "regular", label: "Regular", price: product.price || 0 };
+    // Llamar addToCart pero sin reabrir la sugerencia (showSuggestion = false)
+    addToCart(product, option, false);
+    // Mantener la sugerencia visible unos instantes para mostrar feedback
+    setTimeout(() => setSuggestionVisible(false), 700);
+  };
+
+  const handleCloseSuggestion = () => {
+    setSuggestionVisible(false);
+  };
+
+  const handleOpenCartFromSuggestion = () => {
+    setSuggestionVisible(false);
+    setIsCartOpen(true);
+  };
+
 
   const getUserLocation = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -377,7 +437,7 @@ export default function BigJackMenu() {
       if (deliveryReference) message += `*Referencia:* ${deliveryReference}\n`;
       if (locationLink) message += `*Mapa:* ${locationLink}\n`;
     } else {
-      message += `*Hora:* ${pickupTime === "now" ? "Recojo inmediato (5-10 min)" : `Programado: ${scheduledTime}`}\n`;
+      message += `*Hora:* ${pickupTime === "now" ? "Recojo inmediato (15-20 min)" : `Programado: ${scheduledTime}`}\n`;
     }
 
     message += `\n*Detalle del pedido:*\n`;
