@@ -101,7 +101,7 @@ export const menuItems = [
     category: "BEBIDAS",
     name: "Inka Cola",
     description: "Refresco frío.",
-    image: "/images/inka-cola.webp",
+    image: "/images/inkacola.webp",
     popular: false,
     options: [{ id: "botella", label: "Botella 500 ml", price: 3.5 }]
   },
@@ -111,7 +111,7 @@ export const menuItems = [
     category: "BEBIDAS",
     name: "Coca Cola",
     description: "Refresco clásico frío.",
-    image: "/images/coca-cola.webp",
+    image: "/images/cocacola.webp",
     popular: false,
     options: [{ id: "botella", label: "Botella 500 ml", price: 3.5 }]
   }

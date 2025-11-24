@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
 import {
@@ -28,7 +28,9 @@ import {
   Clipboard,
   Check,
 } from "lucide-react";
+import { Suspense } from "react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
+import ClientSearchParams from "./components/ClientSearchParams";
 
 const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
 const COMPLEMENT_CATEGORIES = ["GUARNICION", "BEBIDAS"];
@@ -37,7 +39,6 @@ export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("TODOS");
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const searchParams = useSearchParams();
   const router = useRouter();
   
   // Estados para el Checkout
@@ -487,6 +488,9 @@ export default function BigJackMenu() {
           </div>
         </div>
       </header>
+      <Suspense fallback={null}>
+        <ClientSearchParams onOpenCart={() => setIsCartOpen(true)} />
+      </Suspense>
 
       {/* HERO EXPERIENCE */}
       <section className="relative overflow-hidden border-b border-neutral-800 bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-900">
