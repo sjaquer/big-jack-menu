@@ -22,23 +22,27 @@ export default function ProductAddToCart({ product }) {
     // Obtener carrito actual
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     
-    // Buscar si ya existe este item exacto
-    const existingIndex = cart.findIndex(
-      (item) => item.id === product.id && item.selectedOption?.id === selectedOption.id
-    );
-
+    // Crear ID único que coincida con el formato de la página principal
+    const uniqueId = `${product.id}-${selectedOption.id}`;
+    
+    // Buscar si ya existe este item exacto usando el ID único
+    const existingIndex = cart.findIndex((item) => item.id === uniqueId);
+    
     if (existingIndex >= 0) {
       // Incrementar cantidad
       cart[existingIndex].quantity += quantity;
     } else {
-      // Agregar nuevo item
+      // Agregar nuevo item con el formato correcto que espera page.js
       cart.push({
-        id: product.id,
+        id: uniqueId,
+        productId: product.id,
         name: product.name,
         image: product.image,
-        selectedOption,
-        quantity,
-        category: product.category
+        category: product.category,
+        optionId: selectedOption.id,
+        optionLabel: selectedOption.label,
+        price: selectedOption.price,
+        quantity: quantity
       });
     }
 
