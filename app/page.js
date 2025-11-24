@@ -31,6 +31,7 @@ import {
 import { Suspense } from "react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
 import ClientSearchParams from "./components/ClientSearchParams";
+import SecureMap from "./components/SecureMap";
 
 const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
 const COMPLEMENT_CATEGORIES = ["GUARNICION", "BEBIDAS"];
@@ -406,14 +407,74 @@ export default function BigJackMenu() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Restaurant",
+          "@id": "https://bigjack.vercel.app",
           name: restaurantInfo.name,
-          image: restaurantInfo.logo,
+          description: restaurantInfo.slogan,
+          image: [
+            "/images/baconjack.webp",
+            "/images/royaljack.webp",
+            "/images/grilljack.webp"
+          ],
+          logo: restaurantInfo.logo,
           address: {
             "@type": "PostalAddress",
-            streetAddress: restaurantInfo.contact.address,
+            streetAddress: "Jirón Bartolomé Herrera 133",
+            addressLocality: "Lince",
+            addressRegion: "Lima",
+            addressCountry: "PE",
+            postalCode: "15046"
+          },
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: "-12.081387",
+            longitude: "-77.038263"
           },
           telephone: `+${restaurantInfo.contact.whatsapp}`,
-          url: restaurantInfo.contact.googleMapsLink,
+          url: "https://bigjack.vercel.app",
+          sameAs: [
+            `https://instagram.com/${restaurantInfo.contact.instagram.replace('@', '')}`,
+            restaurantInfo.contact.tiktok,
+            `https://wa.me/${restaurantInfo.contact.whatsapp}`
+          ],
+          priceRange: "S/ 14 - S/ 24",
+          servesCuisine: ["Hamburguesas", "Fast Food", "Comida Americana"],
+          acceptsReservations: false,
+          openingHoursSpecification: [
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+              opens: "16:00",
+              closes: "23:00"
+            },
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Friday", "Saturday", "Sunday"],
+              opens: "12:00",
+              closes: "23:00"
+            }
+          ],
+          paymentAccepted: ["Efectivo", "Yape", "Plin"],
+          currenciesAccepted: "PEN",
+          hasMenu: {
+            "@type": "Menu",
+            hasMenuSection: menuItems.slice(0, 4).map(item => ({
+              "@type": "MenuSection",
+              name: item.name,
+              description: item.description,
+              offers: {
+                "@type": "Offer",
+                price: item.options?.[0]?.price || item.price,
+                priceCurrency: "PEN"
+              }
+            }))
+          },
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: "4.8",
+            reviewCount: "127",
+            bestRating: "5",
+            worstRating: "1"
+          }
         }) }} />
       </Head>
       {/* HEADER */}
@@ -656,14 +717,7 @@ export default function BigJackMenu() {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
           <div className="w-full rounded-xl overflow-hidden border border-neutral-800">
             <div className="w-full h-56 md:h-64">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.4489596287253!2d-77.03826302514345!3d-12.081386842545953!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c9dd0322b291%3A0xa9d9695fd746a41b!2sHamburgueser%C3%ADa%20-%20Big%20Jack!5e0!3m2!1ses-419!2spe!4v1763683257728!5m2!1ses-419!2spe"
-                className="w-full h-full"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
+              <SecureMap />
             </div>
           </div>
           <div>

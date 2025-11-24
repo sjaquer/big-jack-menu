@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://bigjack.vercel.app
+
+# Sitemaps
+Sitemap: https://bigjack.vercel.app/sitemap.xml
