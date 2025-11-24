@@ -393,7 +393,7 @@ export default function BigJackMenu() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-900 text-white font-sans">
+    <div className="flex flex-col min-h-screen bg-neutral-900 text-white font-sans overflow-x-hidden">
       <Head>
         <title>{restaurantInfo.name} | Menú Digital</title>
         <meta name="description" content={`${restaurantInfo.slogan} — Pide online o recoge en tienda. ${restaurantInfo.contact.address}`} />
@@ -636,12 +636,12 @@ export default function BigJackMenu() {
       )}
 
       {/* FAST TRACK */}
-      <section className="max-w-6xl mx-auto px-4 py-6">
-        <div className="flex gap-3 overflow-x-auto pb-3 snap-x">
+      <section className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {fastTrackHighlights.map((feature) => (
             <div
               key={feature.title}
-              className="min-w-[240px] flex-1 border border-neutral-800 rounded-2xl bg-neutral-900/60 p-4 hover:border-yellow-500/60 transition snap-start"
+              className="border border-neutral-800 rounded-2xl bg-neutral-900/60 p-4 hover:border-yellow-500/60 transition"
             >
               <p className="text-[11px] text-yellow-500 font-bold tracking-[0.3em] mb-2">FAST TRACK</p>
               <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
@@ -680,10 +680,10 @@ export default function BigJackMenu() {
       </section>
 
       {/* CATEGORÍAS */}
-      <div className="sticky top-[73px] z-40 bg-gradient-to-b from-neutral-950 to-neutral-900/95 backdrop-blur-lg border-b-2 border-neutral-800 py-5 shadow-lg">
+      <div className="sticky top-[73px] z-40 bg-gradient-to-b from-neutral-950 to-neutral-900/95 backdrop-blur-lg border-b-2 border-neutral-800 py-5 shadow-lg overflow-hidden">
         <div className="max-w-6xl mx-auto px-4">
           <p className="text-xs uppercase tracking-widest text-neutral-500 font-bold mb-3">Filtra por categoría</p>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
             {["TODOS", ...categories].map((cat) => {
               const isActive = selectedCategory === cat;
               return (
