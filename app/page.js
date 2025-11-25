@@ -80,36 +80,6 @@ export default function BigJackMenu() {
       }
     } catch {}
   }, []);
-
-      {/* Mini ventana de sugerencia para complementos */}
-      {suggestionVisible && (
-        <div className="fixed left-1/2 -translate-x-1/2 bottom-24 z-60 px-4">
-          <div className="max-w-xl w-full bg-neutral-900 border-2 border-neutral-800 rounded-2xl p-4 flex items-center gap-3 shadow-2xl">
-            <div className="flex-1">
-              <p className="font-bold text-white">¿Quieres agregar un complemento?</p>
-              <p className="text-sm text-neutral-400">Agrega papas o una bebida para completar tu pedido.</p>
-            </div>
-            {suggestedGuarn && (
-              <button
-                onClick={() => addSuggestedItem(suggestedGuarn)}
-                className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-sm text-white"
-              >
-                Papas • S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}
-              </button>
-            )}
-            {suggestedDrink && (
-              <button
-                onClick={() => addSuggestedItem(suggestedDrink)}
-                className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-sm text-white"
-              >
-                Bebida • S/ {suggestedDrink.options?.[0]?.price?.toFixed(2)}
-              </button>
-            )}
-            <button onClick={handleOpenCartFromSuggestion} className="px-4 py-2 bg-yellow-500 text-black rounded-2xl font-bold">Ir al carrito</button>
-            <button onClick={handleCloseSuggestion} className="ml-2 text-sm text-neutral-400">No gracias</button>
-          </div>
-        </div>
-      )}
   // Cargar y sincronizar carrito desde localStorage
   useEffect(() => {
     try {
@@ -740,7 +710,7 @@ export default function BigJackMenu() {
 
       {/* Overlay de CERRADO (bloqueo) */}
       {!isOpen && (
-        <div className="fixed inset-0 z-60 grid place-items-center bg-black/70 backdrop-blur-sm px-4">
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 backdrop-blur-sm px-4">
           <div className="max-w-md w-full bg-neutral-900 border-2 border-red-600 rounded-3xl p-6 text-center">
             <h2 className="text-2xl font-black text-red-400 mb-2">Estamos cerrados</h2>
             <p className="text-sm text-neutral-300 mb-4">Ahora no estamos disponibles para recibir pedidos. Puedes ver el menú, pero el pedido estará deshabilitado hasta la próxima apertura.</p>
@@ -954,12 +924,13 @@ export default function BigJackMenu() {
 
       {/* MODAL SELECCIÓN DE HAMBURGUESA */}
       {modalProduct && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm cursor-pointer"
             onClick={closeProductModal}
+            aria-label="Cerrar modal"
           ></div>
-          <div className="relative w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl overflow-hidden z-10">
             <div className="p-5 flex items-start gap-4 border-b border-neutral-800">
               <div className="w-24 h-24 rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-800 flex-shrink-0">
                 {modalProduct.image ? (
@@ -1046,12 +1017,13 @@ export default function BigJackMenu() {
         <div className="fixed inset-0 z-50 flex justify-end">
           {/* Overlay */}
           <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
             onClick={() => setIsCartOpen(false)}
+            aria-label="Cerrar carrito"
           ></div>
           
           {/* Panel Lateral */}
-          <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300">
+          <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300 z-10">
             <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
               <h2 className="text-xl font-black flex items-center gap-2">
                 <ShoppingCart className="text-yellow-500" />
@@ -1510,6 +1482,56 @@ export default function BigJackMenu() {
           </div>
         </div>
       </footer>
+
+      {/* Mini ventana de sugerencia para complementos */}
+      {suggestionVisible && (
+        <div className="fixed inset-x-0 bottom-0 sm:left-1/2 sm:-translate-x-1/2 sm:bottom-24 sm:inset-x-auto z-50 p-4 sm:px-0">
+          <div className="max-w-xl w-full bg-neutral-900 border-2 border-neutral-800 rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <p className="font-bold text-white text-lg">¿Quieres agregar un complemento?</p>
+                <p className="text-sm text-neutral-400 mt-1">Agrega papas o una bebida para completar tu pedido.</p>
+              </div>
+              <button 
+                onClick={handleCloseSuggestion} 
+                className="text-neutral-400 hover:text-white p-1 ml-2"
+                aria-label="Cerrar"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {suggestedGuarn && (
+                <button
+                  onClick={() => addSuggestedItem(suggestedGuarn)}
+                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1"
+                >
+                  <span className="text-2xl">🍟</span>
+                  <span className="text-sm">Papas</span>
+                  <span className="text-yellow-500 font-bold text-base">S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</span>
+                </button>
+              )}
+              {suggestedDrink && (
+                <button
+                  onClick={() => addSuggestedItem(suggestedDrink)}
+                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1"
+                >
+                  <span className="text-2xl">🥤</span>
+                  <span className="text-sm">Bebida</span>
+                  <span className="text-yellow-500 font-bold text-base">S/ {suggestedDrink.options?.[0]?.price?.toFixed(2)}</span>
+                </button>
+              )}
+            </div>
+            <button 
+              onClick={handleOpenCartFromSuggestion} 
+              className="w-full min-h-[56px] px-5 py-3 bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-black rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+            >
+              <ShoppingCart size={20} />
+              Ir al carrito
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
