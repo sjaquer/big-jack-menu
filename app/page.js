@@ -346,7 +346,7 @@ export default function BigJackMenu() {
     const option = product.options?.[0] || { id: "regular", label: "Regular", price: product.price || 0 };
     // Llamar addToCart pero sin reabrir la sugerencia (showSuggestion = false)
     addToCart(product, option, false);
-    // Mantener la sugerencia visible unos instantes para mostrar feedback
+    // Cerrar la sugerencia después de agregar
     setTimeout(() => setSuggestionVisible(false), 700);
   };
 
@@ -357,6 +357,12 @@ export default function BigJackMenu() {
   const handleOpenCartFromSuggestion = () => {
     setSuggestionVisible(false);
     setIsCartOpen(true);
+  };
+
+  const handleSkipSuggestion = () => {
+    setSuggestionVisible(false);
+    // Abrir el carrito automáticamente para que el usuario vea lo que agregó
+    setTimeout(() => setIsCartOpen(true), 300);
   };
 
 
@@ -1486,25 +1492,27 @@ export default function BigJackMenu() {
       {/* Mini ventana de sugerencia para complementos */}
       {suggestionVisible && (
         <div className="fixed inset-x-0 bottom-0 sm:left-1/2 sm:-translate-x-1/2 sm:bottom-24 sm:inset-x-auto z-50 p-4 sm:px-0">
-          <div className="max-w-xl w-full bg-neutral-900 border-2 border-neutral-800 rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl">
+          <div className="max-w-xl w-full bg-neutral-900 border-2 border-yellow-500/30 rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <p className="font-bold text-white text-lg">¿Quieres agregar un complemento?</p>
-                <p className="text-sm text-neutral-400 mt-1">Agrega papas o una bebida para completar tu pedido.</p>
+                <p className="font-bold text-white text-lg flex items-center gap-2">
+                  <span className="text-green-500">✓</span> Producto agregado
+                </p>
+                <p className="text-sm text-neutral-400 mt-1">¿Quieres agregar papas o bebida para completar tu pedido?</p>
               </div>
               <button 
                 onClick={handleCloseSuggestion} 
-                className="text-neutral-400 hover:text-white p-1 ml-2"
+                className="text-neutral-400 hover:text-white p-1 ml-2 hover:bg-neutral-800 rounded-full transition-colors"
                 aria-label="Cerrar"
               >
                 <X size={20} />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-2 gap-3 mb-3">
               {suggestedGuarn && (
                 <button
                   onClick={() => addSuggestedItem(suggestedGuarn)}
-                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1"
+                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1 border border-neutral-700 hover:border-yellow-500/50"
                 >
                   <span className="text-2xl">🍟</span>
                   <span className="text-sm">Papas</span>
@@ -1514,7 +1522,7 @@ export default function BigJackMenu() {
               {suggestedDrink && (
                 <button
                   onClick={() => addSuggestedItem(suggestedDrink)}
-                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1"
+                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1 border border-neutral-700 hover:border-yellow-500/50"
                 >
                   <span className="text-2xl">🥤</span>
                   <span className="text-sm">Bebida</span>
@@ -1522,13 +1530,21 @@ export default function BigJackMenu() {
                 </button>
               )}
             </div>
-            <button 
-              onClick={handleOpenCartFromSuggestion} 
-              className="w-full min-h-[56px] px-5 py-3 bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-black rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
-            >
-              <ShoppingCart size={20} />
-              Ir al carrito
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button 
+                onClick={handleSkipSuggestion} 
+                className="min-h-[52px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 text-white rounded-xl font-semibold transition-all border border-neutral-700"
+              >
+                No, gracias
+              </button>
+              <button 
+                onClick={handleOpenCartFromSuggestion} 
+                className="min-h-[52px] px-4 py-3 bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-black rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+              >
+                <ShoppingCart size={18} />
+                Ver carrito ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+              </button>
+            </div>
           </div>
         </div>
       )}
