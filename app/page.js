@@ -190,6 +190,7 @@ export default function BigJackMenu() {
     },
   ];
   const deliveryAvailable = false;
+  const PEDIDOSYA_LINK = "https://www.pedidosya.com.pe/restaurantes/lima/big-jack-0c79d59d-90de-48bd-aa0d-3a5277f7da49-menu?origin=shop_list";
   const fastTrackHighlights = [
     {
       title: "Explora visualmente",
@@ -385,7 +386,13 @@ export default function BigJackMenu() {
   };
 
   const handleSelectOrderType = (type) => {
-    if (type === "delivery" && !deliveryAvailable) return;
+    if (type === "delivery" && !deliveryAvailable) {
+      // Redirigir a PedidosYa para pedidos por delivery
+      if (typeof window !== "undefined") {
+        window.open(PEDIDOSYA_LINK, "_blank");
+      }
+      return;
+    }
     setOrderType(type);
   };
 
@@ -763,6 +770,7 @@ export default function BigJackMenu() {
             <div className="flex gap-2 flex-wrap">
               <a href={restaurantInfo.contact.googleMapsLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-yellow-500 text-black font-bold px-4 py-2 rounded-lg">Abrir en Google Maps</a>
               <a href={`https://wa.me/${restaurantInfo.contact.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-neutral-900 text-white border border-neutral-700 px-4 py-2 rounded-lg">Pedir por WhatsApp</a>
+              <a href={PEDIDOSYA_LINK} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg">Pedir por PedidosYa</a>
             </div>
             <p className="text-xs text-neutral-500 mt-3">Comparte este mapa al pedir delivery o úsalo como guía si vienes a recoger.</p>
           </div>
@@ -1130,15 +1138,15 @@ export default function BigJackMenu() {
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("delivery")}
-                            disabled={!deliveryAvailable}
-                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-500'} ${!deliveryAvailable ? 'cursor-not-allowed opacity-40' : 'hover:border-neutral-500'}`}
+                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-500'}`}
                           >
                             <MapPin size={24} />
-                            Delivery (próximamente)
+                            Delivery
+                            {!deliveryAvailable && <span className="text-xs text-neutral-400 ml-2">(por PedidosYa)</span>}
                           </button>
                         </div>
                         {!deliveryAvailable && (
-                          <p className="text-[11px] text-neutral-500 mt-2">Delivery volverá a estar disponible pronto.</p>
+                          <p className="text-[11px] text-neutral-400 mt-2">Para pedidos a domicilio serás redirigido a PedidosYa.</p>
                         )}
                       </div>
                     </div>
@@ -1331,6 +1339,13 @@ export default function BigJackMenu() {
               >
                 <Send size={22} />
                   ENVIAR PEDIDO POR WHATSAPP
+              </button>
+              <button
+                onClick={() => { if (cart.length > 0 && typeof window !== 'undefined') window.open(PEDIDOSYA_LINK, '_blank'); }}
+                disabled={cart.length === 0}
+                className="w-full mt-3 min-h-[56px] bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 text-base shadow-md active:scale-[0.98]"
+              >
+                PEDIR POR PEDIDOSYA
               </button>
             </div>
           </div>
