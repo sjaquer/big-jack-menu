@@ -557,7 +557,12 @@ ${deliveryLines.join("\n")}`);
 
     const message = sections.join("\n\n");
 
-    const url = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(message)}`;
+    // Normalizar espacios alrededor de marcadores de formato para WhatsApp
+    let normalized = message
+      .replace(/\*\s+([^*]+?)\s+\*/g, "*$1*")
+      .replace(/_\s+([^_]+?)\s+_/g, "_$1_");
+
+    const url = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(normalized)}`;
     window.open(url, "_blank");
   };
 
