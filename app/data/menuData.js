@@ -68,7 +68,7 @@ export const menuItems = [
     image: "/images/grilljack.webp",
     popular: false,
     options: [
-      { id: "simple", label: "Simple (1 carne)", price: 20.0 },
+      { id: "simple", label: "Simple (1 carne)", price: 16.0 },
       { id: "doble", label: "Doble (2 carnes)", price: 24.0 }
     ]
   },

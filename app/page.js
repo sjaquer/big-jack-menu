@@ -57,6 +57,10 @@ export default function BigJackMenu() {
   const [modalOptionId, setModalOptionId] = useState(null);
   const [suggestionVisible, setSuggestionVisible] = useState(false);
   const [suggestionFor, setSuggestionFor] = useState(null);
+  const [selectedSuggestions, setSelectedSuggestions] = useState({ papas: false, bebida: false });
+  const [selectedDrink, setSelectedDrink] = useState(null); // 'inka' | 'coca' | null
+  const [closedNoticeHidden, setClosedNoticeHidden] = useState(false);
+  const [isPreOrder, setIsPreOrder] = useState(false);
 
   // Cargar estado desde localStorage al iniciar
   useEffect(() => {
@@ -87,6 +91,8 @@ export default function BigJackMenu() {
       if (Array.isArray(savedCart) && savedCart.length > 0) {
         setCart(enforceComplementRules(savedCart));
       }
+      const pj = JSON.parse(localStorage.getItem("bj_preorder") || "false");
+      if (pj) setIsPreOrder(true);
     } catch (e) {}
 
     const handleStorage = () => {
@@ -208,7 +214,8 @@ export default function BigJackMenu() {
 
   // Sugerencias (primer complemento disponible por categoría)
   const suggestedGuarn = menuItems.find((it) => it.category === "GUARNICION");
-  const suggestedDrink = menuItems.find((it) => it.category === "BEBIDAS");
+  const suggestedInka = menuItems.find((it) => it.slug === "inka-cola");
+  const suggestedCoca = menuItems.find((it) => it.slug === "coca-cola");
 
   const scrollToMenu = () => {
     if (typeof document === "undefined") return;
@@ -240,6 +247,10 @@ export default function BigJackMenu() {
     try {
       const payload = JSON.stringify(cart || []);
       localStorage.setItem("cart", payload);
+      if (!cart || cart.length === 0) {
+        setIsPreOrder(false);
+        localStorage.removeItem("bj_preorder");
+      }
     } catch (e) {}
   }, [cart]);
 
@@ -265,11 +276,8 @@ export default function BigJackMenu() {
 
   // Funciones del carrito
   const addToCart = (product, option, showSuggestion = true) => {
-    // Bloquear si estamos fuera de horario
-    if (!isOpen) {
-      alert("Lo sentimos, estamos cerrados ahora. No es posible realizar pedidos fuera del horario de atención.");
-      return;
-    }
+    // Si estamos fuera de horario, permitir agregar como pre-orden (solo para recojo)
+    const addingAsPreorder = !isOpen;
     if (!option) return;
     const isComplementProduct = COMPLEMENT_CATEGORIES.includes(product.category);
     if (isComplementProduct && !hasPrimaryProduct) {
@@ -308,11 +316,17 @@ export default function BigJackMenu() {
       ]);
     });
     setRecentlyAdded(uniqueId);
-    // En lugar de abrir el carrito inmediatamente, mostramos una sugerencia
-    // para agregar complementos (papas / bebida) si aplica. Podemos suprimir
-    // la sugerencia cuando se llame desde la propia sugerencia.
+    // Mostrar ventana de sugerencias para agregar complementos (papas / bebida)
     setSuggestionFor({ productId: product.id, uniqueId });
     if (showSuggestion) setSuggestionVisible(true);
+    // Si estamos cerrados, marcar pre-orden y persistir
+    if (addingAsPreorder) {
+      setIsPreOrder(true);
+      setPickupTime("schedule"); // Forzar programación cuando está cerrado
+      try { localStorage.setItem("bj_preorder", JSON.stringify(true)); } catch(e){}
+      // also show the closed notice bar so user knows
+      setClosedNoticeHidden(true);
+    }
     setTimeout(() => {
       setRecentlyAdded((current) => (current === uniqueId ? null : current));
     }, 1200);
@@ -324,7 +338,18 @@ export default function BigJackMenu() {
   };
 
   const removeFromCart = (id) => {
-    setCart((prev) => enforceComplementRules(prev.filter((item) => item.id !== id)));
+    setCart((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const clearCart = () => {
+    if (window.confirm('¿Estás seguro de vaciar todo el carrito?')) {
+      setCart([]);
+      setIsPreOrder(false);
+      try {
+        localStorage.removeItem('cart');
+        localStorage.removeItem('bj_preorder');
+      } catch(e) {}
+    }
   };
 
   const updateQuantity = (id, delta) => {
@@ -342,27 +367,50 @@ export default function BigJackMenu() {
   };
 
   // --- Sugerencias de complementos (mini ventana) ---
-  const addSuggestedItem = (product) => {
-    if (!product) return;
-    const option = product.options?.[0] || { id: "regular", label: "Regular", price: product.price || 0 };
-    // Llamar addToCart pero sin reabrir la sugerencia (showSuggestion = false)
-    addToCart(product, option, false);
-    // Cerrar la sugerencia después de agregar
-    setTimeout(() => setSuggestionVisible(false), 700);
+  const toggleSuggestion = (type) => {
+    setSelectedSuggestions(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }));
+    // Si deselecciona bebida, limpiar elección de tipo
+    if (type === 'bebida' && selectedSuggestions.bebida) {
+      setSelectedDrink(null);
+    }
+  };
+
+  const handleConfirmSuggestions = () => {
+    // Agregar papas si fue seleccionada
+    if (selectedSuggestions.papas && suggestedGuarn) {
+      const option = suggestedGuarn.options?.[0];
+      if (option) addToCart(suggestedGuarn, option, false);
+    }
+    
+    // Agregar bebida según elección
+    if (selectedSuggestions.bebida && selectedDrink) {
+      const drinkProduct = selectedDrink === 'inka' ? suggestedInka : suggestedCoca;
+      if (drinkProduct) {
+        const option = drinkProduct.options?.[0];
+        if (option) addToCart(drinkProduct, option, false);
+      }
+    }
+    
+    // Resetear y cerrar
+    setSelectedSuggestions({ papas: false, bebida: false });
+    setSelectedDrink(null);
+    setSuggestionVisible(false);
+    setTimeout(() => setIsCartOpen(true), 300);
   };
 
   const handleCloseSuggestion = () => {
+    setSelectedSuggestions({ papas: false, bebida: false });
+    setSelectedDrink(null);
     setSuggestionVisible(false);
-  };
-
-  const handleOpenCartFromSuggestion = () => {
-    setSuggestionVisible(false);
-    setIsCartOpen(true);
   };
 
   const handleSkipSuggestion = () => {
+    setSelectedSuggestions({ papas: false, bebida: false });
+    setSelectedDrink(null);
     setSuggestionVisible(false);
-    // Abrir el carrito automáticamente para que el usuario vea lo que agregó
     setTimeout(() => setIsCartOpen(true), 300);
   };
 
@@ -396,12 +444,34 @@ export default function BigJackMenu() {
     setOrderType(type);
   };
 
+  const formatScheduledPickup = () => {
+    if (!scheduledTime) return "Programado";
+    if (scheduledTime.includes("T")) {
+      const date = new Date(scheduledTime);
+      if (!Number.isNaN(date.getTime())) {
+        return date.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
+      }
+    }
+    return scheduledTime;
+  };
+
   const sendOrderToWhatsapp = () => {
     if (cart.length === 0) return;
-    if (!isOpen) {
-      alert("Estamos cerrados ahora. El envío de pedidos por WhatsApp está deshabilitado hasta la próxima apertura.");
-      return;
+
+    // Si es una pre-orden, solo permitir recojo en tienda
+    if (isPreOrder) {
+      if (orderType === "delivery") {
+        alert("Las pre-ordenes solo están disponibles para recojo en tienda. Cambia a 'Recojo' para continuar.");
+        return;
+      }
+    } else {
+      // flujo normal: no permitir enviar si estamos cerrados
+      if (!isOpen) {
+        alert("Estamos cerrados ahora. El envío de pedidos por WhatsApp está deshabilitado hasta la próxima apertura.");
+        return;
+      }
     }
+
     if (!customerName.trim()) {
       alert("Por favor ingresa tu nombre.");
       return;
@@ -411,26 +481,81 @@ export default function BigJackMenu() {
       return;
     }
 
-    let message = `*PEDIDO BIG JACK*\n\n`;
-    message += `*Cliente:* ${customerName}\n`;
-    message += `*Tipo:* ${orderType === "delivery" ? "Delivery" : "Recojo en tienda"}\n`;
-
-    if (orderType === "delivery") {
-      message += `*Dirección:* ${deliveryAddress || "Ubicación compartida"}\n`;
-      if (deliveryReference) message += `*Referencia:* ${deliveryReference}\n`;
-      if (locationLink) message += `*Mapa:* ${locationLink}\n`;
-    } else {
-      message += `*Hora:* ${pickupTime === "now" ? "Recojo inmediato (15-20 min)" : `Programado: ${scheduledTime}`}\n`;
+    // Validar hora programada de recojo (debe ser >= hora de apertura si está programado)
+    if (orderType === "pickup" && pickupTime === "schedule" && scheduledTime) {
+      const now = new Date();
+      const nextOpen = getNextOpenDate(now);
+      const scheduledDate = new Date(scheduledTime);
+      
+      if (nextOpen && scheduledDate < nextOpen) {
+        const openTimeStr = nextOpen.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
+        alert(`La hora programada debe ser a partir de nuestra apertura (${openTimeStr}). Por favor ajusta la hora.`);
+        return;
+      }
+      
+      // Si estamos abiertos, validar que la hora programada sea futura
+      if (isOpen && scheduledDate <= now) {
+        alert("La hora programada debe ser en el futuro. Por favor selecciona una hora más tarde.");
+        return;
+      }
     }
 
-    message += `\n*Detalle del pedido:*\n`;
-    cart.forEach((item) => {
-      message += `- ${item.quantity}x ${item.name} (${item.optionLabel}) - S/ ${(item.price * item.quantity).toFixed(2)}\n`;
-    });
-    
-    message += `\n*Total a pagar:* S/ ${total.toFixed(2)}`;
-    message += `\n\n*Método de pago:* ${paymentMethod.toUpperCase()}`;
-    if (notes.trim()) message += `\n*Notas:* ${notes.trim()}`;
+    const sections = [];
+
+    if (isPreOrder) {
+      const nextOpenDate = getNextOpenDate(new Date());
+      const countdown = nextOpenMs ? formatMsToCountdown(nextOpenMs) : null;
+      const when = nextOpenDate
+        ? nextOpenDate.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })
+        : "la próxima apertura";
+      sections.push([
+        "*⚠ PRE-ORDEN (solo recojo)*",
+        `_Se procesa al abrir: ${when}${countdown ? ` (en ${countdown})` : ""}_`
+      ].join("\n"));
+    }
+
+    sections.push("*📋 PEDIDO BIG JACK*");
+
+    const basics = [`*Cliente:* ${customerName}`, `*Modalidad:* ${orderType === "delivery" ? "Delivery" : "Recojo en tienda"}`];
+
+    if (orderType === "delivery") {
+      const deliveryLines = [
+        `• Dirección: ${deliveryAddress || "Ubicación compartida"}`,
+        deliveryReference ? `• Referencia: ${deliveryReference}` : null,
+        locationLink ? `• Mapa: ${locationLink}` : null,
+      ].filter(Boolean);
+      basics.push(`*📦 Delivery:*
+${deliveryLines.join("\n")}`);
+    } else {
+      if (isPreOrder) {
+        const nextOpenDate = getNextOpenDate(new Date());
+        const when = nextOpenDate
+          ? nextOpenDate.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })
+          : "nuestra próxima apertura";
+        basics.push(`*⏰ Recojo:* PRE-ORDEN — disponible desde ${when}`);
+      } else {
+        basics.push(
+          `*⏰ Recojo:* ${
+            pickupTime === "now" ? "Inmediato (15-20 min)" : `Programado: ${formatScheduledPickup()}`
+          }`
+        );
+      }
+    }
+
+    sections.push(basics.join("\n"));
+
+    const itemsSection = ["*🍔 Pedido:*"].concat(
+      cart.map((item, index) => `• ${item.quantity}x ${item.name} (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`)
+    );
+    sections.push(itemsSection.join("\n"));
+
+    const totals = [`*💰 Total:* S/ ${total.toFixed(2)}`, `*💳 Pago:* ${paymentMethod.toUpperCase()}`];
+    if (notes.trim()) totals.push(`*📝 Notas:* _${notes.trim()}_`);
+    sections.push(totals.join("\n"));
+
+    sections.push("Gracias por pedir en *Big Jack*! 🧡");
+
+    const message = sections.join("\n\n");
 
     const url = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
@@ -596,6 +721,18 @@ export default function BigJackMenu() {
         <ClientSearchParams onOpenCart={() => setIsCartOpen(true)} />
       </Suspense>
 
+          {/* Barra informativa cuando se oculta el aviso de cerrado (pre-orden) */}
+          {!isOpen && closedNoticeHidden && (
+            <div className="bg-red-800/90 border-t-2 border-red-600 text-white text-center py-3">
+              <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
+                <div className="text-sm">Estamos cerrados — Abrimos en {nextOpenMs ? formatMsToCountdown(nextOpenMs) : 'Pronto'}. Cualquier pedido sería una pre-orden y se procesará cuando abramos.</div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setClosedNoticeHidden(false)} className="text-sm bg-transparent border border-white/20 px-3 py-2 rounded text-white">Mostrar aviso</button>
+                </div>
+              </div>
+            </div>
+          )}
+
       {/* HERO EXPERIENCE */}
       <section className="relative overflow-hidden border-b border-neutral-800 bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-900">
         <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(215,61,29,0.4),_transparent_60%)]" />
@@ -722,7 +859,7 @@ export default function BigJackMenu() {
       </section>
 
       {/* Overlay de CERRADO (bloqueo) */}
-      {!isOpen && (
+      {!isOpen && !closedNoticeHidden && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 backdrop-blur-sm px-4">
           <div className="max-w-md w-full bg-neutral-900 border-2 border-red-600 rounded-3xl p-6 text-center">
             <h2 className="text-2xl font-black text-red-400 mb-2">Estamos cerrados</h2>
@@ -732,7 +869,7 @@ export default function BigJackMenu() {
               <p className="text-lg font-bold text-white">{nextOpenMs ? formatMsToCountdown(nextOpenMs) : "Pronto"}</p>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => { const el = document.getElementById('menu-section'); if (el) el.scrollIntoView({behavior:'smooth'}); }} className="flex-1 px-4 py-3 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-semibold">Ver Menú</button>
+              <button onClick={() => { setClosedNoticeHidden(true); const el = document.getElementById('menu-section'); if (el) el.scrollIntoView({behavior:'smooth'}); }} className="flex-1 px-4 py-3 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-semibold">Ver Menú</button>
               <button onClick={() => { window.location.href = '/libro-de-reclamaciones'; }} className="px-4 py-3 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold">Libro de Reclamaciones</button>
             </div>
           </div>
@@ -1037,7 +1174,7 @@ export default function BigJackMenu() {
           ></div>
           
           {/* Panel Lateral */}
-          <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300 z-10">
+          <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl rounded-l-[32px] flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300 z-10">
             <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
               <h2 className="text-xl font-black flex items-center gap-2">
                 <ShoppingCart className="text-yellow-500" />
@@ -1051,7 +1188,7 @@ export default function BigJackMenu() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent p-5 space-y-6">
               {/* LISTA DE ITEMS */}
               {cart.length === 0 ? (
                 <div className="text-center py-10 text-neutral-500">
@@ -1200,13 +1337,28 @@ export default function BigJackMenu() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-white mb-3">¿Cuándo lo recoges?</label>
-                          <div className="grid grid-cols-1 gap-3">
-                             <button
-                                type="button"
-                                onClick={()=>setPickupTime("now")}
-                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='now'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                      <div>
+                        <label className="block text-sm font-semibold text-white mb-3">¿Cuándo lo recoges?</label>
+                        {!isOpen && isPreOrder ? (
+                          <div className="bg-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-4 mb-3">
+                            <p className="text-yellow-400 text-sm font-semibold flex items-center gap-2">
+                              <AlertTriangle size={18} />
+                              Estamos cerrados. Solo puedes programar tu pedido.
+                            </p>
+                          </div>
+                        ) : null}
+                        <div className="grid grid-cols-1 gap-3">
+                          <button
+                              type="button"
+                              onClick={()=>setPickupTime("now")}
+                              disabled={!isOpen && isPreOrder}
+                              className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${
+                                !isOpen && isPreOrder 
+                                  ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed opacity-50'
+                                  : pickupTime==='now'
+                                    ? 'bg-yellow-500 text-black border-yellow-500'
+                                    : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'
+                              }`}
                               >
                                 <Clock size={20} />
                                 Ahora mismo (15-20 min)
@@ -1220,31 +1372,51 @@ export default function BigJackMenu() {
                                 Programar hora
                               </button>
                           </div>
-                        </div>
-
-                        {pickupTime==='schedule' && (
+                        </div>                        {pickupTime==='schedule' && (
                           <div className="animate-in slide-in-from-top-2 duration-200">
-                            <label className="block text-sm text-neutral-300 mb-3">Selecciona una hora</label>
+                            <label className="block text-sm text-neutral-300 mb-3">
+                              Selecciona una hora {!isOpen && '(a partir de la apertura)'}
+                            </label>
                             <div className="grid grid-cols-2 gap-3 mb-4">
-                              {/* Generar slots de tiempo próximos */}
+                              {/* Generar slots de tiempo: desde apertura si estamos cerrados, o desde ahora si estamos abiertos */}
                               {(() => {
                                 const slots = [];
-                                const now = new Date();
-                                const remainder = 15 - (now.getMinutes() % 15);
-                                now.setMinutes(now.getMinutes() + remainder);
-                                for(let i=0; i<6; i++) {
-                                  const timeStr = now.toLocaleTimeString('es-PE', {hour:'2-digit', minute:'2-digit', hour12:false});
-                                  slots.push(timeStr);
-                                  now.setMinutes(now.getMinutes() + 15);
+                                let startTime = new Date();
+                                
+                                // Si estamos cerrados, comenzar desde la próxima apertura
+                                if (!isOpen) {
+                                  const nextOpen = getNextOpenDate(new Date());
+                                  if (nextOpen) {
+                                    startTime = new Date(nextOpen);
+                                  }
+                                } else {
+                                  // Si estamos abiertos, comenzar desde ahora + 15 min redondeado
+                                  const remainder = 15 - (startTime.getMinutes() % 15);
+                                  startTime.setMinutes(startTime.getMinutes() + remainder);
                                 }
-                                return slots.map(time => (
+                                
+                                // Generar 6 slots de 15 minutos
+                                for(let i=0; i<6; i++) {
+                                  const dateStr = startTime.toISOString().slice(0, 16); // formato datetime-local
+                                  const displayStr = startTime.toLocaleString('es-PE', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                  });
+                                  slots.push({ value: dateStr, label: displayStr });
+                                  startTime.setMinutes(startTime.getMinutes() + 15);
+                                }
+                                
+                                return slots.map(slot => (
                                   <button
                                     type="button"
-                                    key={time}
-                                    onClick={()=>setScheduledTime(time)}
-                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===time ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                                    key={slot.value}
+                                    onClick={()=>setScheduledTime(slot.value)}
+                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===slot.value ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                                   >
-                                    {time}
+                                    {slot.label}
                                   </button>
                                 ));
                               })()}
@@ -1252,13 +1424,23 @@ export default function BigJackMenu() {
                             <div className="relative">
                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                                <input
-                                type="time"
+                                type="datetime-local"
                                 value={scheduledTime}
+                                min={(() => {
+                                  // Establecer mínimo: hora de apertura si cerrado, o ahora si abierto
+                                  if (!isOpen) {
+                                    const nextOpen = getNextOpenDate(new Date());
+                                    return nextOpen ? nextOpen.toISOString().slice(0, 16) : undefined;
+                                  }
+                                  const now = new Date();
+                                  now.setMinutes(now.getMinutes() + 15);
+                                  return now.toISOString().slice(0, 16);
+                                })()}
                                 onChange={(e)=>setScheduledTime(e.target.value)}
-                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-yellow-500 outline-none text-center text-white"
+                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-yellow-500 outline-none text-white"
                               />
                             </div>
-                            <p className="text-xs text-neutral-400 mt-2 text-center">O elige una hora personalizada</p>
+                            <p className="text-xs text-neutral-400 mt-2 text-center">O elige una fecha y hora personalizada</p>
                           </div>
                         )}
                         
@@ -1328,6 +1510,15 @@ export default function BigJackMenu() {
             </div>
 
             <div className="p-6 border-t-2 border-neutral-800 bg-neutral-900">
+              {cart.length > 0 && (
+                <button
+                  onClick={clearCart}
+                  className="w-full mb-4 min-h-[48px] bg-red-600/20 hover:bg-red-600/30 border-2 border-red-600/40 hover:border-red-500 text-red-400 hover:text-red-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]"
+                >
+                  <Trash2 size={18} />
+                  Vaciar carrito
+                </button>
+              )}
               <div className="flex justify-between items-center mb-5 text-xl font-bold">
                 <span className="text-white">Total</span>
                 <span className="text-yellow-500 text-3xl">S/ {total.toFixed(2)}</span>
@@ -1339,13 +1530,6 @@ export default function BigJackMenu() {
               >
                 <Send size={22} />
                   ENVIAR PEDIDO POR WHATSAPP
-              </button>
-              <button
-                onClick={() => { if (cart.length > 0 && typeof window !== 'undefined') window.open(PEDIDOSYA_LINK, '_blank'); }}
-                disabled={cart.length === 0}
-                className="w-full mt-3 min-h-[56px] bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 text-base shadow-md active:scale-[0.98]"
-              >
-                PEDIR POR PEDIDOSYA
               </button>
             </div>
           </div>
@@ -1504,64 +1688,198 @@ export default function BigJackMenu() {
         </div>
       </footer>
 
-      {/* Mini ventana de sugerencia para complementos */}
+      {/* Mini ventana de sugerencia para complementos - MEJORADA */}
       {suggestionVisible && (
-        <div className="fixed inset-x-0 bottom-0 sm:left-1/2 sm:-translate-x-1/2 sm:bottom-24 sm:inset-x-auto z-50 p-4 sm:px-0">
-          <div className="max-w-xl w-full bg-neutral-900 border-2 border-yellow-500/30 rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <p className="font-bold text-white text-lg flex items-center gap-2">
-                  <span className="text-green-500">✓</span> Producto agregado
-                </p>
-                <p className="text-sm text-neutral-400 mt-1">¿Quieres agregar papas o bebida para completar tu pedido?</p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="max-w-lg w-full bg-gradient-to-b from-neutral-900 to-neutral-950 border-2 border-yellow-500/30 rounded-3xl shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-4 duration-300 max-h-[85vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-b from-neutral-900 to-neutral-900/95 backdrop-blur-sm p-5 pb-4 border-b border-neutral-800 rounded-t-3xl">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="font-black text-white text-xl flex items-center gap-2">
+                    <span className="text-green-500 text-2xl">✓</span> ¡Agregado!
+                  </p>
+                  <p className="text-sm text-neutral-400 mt-1.5 leading-relaxed">Completa tu pedido con estos complementos</p>
+                </div>
+                <button 
+                  onClick={handleCloseSuggestion} 
+                  className="text-neutral-500 hover:text-white hover:bg-neutral-800 p-2 rounded-full transition-all ml-2"
+                  aria-label="Cerrar"
+                >
+                  <X size={22} />
+                </button>
               </div>
-              <button 
-                onClick={handleCloseSuggestion} 
-                className="text-neutral-400 hover:text-white p-1 ml-2 hover:bg-neutral-800 rounded-full transition-colors"
-                aria-label="Cerrar"
-              >
-                <X size={20} />
-              </button>
             </div>
-            <div className="grid grid-cols-2 gap-3 mb-3">
+
+            {/* Content */}
+            <div className="p-5 space-y-4">
+              {/* Papas Option */}
               {suggestedGuarn && (
                 <button
-                  onClick={() => addSuggestedItem(suggestedGuarn)}
-                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1 border border-neutral-700 hover:border-yellow-500/50"
+                  onClick={() => toggleSuggestion('papas')}
+                  className={`w-full min-h-[80px] px-5 py-4 rounded-2xl font-semibold transition-all flex items-center gap-4 border-2 ${
+                    selectedSuggestions.papas
+                      ? 'bg-yellow-500/20 border-yellow-500 shadow-lg shadow-yellow-500/20'
+                      : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-600'
+                  }`}
                 >
-                  <span className="text-2xl">🍟</span>
-                  <span className="text-sm">Papas</span>
-                  <span className="text-yellow-500 font-bold text-base">S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</span>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-3xl ${
+                    selectedSuggestions.papas ? 'bg-yellow-500/30' : 'bg-neutral-700'
+                  }`}>
+                    🍟
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-white font-bold text-base">Papas Fritas</p>
+                    <p className="text-neutral-400 text-xs mt-0.5">Crujientes y doradas</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-yellow-500 font-black text-lg">S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</span>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                      selectedSuggestions.papas
+                        ? 'bg-yellow-500 border-yellow-500'
+                        : 'border-neutral-600'
+                    }`}>
+                      {selectedSuggestions.papas && <Check size={16} className="text-black font-bold" />}
+                    </div>
+                  </div>
                 </button>
               )}
-              {suggestedDrink && (
+
+              {/* Bebida Option */}
+              <div className="space-y-3">
                 <button
-                  onClick={() => addSuggestedItem(suggestedDrink)}
-                  className="min-h-[64px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 rounded-xl font-semibold text-white transition-all flex flex-col items-center justify-center gap-1 border border-neutral-700 hover:border-yellow-500/50"
+                  onClick={() => toggleSuggestion('bebida')}
+                  className={`w-full min-h-[80px] px-5 py-4 rounded-2xl font-semibold transition-all flex items-center gap-4 border-2 ${
+                    selectedSuggestions.bebida
+                      ? 'bg-yellow-500/20 border-yellow-500 shadow-lg shadow-yellow-500/20'
+                      : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-600'
+                  }`}
                 >
-                  <span className="text-2xl">🥤</span>
-                  <span className="text-sm">Bebida</span>
-                  <span className="text-yellow-500 font-bold text-base">S/ {suggestedDrink.options?.[0]?.price?.toFixed(2)}</span>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-3xl ${
+                    selectedSuggestions.bebida ? 'bg-yellow-500/30' : 'bg-neutral-700'
+                  }`}>
+                    🥤
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-white font-bold text-base">Bebida</p>
+                    <p className="text-neutral-400 text-xs mt-0.5">Elige tu favorita</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-yellow-500 font-black text-lg">S/ 3.50</span>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                      selectedSuggestions.bebida
+                        ? 'bg-yellow-500 border-yellow-500'
+                        : 'border-neutral-600'
+                    }`}>
+                      {selectedSuggestions.bebida && <Check size={16} className="text-black font-bold" />}
+                    </div>
+                  </div>
                 </button>
-              )}
+
+                {/* Drink Type Selection */}
+                {selectedSuggestions.bebida && (
+                  <div className="pl-4 space-y-2 animate-in slide-in-from-top-2 duration-200">
+                    <p className="text-xs text-neutral-400 font-semibold mb-2">¿Cuál prefieres?</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {suggestedInka && (
+                        <button
+                          onClick={() => setSelectedDrink('inka')}
+                          className={`min-h-[70px] px-3 py-3 rounded-xl font-bold transition-all flex flex-col items-center justify-center gap-2 border-2 text-sm ${
+                            selectedDrink === 'inka'
+                              ? 'bg-yellow-600/30 border-yellow-600 text-white shadow-md'
+                              : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-600'
+                          }`}
+                        >
+                          <span className="text-2xl">🟡</span>
+                          <span>Inka Cola</span>
+                        </button>
+                      )}
+                      {suggestedCoca && (
+                        <button
+                          onClick={() => setSelectedDrink('coca')}
+                          className={`min-h-[70px] px-3 py-3 rounded-xl font-bold transition-all flex flex-col items-center justify-center gap-2 border-2 text-sm ${
+                            selectedDrink === 'coca'
+                              ? 'bg-red-600/30 border-red-600 text-white shadow-md'
+                              : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-600'
+                          }`}
+                        >
+                          <span className="text-2xl">🔴</span>
+                          <span>Coca Cola</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+
+            {/* Footer Actions */}
+            <div className="sticky bottom-0 bg-gradient-to-t from-neutral-950 to-neutral-950/95 backdrop-blur-sm p-5 pt-4 border-t border-neutral-800 rounded-b-3xl space-y-3">
               <button 
-                onClick={handleSkipSuggestion} 
-                className="min-h-[52px] px-4 py-3 bg-neutral-800 hover:bg-neutral-700 active:scale-95 text-white rounded-xl font-semibold transition-all border border-neutral-700"
+                onClick={handleConfirmSuggestions}
+                disabled={selectedSuggestions.bebida && !selectedDrink}
+                className={`w-full min-h-[60px] rounded-2xl font-black text-base transition-all flex items-center justify-center gap-3 shadow-lg ${
+                  (selectedSuggestions.papas || (selectedSuggestions.bebida && selectedDrink))
+                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black active:scale-[0.98]'
+                    : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
+                }`}
               >
-                No, gracias
+                <ShoppingCart size={20} />
+                {selectedSuggestions.papas || selectedSuggestions.bebida
+                  ? `Agregar ${selectedSuggestions.papas && selectedSuggestions.bebida ? 'ambos' : selectedSuggestions.papas ? 'papas' : 'bebida'} al carrito`
+                  : 'Selecciona al menos uno'
+                }
               </button>
               <button 
-                onClick={handleOpenCartFromSuggestion} 
-                className="min-h-[52px] px-4 py-3 bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-black rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                onClick={handleSkipSuggestion} 
+                className="w-full min-h-[52px] bg-transparent hover:bg-neutral-800 text-neutral-400 hover:text-white rounded-2xl font-bold transition-all border-2 border-neutral-700 hover:border-neutral-600"
               >
-                <ShoppingCart size={18} />
-                Ver carrito ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+                No, gracias
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Barra resumen flotante (mobile) */}
+      {!suggestionVisible && !isCartOpen && cart.length > 0 && (
+        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-30">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full rounded-2xl bg-gradient-to-r from-yellow-500 via-yellow-400 to-orange-400 text-black font-black px-5 py-4 shadow-2xl shadow-yellow-900/40 flex items-center justify-between gap-4 active:scale-[0.99]"
+            aria-label="Abrir carrito"
+          >
+            <div className="text-left">
+              <p className="text-[11px] uppercase tracking-[0.4em] text-black/70">Tu pedido</p>
+              <p className="text-lg">{cart.reduce((sum, item) => sum + item.quantity, 0)} artículos</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">S/ {total.toFixed(2)}</span>
+              <div className="w-10 h-10 rounded-full bg-black/20 text-black grid place-content-center">
+                <ShoppingCart size={20} />
+              </div>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Botón flotante del carrito (solo cuando no hay resumen activo) */}
+      {!suggestionVisible && (cart.length === 0 || isCartOpen) && (
+        <button 
+          onClick={() => setIsCartOpen(true)}
+          className="lg:hidden fixed bottom-6 right-6 z-40 p-4 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all shadow-2xl shadow-yellow-500/40 active:scale-95"
+          style={{
+            animation: cart.length > 0 ? 'none' : 'bounce 2s infinite',
+          }}
+          aria-label="Abrir carrito"
+        >
+          <ShoppingCart size={28} />
+          {cart.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-black min-w-[28px] h-7 flex items-center justify-center rounded-full shadow-lg px-2">
+              {cart.reduce((acc, item) => acc + item.quantity, 0)}
+            </span>
+          )}
+        </button>
       )}
     </div>
   );
