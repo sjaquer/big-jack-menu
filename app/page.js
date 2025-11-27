@@ -1678,6 +1678,12 @@ ${deliveryLines.join("\n")}`);
                 © {new Date().getFullYear()} <span className="font-bold text-neutral-400">{restaurantInfo.name}</span>. Todos los derechos reservados.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
+                <Link
+                  href="/links"
+                  className="text-xs text-yellow-500 hover:text-yellow-400 transition-colors font-bold underline"
+                >
+                  🔗 Todos nuestros enlaces
+                </Link>
                 <a
                   href="#menu-section"
                   className="text-xs text-neutral-400 hover:text-yellow-500 transition-colors font-semibold"
