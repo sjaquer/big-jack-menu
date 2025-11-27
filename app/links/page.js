@@ -105,7 +105,7 @@ export default function LinksPage() {
     {
       icon: Heart,
       title: "Recompensas",
-      description: "Tu 10ma burger es gratis"
+      description: "Próximamente: detalles del programa de recompensas"
     }
   ];
 
