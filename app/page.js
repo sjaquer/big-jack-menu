@@ -673,6 +673,13 @@ ${deliveryLines.join("\n")}`);
                   <p className="text-neutral-300 font-semibold">Vie-Dom: 12-11PM</p>
                 </div>
               </div>
+              <Link
+                href="/quienes"
+                className="hidden xl:inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-white text-sm font-semibold transition-all"
+              >
+                <User size={16} />
+                Quienes somos
+              </Link>
               <a
                 href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                 target="_blank"
@@ -710,6 +717,13 @@ ${deliveryLines.join("\n")}`);
               <MessageCircle size={16} />
               Pedir por WhatsApp
             </a>
+            <Link
+              href="/quienes"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-white text-sm font-semibold transition-all active:scale-95"
+            >
+              <User size={16} />
+              Quienes somos
+            </Link>
             <a
               href={restaurantInfo.contact.googleMapsLink}
               target="_blank"
@@ -1683,6 +1697,12 @@ ${deliveryLines.join("\n")}`);
                   className="text-xs text-yellow-500 hover:text-yellow-400 transition-colors font-bold underline"
                 >
                   🔗 Todos nuestros enlaces
+                </Link>
+                <Link
+                  href="/quienes"
+                  className="text-xs text-neutral-400 hover:text-yellow-500 transition-colors font-semibold"
+                >
+                  Quienes somos
                 </Link>
                 <a
                   href="#menu-section"
