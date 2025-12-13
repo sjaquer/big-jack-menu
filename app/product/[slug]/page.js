@@ -48,9 +48,9 @@ export default async function ProductDetail({ params }) {
   const maxPrice = priceRange[1] === -Infinity ? minPrice : priceRange[1];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-950 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#020204] via-[#0a0a0c] to-[#020204] text-white">
       {/* Header con navegación */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-neutral-950 to-neutral-900 backdrop-blur-lg border-b-2 border-neutral-800 shadow-xl">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-[#020204] to-[#0a0a0c] backdrop-blur-lg border-b-2 border-neutral-800 shadow-xl">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link 
             href="/" 
@@ -63,7 +63,7 @@ export default async function ProductDetail({ params }) {
             <span className="text-xs sm:text-sm text-neutral-400 hidden sm:block">Ver tu carrito</span>
             <Link
               href="/?openCart=true"
-              className="p-3 sm:p-4 bg-yellow-500 text-black rounded-2xl hover:bg-yellow-400 transition-all active:scale-95 shadow-lg shadow-yellow-500/20"
+              className="p-3 sm:p-4 bg-[#d99133] text-black rounded-2xl hover:bg-[#eeb055] transition-all active:scale-95 shadow-lg shadow-[#d99133]/20"
             >
               <ShoppingCart size={22} />
             </Link>
@@ -76,7 +76,7 @@ export default async function ProductDetail({ params }) {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Imagen del producto */}
           <div className="relative">
-            <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full"></div>
+            <div className="absolute inset-0 bg-[#d99133]/20 blur-3xl rounded-full"></div>
             <div className="relative rounded-[2rem] overflow-hidden border-4 border-neutral-800 shadow-2xl">
               <img
                 src={product.image}
@@ -84,13 +84,13 @@ export default async function ProductDetail({ params }) {
                 className="w-full aspect-square object-cover"
               />
               {product.popular && (
-                <div className="absolute top-6 left-6 bg-yellow-500 text-black px-4 py-2 rounded-full font-black text-sm flex items-center gap-2 shadow-lg">
+                <div className="absolute top-6 left-6 bg-[#d99133] text-black px-4 py-2 rounded-full font-black text-sm flex items-center gap-2 shadow-lg">
                   <Star size={16} fill="currentColor" />
                   POPULAR
                 </div>
               )}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-yellow-500 font-bold mb-1">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#d99133] font-bold mb-1">
                   {product.category}
                 </p>
                 <h1 className="text-4xl md:text-5xl font-black text-white">

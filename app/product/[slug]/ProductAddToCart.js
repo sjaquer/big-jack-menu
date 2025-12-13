@@ -97,8 +97,8 @@ export default function ProductAddToCart({ product }) {
                 onClick={() => setSelectedOption(option)}
                 className={`flex items-center justify-between rounded-2xl p-5 border-2 transition-all ${
                   selectedOption?.id === option.id
-                    ? "bg-yellow-500 border-yellow-500 text-black"
-                    : "bg-neutral-900 border-neutral-700 text-white hover:border-yellow-500/50"
+                    ? "bg-[#d99133] border-[#d99133] text-black"
+                    : "bg-neutral-900 border-neutral-700 text-white hover:border-[#d99133]/50"
                 }`}
               >
                 <div className="text-left">
@@ -113,7 +113,7 @@ export default function ProductAddToCart({ product }) {
                   </span>
                   {selectedOption?.id === option.id && (
                     <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                      <Check size={16} className="text-yellow-500" />
+                      <Check size={16} className="text-[#d99133]" />
                     </div>
                   )}
                 </div>
@@ -136,7 +136,7 @@ export default function ProductAddToCart({ product }) {
           >
             <Minus size={20} className={quantity <= 1 ? "text-neutral-600" : "text-white"} />
           </button>
-          <span className="text-3xl font-black text-yellow-500">{quantity}</span>
+          <span className="text-3xl font-black text-[#d99133]">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
             className="w-12 h-12 bg-neutral-800 hover:bg-neutral-700 rounded-xl flex items-center justify-center transition"
@@ -150,7 +150,7 @@ export default function ProductAddToCart({ product }) {
       <div className="bg-neutral-900 border-2 border-neutral-800 rounded-2xl p-5 space-y-4">
         <div className="flex justify-between items-center">
           <span className="text-neutral-400 text-sm font-semibold">Subtotal:</span>
-          <span className="text-3xl font-black text-yellow-500">
+          <span className="text-3xl font-black text-[#d99133]">
             S/ {(selectedOption ? selectedOption.price * quantity : 0).toFixed(2)}
           </span>
         </div>
@@ -162,7 +162,7 @@ export default function ProductAddToCart({ product }) {
             className={`w-full min-h-[64px] rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all shadow-xl ${
               added
                 ? "bg-green-600 text-white"
-                : "bg-yellow-500 hover:bg-yellow-400 text-black active:scale-[0.98]"
+                : "bg-[#d99133] hover:bg-[#eeb055] text-black active:scale-[0.98]"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {added ? (

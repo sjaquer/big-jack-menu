@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #111010;
+  --background: #020204;
   --foreground: #ededed;
-  --bj-accent: #d73d1d;
+  --bj-accent: #d99133;
   --bj-cream: #ffd4a1;
-  --bj-dark: #090909;
+  --bj-dark: #020204;
 }
 
 body {
@@ -22,13 +22,13 @@ body {
 /* Sobrescribir utilidades comunes de Tailwind para mantener el diseño sin cambiar HTML */
 .text-yellow-500 { color: var(--bj-accent) !important; }
 .bg-yellow-500 { background-color: var(--bj-accent) !important; }
-.bg-yellow-500\/50 { background-color: rgba(215,57,29,0.5) !important; }
+.bg-yellow-500\/50 { background-color: rgba(217,145,51,0.5) !important; }
 .text-orange-500 { color: var(--bj-accent) !important; }
 .bg-orange-600 { background-color: var(--bj-accent) !important; }
 .bg-orange-500 { background-color: var(--bj-accent) !important; }
 .text-orange-400 { color: var(--bj-accent) !important; }
 .border-orange-500 { border-color: var(--bj-accent) !important; }
-.shadow-orange-900\/50 { box-shadow: 0 10px 15px -3px rgba(215,57,29,0.5), 0 4px 6px -2px rgba(215,57,29,0.25) !important; }
+.shadow-orange-900\/50 { box-shadow: 0 10px 15px -3px rgba(217,145,51,0.5), 0 4px 6px -2px rgba(217,145,51,0.25) !important; }
 
 /* Algunos componentes usan estilos inline de color de texto con clases compuestas */
 .text-yellow-500\.font-bold { color: var(--bj-accent) !important; }

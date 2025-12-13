@@ -32,7 +32,7 @@ export default function LinksPage() {
       title: "Deja tu reseña en Google",
       description: "¿Te gustó tu pedido? Cuéntanos tu experiencia",
       href: "https://g.page/r/CRukRtdfadmpEAE/review",
-      gradient: "from-yellow-500 via-orange-500 to-red-500",
+      gradient: "from-[#d99133] via-[#b07020] to-[#8a5010]",
       icon: Star,
       primary: true,
       badge: "¡Importante!"
@@ -42,7 +42,7 @@ export default function LinksPage() {
       title: "Ver Menú Digital",
       description: "Explora nuestras hamburguesas brutales",
       href: "/",
-      gradient: "from-yellow-500 to-orange-600",
+      gradient: "from-[#d99133] to-[#b07020]",
       icon: ShoppingBag,
       emoji: "🍔"
     },
@@ -78,7 +78,7 @@ export default function LinksPage() {
       title: "🎮 Reto Gamer",
       description: "¡Juega Neon Burger Hell y destruye a Jack!",
       href: "/reto-gamer",
-      gradient: "from-red-500 via-orange-500 to-yellow-500",
+      gradient: "from-[#8a5010] via-[#b07020] to-[#d99133]",
       icon: Zap,
       emoji: "👾",
       badge: "¡Nuevo!"

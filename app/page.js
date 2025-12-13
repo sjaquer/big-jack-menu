@@ -316,9 +316,20 @@ export default function BigJackMenu() {
       ]);
     });
     setRecentlyAdded(uniqueId);
-    // Mostrar ventana de sugerencias para agregar complementos (papas / bebida)
+    
+    // Lógica inteligente de sugerencias (Smart Upselling)
+    if (showSuggestion) {
+      const willHaveFries = cart.some(i => i.category === "GUARNICION") || product.category === "GUARNICION";
+      const willHaveDrink = cart.some(i => i.category === "BEBIDAS") || product.category === "BEBIDAS";
+      const isBurger = PRIMARY_CATEGORIES.includes(product.category);
+
+      // Solo mostrar si falta algo del combo básico (Burger + Papas + Bebida)
+      if (isBurger && (!willHaveFries || !willHaveDrink)) {
+        setSuggestionVisible(true);
+      }
+    }
     setSuggestionFor({ productId: product.id, uniqueId });
-    if (showSuggestion) setSuggestionVisible(true);
+
     // Si estamos cerrados, marcar pre-orden y persistir
     if (addingAsPreorder) {
       setIsPreOrder(true);
@@ -752,126 +763,71 @@ ${deliveryLines.join("\n")}`);
             </div>
           )}
 
-      {/* HERO EXPERIENCE */}
+      {/* HERO EXPERIENCE - MOBILE FIRST REDESIGN */}
       <section className="relative overflow-hidden border-b border-neutral-800 bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-900">
         <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(215,61,29,0.4),_transparent_60%)]" />
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 grid gap-10 md:grid-cols-[1.2fr_0.8fr] items-center">
-          <div className="space-y-6">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.3em] text-yellow-400 uppercase">
-              <Sparkles size={14} /> Pre-orden digital
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black leading-tight text-white">
-              Menu exprés para <span className="text-yellow-500">pedir por WhatsApp</span> sin colas.
+        
+        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-8 pb-12 md:py-16 grid gap-8 md:grid-cols-2 items-center">
+          {/* Texto Hero */}
+          <div className="space-y-5 text-center md:text-left order-2 md:order-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-bold tracking-wider uppercase mb-2">
+              <Sparkles size={12} /> <span>Nuevo Sistema de Pedidos</span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[0.95] text-white tracking-tight">
+              HAMBURGUESAS <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-600">QUE PRENDEN</span> <br/>
+              TU HAMBRE
             </h2>
-            <p className="text-neutral-300 text-lg">
-              Elige tus burgers antes de llegar, envía el pedido a WhatsApp y nosotros lo vamos preparando. Pensado para oficinas, universitarios y riders que quieren todo rápido.
+            <p className="text-neutral-400 text-lg leading-relaxed max-w-lg mx-auto md:mx-0">
+              Pide online en segundos y recoge sin colas. La verdadera experiencia Big Jack, ahora en tu bolsillo.
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-2">
               <button
                 onClick={scrollToMenu}
-                className="px-5 py-3 rounded-full bg-yellow-500 text-black font-bold flex items-center gap-2 shadow-lg shadow-yellow-900/50 w-full sm:w-auto justify-center"
+                className="h-14 px-8 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-black font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20 transition-all active:scale-95"
               >
-                <Send size={18} /> Ver y pedir
+                <Flame size={20} /> PEDIR AHORA
               </button>
-              <button
-                onClick={scrollToMenu}
-                className="px-5 py-3 rounded-full border border-neutral-700 text-white/80 hover:text-white hover:border-yellow-500 transition w-full sm:w-auto justify-center flex items-center gap-2"
+              <a
+                href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+                target="_blank"
+                rel="noreferrer"
+                className="h-14 px-8 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-95"
               >
-                Ver menú completo
-              </button>
-            </div>
-            <div className="sm:hidden space-y-3" aria-label="Redes sociales Big Jack">
-              <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Conecta y comparte</p>
-              <div className="grid gap-2">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`w-full rounded-2xl border px-4 py-3 flex items-center justify-between ${link.accent}`}
-                  >
-                    <div>
-                      <p className="text-sm font-semibold">{link.label}</p>
-                      <p className="text-[11px] uppercase tracking-[0.3em] opacity-70">{link.description}</p>
-                    </div>
-                    <link.icon size={20} />
-                  </a>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {[{
-                label: "Listo en",
-                value: "15 min",
-                sub: "si recoges"
-              }, {
-                label: "Pedidos felices",
-                value: "¡Nuevo!",
-                sub: "Apertura reciente"
-              }, {
-                label: "Promo activa",
-                value: "TikTok",
-                sub: "Historias diarias"
-              }].map((stat) => (
-                <div key={stat.label} className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-4 text-center">
-                  <p className="text-xs uppercase text-neutral-500 tracking-widest">{stat.label}</p>
-                  <p className="text-2xl font-black text-white">{stat.value}</p>
-                  <p className="text-xs text-neutral-400">{stat.sub}</p>
-                </div>
-              ))}
+                <MessageCircle size={20} /> WhatsApp
+              </a>
             </div>
           </div>
-          <div className="relative">
-            <div className="rounded-[32px] border border-neutral-800 bg-neutral-900/70 p-5 shadow-2xl shadow-yellow-900/40 backdrop-blur">
-              <div className="text-xs uppercase text-yellow-400 font-bold flex items-center gap-2 mb-3">
-                <Flame size={16} /> Destacado del día
-              </div>
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-neutral-800 mb-4">
-                {heroHighlight ? (
-                  <img
-                    src={heroHighlight.image}
-                    alt={heroHighlight.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK";
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full grid place-content-center text-neutral-600">Pronto nuevas fotos</div>
-                )}
-              </div>
-              <div className="flex items-start justify-between">
+
+          {/* Imagen Hero */}
+          <div className="relative order-1 md:order-2">
+            <div className="relative aspect-square md:aspect-[4/3] rounded-[2rem] overflow-hidden border-2 border-neutral-800 shadow-2xl shadow-orange-900/20 group">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+              {heroHighlight ? (
+                <img
+                  src={heroHighlight.image}
+                  alt={heroHighlight.name}
+                  className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src = "https://placehold.co/600x600/222/yellow?text=BIG+JACK";
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
+                  <Flame size={48} className="text-neutral-700" />
+                </div>
+              )}
+              
+              {/* Badge Flotante */}
+              <div className="absolute bottom-4 left-4 right-4 z-20 bg-neutral-900/90 backdrop-blur-md border border-neutral-700 p-4 rounded-2xl flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-neutral-500 uppercase tracking-[0.3em]">{heroHighlight?.category || "Burger"}</p>
-                  <h3 className="text-2xl font-black text-white">{heroHighlight?.name || restaurantInfo.name}</h3>
+                  <p className="text-xs text-yellow-500 font-bold uppercase tracking-wider mb-0.5">Recomendado</p>
+                  <p className="text-white font-black text-xl">{heroHighlight?.name || "Big Jack Special"}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-neutral-500 uppercase">Desde</p>
-                  <p className="text-3xl font-black text-yellow-500">S/ {heroPriceRange[0].toFixed(2)}</p>
-                  <p className="text-xs text-neutral-500">hasta S/ {heroPriceRange[1].toFixed(2)}</p>
+                  <p className="text-2xl font-black text-white">S/ {heroPriceRange[0].toFixed(2)}</p>
                 </div>
               </div>
-            </div>
-            <div className="absolute -bottom-6 -right-4 w-64 bg-neutral-900/95 border border-neutral-800 rounded-2xl p-4 text-sm shadow-xl shadow-black/40 hidden md:flex md:flex-col gap-2" aria-label="Redes sociales">
-              <p className="font-semibold text-white flex items-center gap-2">
-                <PhoneCall size={16} /> Sigue el fuego
-              </p>
-              {socialLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`rounded-xl border px-3 py-2 flex items-center justify-between ${link.accent}`}
-                >
-                  <div>
-                    <p className="text-sm font-semibold">{link.label}</p>
-                    <p className="text-[10px] uppercase tracking-[0.3em] opacity-70">{link.description}</p>
-                  </div>
-                  <link.icon size={18} />
-                </a>
-              ))}
             </div>
           </div>
         </div>
@@ -894,44 +850,6 @@ ${deliveryLines.join("\n")}`);
           </div>
         </div>
       )}
-
-      {/* FAST TRACK */}
-      <section className="max-w-6xl mx-auto px-4 py-6 overflow-hidden">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {fastTrackHighlights.map((feature) => (
-            <div
-              key={feature.title}
-              className="border border-neutral-800 rounded-2xl bg-neutral-900/60 p-4 hover:border-yellow-500/60 transition"
-            >
-              <p className="text-[11px] text-yellow-500 font-bold tracking-[0.3em] mb-2">FAST TRACK</p>
-              <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
-              <p className="text-neutral-400 text-sm leading-relaxed">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ENCUÉNTRANOS (MAPA) */}
-      <section className="bg-neutral-900 px-4 py-6 border-b border-neutral-800">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
-          <div className="w-full rounded-xl overflow-hidden border border-neutral-800">
-            <div className="w-full h-56 md:h-64">
-              <SecureMap />
-            </div>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-1">Visítanos</p>
-            <h3 className="text-2xl font-bold text-white mb-2">Encuéntranos en Lince</h3>
-            <p className="text-neutral-400 mb-4">{restaurantInfo.contact.address}</p>
-            <div className="flex gap-2 flex-wrap">
-              <a href={restaurantInfo.contact.googleMapsLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-yellow-500 text-black font-bold px-4 py-2 rounded-lg">Abrir en Google Maps</a>
-              <a href={`https://wa.me/${restaurantInfo.contact.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-neutral-900 text-white border border-neutral-700 px-4 py-2 rounded-lg">Pedir por WhatsApp</a>
-              <a href={PEDIDOSYA_LINK} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg">Pedir por PedidosYa</a>
-            </div>
-            <p className="text-xs text-neutral-500 mt-3">Comparte este mapa al pedir delivery o úsalo como guía si vienes a recoger.</p>
-          </div>
-        </div>
-      </section>
 
       {/* CATEGORÍAS */}
       <div className="sticky top-[73px] z-40 bg-gradient-to-b from-neutral-950 to-neutral-900/95 backdrop-blur-lg border-b-2 border-neutral-800 py-5 shadow-lg overflow-hidden">
@@ -973,7 +891,7 @@ ${deliveryLines.join("\n")}`);
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
             const isComplement = COMPLEMENT_CATEGORIES.includes(item.category);
             const isPrimary = PRIMARY_CATEGORIES.includes(item.category);
@@ -983,107 +901,79 @@ ${deliveryLines.join("\n")}`);
               : [{ id: "regular", label: "Regular", price: item.price || 0 }];
             const basePrice = optionsToRender.reduce((min, opt) => Math.min(min, opt.price), optionsToRender[0].price);
             return (
-              <div key={item.id} className="border border-neutral-800 rounded-[28px] bg-gradient-to-b from-neutral-900 to-neutral-950 hover:border-yellow-500/60 transition-transform duration-300 hover:-translate-y-1">
-                <Link href={`/product/${item.slug}`} className="relative h-56 block overflow-hidden rounded-t-[28px] border-b border-neutral-800 bg-neutral-800 cursor-pointer group">
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      onError={(e) => {
-                        e.currentTarget.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-neutral-500">Pronto imagen</div>
-                  )}
-                  {item.popular && (
-                    <span className="absolute top-4 left-4 bg-yellow-500 text-black text-xs font-black px-3 py-1 rounded-full shadow-lg">
-                      HIT
-                    </span>
-                  )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white font-bold text-sm bg-yellow-500 text-black px-4 py-2 rounded-full">
-                      Ver detalles
-                    </span>
-                  </div>
-                </Link>
-                <div className="p-6 space-y-4">
-                  <div className="flex items-start justify-between gap-4">
+              <div key={item.id} className="group relative bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden hover:border-yellow-500/50 transition-all duration-300 flex flex-col sm:block">
+                {/* Mobile Layout: Horizontal Card */}
+                <div className="flex sm:block h-full">
+                  {/* Image Section */}
+                  <Link href={`/product/${item.slug}`} className="w-1/3 sm:w-full sm:h-56 relative block overflow-hidden bg-neutral-800 flex-shrink-0">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-neutral-500 text-xs">Sin foto</div>
+                    )}
+                    {item.popular && (
+                      <span className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-yellow-500 text-black text-[10px] sm:text-xs font-black px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
+                        HIT
+                      </span>
+                    )}
+                  </Link>
+
+                  {/* Content Section */}
+                  <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between">
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.3em] text-yellow-500">{item.category}</p>
-                      <h3 className="text-2xl font-bold text-white leading-tight">{item.name}</h3>
+                      <div className="flex justify-between items-start gap-2 mb-1">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-yellow-500 font-bold mb-0.5">{item.category}</p>
+                          <h3 className="text-lg sm:text-xl font-black text-white leading-tight line-clamp-2">{item.name}</h3>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-lg font-black text-yellow-500">S/ {basePrice.toFixed(2)}</p>
+                        </div>
+                      </div>
+                      <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed line-clamp-2 mb-3 sm:mb-4">{item.description}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[10px] text-neutral-500 uppercase">Desde</p>
-                      <p className="text-xl font-black text-yellow-500">S/ {basePrice.toFixed(2)}</p>
-                    </div>
-                  </div>
-                  <p className="text-neutral-400 text-sm leading-relaxed line-clamp-3">{item.description}</p>
-                  <div className="grid gap-3">
-                    {isPrimary ? (
-                      <>
+
+                    {/* Actions */}
+                    <div className="mt-auto">
+                      {isPrimary ? (
                         <button
                           onClick={() => openProductModal(item)}
-                          className="w-full min-h-[56px] rounded-2xl border-2 border-yellow-500/70 bg-yellow-500/10 text-white px-5 py-4 text-base font-bold hover:bg-yellow-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                          className="w-full py-2.5 sm:py-3 rounded-xl bg-yellow-500 text-black text-sm font-bold hover:bg-yellow-400 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/10"
                         >
-                          <ShoppingCart size={20} />
-                          Personalizar y añadir
+                          <Plus size={18} />
+                          <span className="hidden sm:inline">Personalizar</span>
+                          <span className="sm:hidden">Agregar</span>
                         </button>
-                        <div className="text-xs text-neutral-500">
-                          {optionsToRender.map((option) => (
-                            <span key={option.id} className="inline-flex items-center gap-1 mr-3">
-                              <span className="text-neutral-400">{option.label}:</span>
-                              <span className="text-yellow-400 font-semibold">S/ {option.price.toFixed(2)}</span>
-                            </span>
-                          ))}
+                      ) : (
+                        <div className="space-y-2">
+                          {optionsToRender.map((option) => {
+                            const isRecent = recentlyAdded === `${item.id}-${option.id}`;
+                            return (
+                              <button
+                                key={option.id}
+                                onClick={() => handleAddProduct(item, option.id)}
+                                disabled={complementBlocked}
+                                className={`w-full py-2 px-3 rounded-xl border text-left transition-all flex items-center justify-between active:scale-95 ${
+                                  isRecent
+                                    ? "border-green-500 bg-green-500/10 text-green-400"
+                                    : "border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-yellow-500/50 hover:text-white"
+                                } ${complementBlocked ? "opacity-50 cursor-not-allowed" : ""}`}
+                              >
+                                <span className="text-xs font-bold truncate mr-2">{option.label}</span>
+                                {isRecent ? <Check size={14} /> : <Plus size={14} />}
+                              </button>
+                            );
+                          })}
                         </div>
-                      </>
-                    ) : (
-                      <>
-                        {optionsToRender.map((option) => {
-                          const isRecent = recentlyAdded === `${item.id}-${option.id}`;
-                          return (
-                            <button
-                              key={option.id}
-                              onClick={() => handleAddProduct(item, option.id)}
-                              disabled={complementBlocked}
-                              className={`w-full min-h-[60px] rounded-2xl border-2 px-5 py-4 text-left bg-neutral-900/70 transition-all flex flex-col gap-2 active:scale-95 ${
-                                isRecent
-                                  ? "border-green-400/80 bg-green-500/10 shadow-lg shadow-green-900/40"
-                                  : "border-neutral-800 hover:border-yellow-500/70 hover:bg-neutral-900"
-                              } ${
-                                complementBlocked ? "opacity-50 cursor-not-allowed hover:border-neutral-800 active:scale-100" : ""
-                              }`}
-                            >
-                              <div className="flex items-center justify-between text-base font-bold">
-                                <span className="text-white">{option.label}</span>
-                                <span className="text-yellow-400 text-lg">S/ {option.price.toFixed(2)}</span>
-                              </div>
-                              <div className="flex items-center justify-between text-xs uppercase tracking-wider text-neutral-400">
-                                <span className="flex items-center gap-2">
-                                  {complementBlocked ? (
-                                    <><AlertTriangle size={14} className="text-orange-400" /> <span>Requiere hamburguesa</span></>
-                                  ) : isRecent ? (
-                                    <><Check size={14} className="text-green-400" /> <span>Agregado</span></>
-                                  ) : (
-                                    <><Plus size={14} /> <span>Añadir al carrito</span></>
-                                  )}
-                                </span>
-                                {!complementBlocked && <Plus size={16} className={isRecent ? "text-green-400" : ""} />}
-                              </div>
-                            </button>
-                          );
-                        })}
-                        {complementBlocked && (
-                          <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-xl p-3 text-center">
-                            <p className="text-xs sm:text-sm text-orange-300 font-semibold flex items-center justify-center gap-2">
-                              <ShoppingCart size={14} /> Agrega una hamburguesa primero para habilitar complementos
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1091,6 +981,54 @@ ${deliveryLines.join("\n")}`);
           })}
         </div>
       </main>
+
+      {/* FAST TRACK & MAPA (Moved to bottom) */}
+      <div className="bg-neutral-900 border-t border-neutral-800">
+        <section className="max-w-6xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            {/* Fast Track Info */}
+            <div className="space-y-6">
+              <h3 className="text-2xl font-black text-white flex items-center gap-2">
+                <Sparkles className="text-yellow-500" /> Experiencia Big Jack
+              </h3>
+              <div className="grid gap-4">
+                {fastTrackHighlights.map((feature) => (
+                  <div
+                    key={feature.title}
+                    className="flex gap-4 p-4 rounded-2xl bg-neutral-800/50 border border-neutral-800"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500 flex-shrink-0">
+                      <Check size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">{feature.title}</h4>
+                      <p className="text-sm text-neutral-400 leading-relaxed">{feature.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mapa */}
+            <div className="space-y-6">
+              <h3 className="text-2xl font-black text-white flex items-center gap-2">
+                <MapPin className="text-yellow-500" /> Encuéntranos
+              </h3>
+              <div className="rounded-2xl overflow-hidden border border-neutral-800 h-64 shadow-2xl">
+                <SecureMap />
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <a href={restaurantInfo.contact.googleMapsLink} target="_blank" rel="noreferrer" className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 bg-neutral-800 hover:bg-neutral-700 text-white font-bold px-4 py-3 rounded-xl transition-all border border-neutral-700">
+                  <Navigation size={18} /> Ir con Google Maps
+                </a>
+                <a href={PEDIDOSYA_LINK} target="_blank" rel="noreferrer" className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 bg-[#ea004b] hover:bg-[#d60044] text-white font-bold px-4 py-3 rounded-xl transition-all shadow-lg shadow-red-900/20">
+                  <span className="font-black">Pe</span> PedidosYa
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* MODAL SELECCIÓN DE HAMBURGUESA */}
       {modalProduct && (
@@ -1210,9 +1148,43 @@ ${deliveryLines.join("\n")}`);
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent p-5 space-y-6">
               {/* LISTA DE ITEMS */}
               {cart.length === 0 ? (
-                <div className="text-center py-10 text-neutral-500">
-                  <p className="text-lg mb-2 font-semibold text-white">Tu carrito está vacío.</p>
-                  <p className="text-sm text-neutral-400">Selecciona un producto para comenzar tu pedido.</p>
+                <div className="flex flex-col items-center justify-center py-10 text-center space-y-6">
+                  <div className="space-y-2">
+                    <div className="w-20 h-20 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <ShoppingCart size={40} className="text-neutral-600" />
+                    </div>
+                    <p className="text-xl font-black text-white">Tu carrito está vacío</p>
+                    <p className="text-sm text-neutral-400 max-w-[200px] mx-auto">
+                      ¿No sabes qué pedir? Aquí tienes nuestros favoritos:
+                    </p>
+                  </div>
+                  
+                  <div className="w-full space-y-3">
+                    {menuItems.filter(i => i.popular).slice(0, 2).map(item => (
+                      <button
+                        key={item.id}
+                        onClick={() => openProductModal(item)}
+                        className="w-full flex items-center gap-4 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 hover:border-yellow-500/50 p-3 rounded-2xl transition-all group text-left"
+                      >
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-700 flex-shrink-0">
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {e.target.src = "https://placehold.co/100x100/222/yellow?text=BJ"}}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-white group-hover:text-yellow-500 transition-colors truncate">{item.name}</p>
+                          <p className="text-xs text-neutral-400 line-clamp-1">{item.description}</p>
+                          <p className="text-yellow-500 font-black text-sm mt-1">S/ {item.options?.[0]?.price.toFixed(2)}</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-yellow-500 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0">
+                          <Plus size={18} />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -1745,7 +1717,7 @@ ${deliveryLines.join("\n")}`);
             {/* Content */}
             <div className="p-5 space-y-4">
               {/* Papas Option */}
-              {suggestedGuarn && (
+              {suggestedGuarn && !cart.some(i => i.category === "GUARNICION") && (
                 <button
                   onClick={() => toggleSuggestion('papas')}
                   className={`w-full min-h-[80px] px-5 py-4 rounded-2xl font-semibold transition-all flex items-center gap-4 border-2 ${
@@ -1777,6 +1749,7 @@ ${deliveryLines.join("\n")}`);
               )}
 
               {/* Bebida Option */}
+              {!cart.some(i => i.category === "BEBIDAS") && (
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSuggestion('bebida')}
@@ -1842,6 +1815,7 @@ ${deliveryLines.join("\n")}`);
                   </div>
                 )}
               </div>
+              )}
             </div>
 
             {/* Footer Actions */}
@@ -1851,7 +1825,7 @@ ${deliveryLines.join("\n")}`);
                 disabled={selectedSuggestions.bebida && !selectedDrink}
                 className={`w-full min-h-[60px] rounded-2xl font-black text-base transition-all flex items-center justify-center gap-3 shadow-lg ${
                   (selectedSuggestions.papas || (selectedSuggestions.bebida && selectedDrink))
-                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black active:scale-[0.98]'
+                    ? 'bg-gradient-to-r from-[#d99133] to-[#b07020] hover:from-[#eeb055] hover:to-[#d99133] text-black active:scale-[0.98]'
                     : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                 }`}
               >
@@ -1877,7 +1851,7 @@ ${deliveryLines.join("\n")}`);
         <div className="lg:hidden fixed bottom-4 left-4 right-4 z-30">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="w-full rounded-2xl bg-gradient-to-r from-yellow-500 via-yellow-400 to-orange-400 text-black font-black px-5 py-4 shadow-2xl shadow-yellow-900/40 flex items-center justify-between gap-4 active:scale-[0.99]"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#d99133] via-[#eeb055] to-[#d99133] text-black font-black px-5 py-4 shadow-2xl shadow-[#d99133]/40 flex items-center justify-between gap-4 active:scale-[0.99]"
             aria-label="Abrir carrito"
           >
             <div className="text-left">
