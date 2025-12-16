@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { 
   CATEGORIES, 
-  PRIZES,
   getRankingByCategory, 
   getStats, 
   downloadCSV 
@@ -129,26 +128,7 @@ export default function RankingPage() {
           </div>
         )}
 
-        {/* Premios */}
-        <div className="bg-gradient-to-r from-[#d99133]/10 to-[#b07020]/10 rounded-2xl p-6 mb-8 border border-[#d99133]/30">
-          <h2 className="text-xl font-bold text-[#d99133] mb-4 flex items-center gap-2">
-            <Crown size={24} /> Premios 1er Lugar (por categoría)
-          </h2>
-          <ul className="space-y-2 text-sm">
-            <li className="flex items-start gap-2">
-              <span className="text-2xl">🍔</span>
-              <span className="text-neutral-300">{PRIZES.main}</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-2xl">💰</span>
-              <span className="text-neutral-300">{PRIZES.discount}</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-2xl">🍟</span>
-              <span className="text-neutral-300">{PRIZES.fries}</span>
-            </li>
-          </ul>
-        </div>
+
 
         {/* Category Tabs */}
         <div className="flex flex-wrap gap-2 mb-6">

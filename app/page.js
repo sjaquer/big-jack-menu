@@ -1,6 +1,7 @@
 "use client";
 import Head from "next/head";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
@@ -21,12 +22,12 @@ import {
   Smartphone,
   Sparkles,
   Flame,
-  PhoneCall,
   Instagram,
   Music2,
   MessageCircle,
   Clipboard,
   Check,
+  Truck,
 } from "lucide-react";
 import { Suspense } from "react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
@@ -195,20 +196,44 @@ export default function BigJackMenu() {
       accent: "bg-white/10 border-white/30 text-white",
     },
   ];
-  const deliveryAvailable = false;
+  const deliveryAvailable = true;
   const PEDIDOSYA_LINK = "https://www.pedidosya.com.pe/restaurantes/lima/big-jack-0c79d59d-90de-48bd-aa0d-3a5277f7da49-menu?origin=shop_list";
   const fastTrackHighlights = [
     {
-      title: "Explora visualmente",
-      desc: "Fotos reales con precios y diferencias simple/doble claras.",
+      title: "Ingredientes Frescos",
+      desc: "Seleccionamos carne premium y vegetales del día para garantizar el mejor sabor en cada mordida.",
     },
     {
-      title: "Acciones accesibles",
-      desc: "Botones amplios y navegación pensada para uso con una mano.",
+      title: "Sabor Auténtico",
+      desc: "Nuestras recetas caseras y salsas secretas crean una experiencia única que no encontrarás en otro lugar.",
     },
     {
-      title: "Resumen inmediato",
-      desc: "Carrito compacto y resumen listo para WhatsApp en segundos.",
+      title: "Atención Rápida",
+      desc: "Tu tiempo vale oro. Preparamos tu pedido al momento para que lo disfrutes caliente y sin esperas.",
+    },
+  ];
+
+  const heroInfoCards = [
+    {
+      id: "hours",
+      title: "Horario",
+      subtitle: "4:00 PM - 1:00 AM",
+      description: "Último pedido directo por WhatsApp.",
+      icon: Clock,
+    },
+    {
+      id: "pickup",
+      title: "Recojo express",
+      subtitle: "Jr. Bartolomé Herrera 133",
+      description: "Listo en 15-20 min, llegas y lo entregamos caliente.",
+      icon: MapPin,
+    },
+    {
+      id: "delivery",
+      title: "Delivery cercano gratis",
+      subtitle: "Solo zonas pegadas a Lince",
+      description: "Te confirmamos por chat y lo llevamos sin recargo.",
+      icon: Truck,
     },
   ];
 
@@ -525,17 +550,17 @@ export default function BigJackMenu() {
       ].join("\n"));
     }
 
-    sections.push("*📋 PEDIDO BIG JACK*");
+    sections.push("🔥 *PEDIDO BIG JACK* 🔥");
 
-    const basics = [`*Cliente:* ${customerName}`, `*Modalidad:* ${orderType === "delivery" ? "Delivery" : "Recojo en tienda"}`];
+    const basics = [`👤 *Cliente:* ${customerName}`, `🛵 *Modalidad:* ${orderType === "delivery" ? "Delivery" : "Recojo en tienda"}`];
 
     if (orderType === "delivery") {
       const deliveryLines = [
-        `• Dirección: ${deliveryAddress || "Ubicación compartida"}`,
-        deliveryReference ? `• Referencia: ${deliveryReference}` : null,
-        locationLink ? `• Mapa: ${locationLink}` : null,
+        `📍 *Dirección:* ${deliveryAddress || "Ubicación compartida"}`,
+        deliveryReference ? `🏠 *Referencia:* ${deliveryReference}` : null,
+        locationLink ? `🗺️ *Mapa:* ${locationLink}` : null,
       ].filter(Boolean);
-      basics.push(`*📦 Delivery:*
+      basics.push(`*📦 Datos de Entrega:*
 ${deliveryLines.join("\n")}`);
     } else {
       if (isPreOrder) {
@@ -543,10 +568,10 @@ ${deliveryLines.join("\n")}`);
         const when = nextOpenDate
           ? nextOpenDate.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })
           : "nuestra próxima apertura";
-        basics.push(`*⏰ Recojo:* PRE-ORDEN — disponible desde ${when}`);
+        basics.push(`⏰ *Recojo:* PRE-ORDEN — disponible desde ${when}`);
       } else {
         basics.push(
-          `*⏰ Recojo:* ${
+          `⏰ *Recojo:* ${
             pickupTime === "now" ? "Inmediato (15-20 min)" : `Programado: ${formatScheduledPickup()}`
           }`
         );
@@ -555,16 +580,16 @@ ${deliveryLines.join("\n")}`);
 
     sections.push(basics.join("\n"));
 
-    const itemsSection = ["*🍔 Pedido:*"].concat(
-      cart.map((item, index) => `• ${item.quantity}x ${item.name} (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`)
+    const itemsSection = ["🍔 *Tu Pedido:*"].concat(
+      cart.map((item, index) => `• ${item.quantity}x *${item.name}* (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`)
     );
     sections.push(itemsSection.join("\n"));
 
-    const totals = [`*💰 Total:* S/ ${total.toFixed(2)}`, `*💳 Pago:* ${paymentMethod.toUpperCase()}`];
-    if (notes.trim()) totals.push(`*📝 Notas:* _${notes.trim()}_`);
+    const totals = [`💰 *TOTAL A PAGAR:* S/ ${total.toFixed(2)}`, `💳 *Método de Pago:* ${paymentMethod.toUpperCase()}`];
+    if (notes.trim()) totals.push(`📝 *Notas:* _${notes.trim()}_`);
     sections.push(totals.join("\n"));
 
-    sections.push("Gracias por pedir en *Big Jack*! 🧡");
+    sections.push("¡Gracias por elegir *Big Jack*! Tu pedido se procesará en breve. 🧡🔥");
 
     const message = sections.join("\n\n");
 
@@ -628,13 +653,13 @@ ${deliveryLines.join("\n")}`);
               "@type": "OpeningHoursSpecification",
               dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday"],
               opens: "16:00",
-              closes: "23:00"
+              closes: "01:00"
             },
             {
               "@type": "OpeningHoursSpecification",
               dayOfWeek: ["Friday", "Saturday", "Sunday"],
-              opens: "12:00",
-              closes: "23:00"
+              opens: "16:00",
+              closes: "01:00"
             }
           ],
           paymentAccepted: ["Efectivo", "Yape", "Plin"],
@@ -662,26 +687,28 @@ ${deliveryLines.join("\n")}`);
         }) }} />
       </Head>
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 backdrop-blur-md border-b-2 border-yellow-500/20 shadow-2xl">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 backdrop-blur-md border-b-2 border-[#d99133]/20 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center py-3 sm:py-4">
             {/* Logo y título */}
             <div className="flex-1">
               <Link href="/" className="block">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tighter text-yellow-500 hover:text-yellow-400 transition-colors">
-                  {restaurantInfo.name}
-                </h1>
-                <p className="text-xs text-neutral-400 hidden sm:block mt-0.5">{restaurantInfo.slogan}</p>
+                <img 
+                  src="/images/bigjacktitle.webp" 
+                  alt={restaurantInfo.name} 
+                  className="h-10 sm:h-12 w-auto object-contain hover:scale-105 transition-transform drop-shadow-[0_0_15px_rgba(217,145,51,0.3)]" 
+                />
+                <p className="text-[10px] text-neutral-500 hidden sm:block mt-1 font-medium tracking-wide ml-1">{restaurantInfo.slogan}</p>
               </Link>
             </div>
 
             {/* Info rápida - Solo desktop */}
             <div className="hidden lg:flex items-center gap-6 mx-6">
               <div className="flex items-center gap-2 text-xs">
-                <Clock size={16} className="text-yellow-500" />
+                <Clock size={16} className="text-[#d99133]" />
                 <div>
-                  <p className="text-neutral-400">Lun-Jue: 4-11PM</p>
-                  <p className="text-neutral-300 font-semibold">Vie-Dom: 12-11PM</p>
+                  <p className="text-neutral-400">Lun-Jue: 4:30-11PM</p>
+                  <p className="text-neutral-300 font-semibold">Vie-Dom: 5PM-1AM</p>
                 </div>
               </div>
               <Link
@@ -705,7 +732,7 @@ ${deliveryLines.join("\n")}`);
             {/* Botón de carrito */}
             <button 
               onClick={() => setIsCartOpen(!isCartOpen)}
-              className="relative p-3 bg-yellow-500 text-black rounded-2xl hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/20 active:scale-95"
+              className="relative p-3 bg-[#d99133] text-white rounded-2xl hover:bg-[#c07e2b] transition-all shadow-lg shadow-[#d99133]/20 active:scale-95"
               aria-label="Abrir carrito"
             >
               <ShoppingCart size={24} />
@@ -763,51 +790,78 @@ ${deliveryLines.join("\n")}`);
             </div>
           )}
 
-      {/* HERO EXPERIENCE - MOBILE FIRST REDESIGN */}
-      <section className="relative overflow-hidden border-b border-neutral-800 bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-900">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(215,61,29,0.4),_transparent_60%)]" />
+      {/* HERO EXPERIENCE - CLEAN & BRANDED */}
+      <section className="relative overflow-hidden border-b border-neutral-800 bg-[#020204]">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(217,145,51,0.15),_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] opacity-20"></div>
         
-        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-8 pb-12 md:py-16 grid gap-8 md:grid-cols-2 items-center">
-          {/* Texto Hero */}
-          <div className="space-y-5 text-center md:text-left order-2 md:order-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-bold tracking-wider uppercase mb-2">
-              <Sparkles size={12} /> <span>Nuevo Sistema de Pedidos</span>
+        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-10 pb-12 md:py-20 grid gap-10 md:grid-cols-2 items-center">
+          {/* Brand & Content */}
+          <div className="space-y-8 text-center md:text-left order-2 md:order-1">
+            
+            {/* Logo Brand */}
+            <div className="relative w-64 h-32 mx-auto md:mx-0">
+               <div className="absolute inset-0 bg-[#d99133] blur-[80px] opacity-20 rounded-full pointer-events-none"></div>
+               <Image 
+                 src="/images/bigjacklogotipo.webp" 
+                 alt="Big Jack Logo"
+                 fill
+                 className="object-contain drop-shadow-2xl"
+                 priority
+               />
             </div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[0.95] text-white tracking-tight">
-              HAMBURGUESAS <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-600">QUE PRENDEN</span> <br/>
-              TU HAMBRE
-            </h2>
-            <p className="text-neutral-400 text-lg leading-relaxed max-w-lg mx-auto md:mx-0">
-              Pide online en segundos y recoge sin colas. La verdadera experiencia Big Jack, ahora en tu bolsillo.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-2">
-              <button
-                onClick={scrollToMenu}
-                className="h-14 px-8 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-black font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20 transition-all active:scale-95"
-              >
-                <Flame size={20} /> PEDIR AHORA
-              </button>
+
+            <div className="space-y-4">
+              <h2 className="text-4xl sm:text-5xl font-black leading-[0.95] text-white tracking-tight">
+                HAMBURGUESAS <br/>
+                <span className="text-[#d99133]">BRUTALES</span>
+              </h2>
+              <p className="text-neutral-400 text-lg font-medium max-w-md mx-auto md:mx-0">
+                Abierto 4:00 PM - 1:00 AM
+              </p>
+              
+              {/* Status Pills */}
+              <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-wide">
+                  <Truck size={12} /> Delivery Gratis (Zonas cercanas)
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d99133]/10 border border-[#d99133]/20 text-[#d99133] text-xs font-bold uppercase tracking-wide">
+                  <Clock size={12} /> Recojo 15 min
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
               <a
                 href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
-                className="h-14 px-8 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-95"
+                className="h-14 px-8 rounded-2xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 transition-all active:scale-95 hover:-translate-y-0.5"
               >
-                <MessageCircle size={20} /> WhatsApp
+                <MessageCircle size={22} /> 
+                Pedir por WhatsApp
               </a>
+              <button
+                onClick={scrollToMenu}
+                className="h-14 px-8 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-95 hover:-translate-y-0.5"
+              >
+                <Flame size={22} className="text-[#d99133]" /> 
+                Ver carta
+              </button>
             </div>
           </div>
 
-          {/* Imagen Hero */}
+          {/* Hero Image */}
           <div className="relative order-1 md:order-2">
-            <div className="relative aspect-square md:aspect-[4/3] rounded-[2rem] overflow-hidden border-2 border-neutral-800 shadow-2xl shadow-orange-900/20 group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+            <div className="relative aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden border-4 border-neutral-900 shadow-2xl shadow-orange-900/20 group rotate-1 hover:rotate-0 transition-all duration-500">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
               {heroHighlight ? (
                 <img
                   src={heroHighlight.image}
                   alt={heroHighlight.name}
-                  className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
                     e.currentTarget.src = "https://placehold.co/600x600/222/yellow?text=BIG+JACK";
                   }}
@@ -818,15 +872,10 @@ ${deliveryLines.join("\n")}`);
                 </div>
               )}
               
-              {/* Badge Flotante */}
-              <div className="absolute bottom-4 left-4 right-4 z-20 bg-neutral-900/90 backdrop-blur-md border border-neutral-700 p-4 rounded-2xl flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-yellow-500 font-bold uppercase tracking-wider mb-0.5">Recomendado</p>
-                  <p className="text-white font-black text-xl">{heroHighlight?.name || "Big Jack Special"}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-black text-white">S/ {heroPriceRange[0].toFixed(2)}</p>
-                </div>
+              {/* Floating Price Tag */}
+              <div className="absolute bottom-6 right-6 z-20 bg-[#d99133] text-white px-6 py-3 rounded-2xl shadow-xl transform group-hover:scale-110 transition-transform">
+                <p className="text-xs font-bold uppercase opacity-90 mb-0.5">Desde</p>
+                <p className="text-3xl font-black">S/ {heroPriceRange[0].toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -845,7 +894,7 @@ ${deliveryLines.join("\n")}`);
             </div>
             <div className="flex gap-3">
               <button onClick={() => { setClosedNoticeHidden(true); const el = document.getElementById('menu-section'); if (el) el.scrollIntoView({behavior:'smooth'}); }} className="flex-1 px-4 py-3 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-semibold">Ver Menú</button>
-              <button onClick={() => { window.location.href = '/libro-de-reclamaciones'; }} className="px-4 py-3 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold">Libro de Reclamaciones</button>
+              <button onClick={() => { window.location.href = '/libro-de-reclamaciones'; }} className="px-4 py-3 rounded-2xl bg-[#d99133] hover:bg-[#c07e2b] text-white font-bold">Libro de Reclamaciones</button>
             </div>
           </div>
         </div>
@@ -862,13 +911,13 @@ ${deliveryLines.join("\n")}`);
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`min-h-[48px] px-6 py-3 rounded-2xl text-sm font-black tracking-wide transition-all border-2 whitespace-nowrap active:scale-95 ${
+                  className={`min-h-[44px] px-6 py-2.5 rounded-full text-sm font-black tracking-wide transition-all border whitespace-nowrap active:scale-95 ${
                     isActive
-                      ? "bg-yellow-500 text-black border-yellow-500 shadow-xl shadow-yellow-500/30"
-                      : "bg-neutral-900 text-neutral-300 border-neutral-700 hover:border-yellow-500/60 hover:bg-neutral-800"
+                      ? "bg-[#d99133] text-white border-[#d99133] shadow-lg shadow-[#d99133]/25 scale-105"
+                      : "bg-neutral-900/80 text-neutral-400 border-neutral-800 hover:border-[#d99133]/50 hover:text-white hover:bg-neutral-800"
                   }`}
                 >
-                  {cat === "TODOS" ? "🍔 TODO" : cat}
+                  {cat === "TODOS" ? "🔥 TODO" : cat}
                 </button>
               );
             })}
@@ -880,13 +929,13 @@ ${deliveryLines.join("\n")}`);
       <main id="menu-section" className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-widest text-yellow-500 font-bold">Estás viendo</p>
+            <p className="text-xs uppercase tracking-widest text-[#d99133] font-bold">Estás viendo</p>
             <h2 className="text-3xl sm:text-4xl font-black text-white">{selectedCategory === "TODOS" ? "Menú Completo" : selectedCategory}</h2>
             <p className="text-sm text-neutral-400">{filteredItems.length} {filteredItems.length === 1 ? 'producto disponible' : 'productos disponibles'}</p>
           </div>
           <div className="bg-neutral-900/80 border-2 border-neutral-800 rounded-2xl p-4 max-w-md">
                 <p className="text-xs text-neutral-400 leading-relaxed flex items-start gap-2">
-              <Sparkles size={16} className="text-yellow-500" />
+              <Sparkles size={16} className="text-[#d99133]" />
               <span><span className="font-semibold text-white">Tip:</span> Toca cualquier imagen para ver detalles completos o usa los botones para añadir rápido al carrito.</span>
             </p>
           </div>
@@ -901,40 +950,40 @@ ${deliveryLines.join("\n")}`);
               : [{ id: "regular", label: "Regular", price: item.price || 0 }];
             const basePrice = optionsToRender.reduce((min, opt) => Math.min(min, opt.price), optionsToRender[0].price);
             return (
-              <div key={item.id} className="group relative bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden hover:border-yellow-500/50 transition-all duration-300 flex flex-col sm:block">
+              <div key={item.id} className="group relative bg-neutral-900 border border-neutral-800 rounded-[2rem] overflow-hidden hover:border-[#d99133]/50 transition-all duration-300 flex flex-col sm:block shadow-lg hover:shadow-[#d99133]/10">
                 {/* Mobile Layout: Horizontal Card */}
-                <div className="flex sm:block h-full">
+                <div className="flex sm:block h-full p-2 sm:p-3">
                   {/* Image Section */}
-                  <Link href={`/product/${item.slug}`} className="w-1/3 sm:w-full sm:h-56 relative block overflow-hidden bg-neutral-800 flex-shrink-0">
+                  <Link href={`/product/${item.slug}`} className="w-1/3 sm:w-full sm:h-56 relative block overflow-hidden bg-neutral-800 flex-shrink-0 rounded-2xl sm:rounded-[1.5rem] border border-neutral-800 shadow-inner">
                     {item.image ? (
                       <img
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         onError={(e) => {
-                          e.currentTarget.src = "https://placehold.co/600x400/222/yellow?text=BIG+JACK";
+                          e.currentTarget.src = "https://placehold.co/600x400/222/d99133?text=BIG+JACK";
                         }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-neutral-500 text-xs">Sin foto</div>
                     )}
                     {item.popular && (
-                      <span className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-yellow-500 text-black text-[10px] sm:text-xs font-black px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
+                      <span className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-[#d99133] text-white text-[10px] sm:text-xs font-black px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
                         HIT
                       </span>
                     )}
                   </Link>
 
                   {/* Content Section */}
-                  <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="flex-1 pl-4 py-1 pr-1 sm:p-4 flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start gap-2 mb-1">
                         <div>
-                          <p className="text-[10px] uppercase tracking-wider text-yellow-500 font-bold mb-0.5">{item.category}</p>
+                          <p className="text-[10px] uppercase tracking-wider text-[#d99133] font-bold mb-0.5">{item.category}</p>
                           <h3 className="text-lg sm:text-xl font-black text-white leading-tight line-clamp-2">{item.name}</h3>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="text-lg font-black text-yellow-500">S/ {basePrice.toFixed(2)}</p>
+                          <p className="text-lg font-black text-[#d99133]">S/ {basePrice.toFixed(2)}</p>
                         </div>
                       </div>
                       <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed line-clamp-2 mb-3 sm:mb-4">{item.description}</p>
@@ -945,11 +994,11 @@ ${deliveryLines.join("\n")}`);
                       {isPrimary ? (
                         <button
                           onClick={() => openProductModal(item)}
-                          className="w-full py-2.5 sm:py-3 rounded-xl bg-yellow-500 text-black text-sm font-bold hover:bg-yellow-400 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/10"
+                          className="w-full py-3 rounded-full bg-[#d99133] text-white text-sm font-bold hover:bg-[#c07e2b] transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-[#d99133]/20"
                         >
                           <Plus size={18} />
-                          <span className="hidden sm:inline">Personalizar</span>
-                          <span className="sm:hidden">Agregar</span>
+                            <span className="hidden sm:inline">Personalizar</span>
+                            <span className="sm:hidden">Agregar</span>
                         </button>
                       ) : (
                         <div className="space-y-2">
@@ -960,10 +1009,10 @@ ${deliveryLines.join("\n")}`);
                                 key={option.id}
                                 onClick={() => handleAddProduct(item, option.id)}
                                 disabled={complementBlocked}
-                                className={`w-full py-2 px-3 rounded-xl border text-left transition-all flex items-center justify-between active:scale-95 ${
+                                className={`w-full py-2.5 px-4 rounded-full border text-left transition-all flex items-center justify-between active:scale-95 ${
                                   isRecent
                                     ? "border-green-500 bg-green-500/10 text-green-400"
-                                    : "border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-yellow-500/50 hover:text-white"
+                                    : "border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-[#d99133]/50 hover:text-white"
                                 } ${complementBlocked ? "opacity-50 cursor-not-allowed" : ""}`}
                               >
                                 <span className="text-xs font-bold truncate mr-2">{option.label}</span>
@@ -989,7 +1038,7 @@ ${deliveryLines.join("\n")}`);
             {/* Fast Track Info */}
             <div className="space-y-6">
               <h3 className="text-2xl font-black text-white flex items-center gap-2">
-                <Sparkles className="text-yellow-500" /> Experiencia Big Jack
+                <Sparkles className="text-[#d99133]" /> Experiencia Big Jack
               </h3>
               <div className="grid gap-4">
                 {fastTrackHighlights.map((feature) => (
@@ -997,7 +1046,7 @@ ${deliveryLines.join("\n")}`);
                     key={feature.title}
                     className="flex gap-4 p-4 rounded-2xl bg-neutral-800/50 border border-neutral-800"
                   >
-                    <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-[#d99133]/10 flex items-center justify-center text-[#d99133] flex-shrink-0">
                       <Check size={20} />
                     </div>
                     <div>
@@ -1012,7 +1061,7 @@ ${deliveryLines.join("\n")}`);
             {/* Mapa */}
             <div className="space-y-6">
               <h3 className="text-2xl font-black text-white flex items-center gap-2">
-                <MapPin className="text-yellow-500" /> Encuéntranos
+                <MapPin className="text-[#d99133]" /> Encuéntranos
               </h3>
               <div className="rounded-2xl overflow-hidden border border-neutral-800 h-64 shadow-2xl">
                 <SecureMap />
@@ -1054,7 +1103,7 @@ ${deliveryLines.join("\n")}`);
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-yellow-500 mb-1">{modalProduct.category}</p>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-[#d99133] mb-1">{modalProduct.category}</p>
                 <h3 className="text-2xl font-bold text-white leading-tight mb-2">{modalProduct.name}</h3>
                 <p className="text-sm text-neutral-400 line-clamp-3">{modalProduct.description}</p>
               </div>
@@ -1078,8 +1127,8 @@ ${deliveryLines.join("\n")}`);
                       onClick={() => setModalOptionId(option.id)}
                       className={`w-full min-h-[68px] rounded-2xl border-2 px-5 py-4 text-left transition-all active:scale-95 ${
                         isActive
-                          ? "border-yellow-500 bg-yellow-500/10 text-white shadow-lg shadow-yellow-500/20"
-                          : "border-neutral-800 bg-neutral-900/70 text-neutral-200 hover:border-yellow-500/50 hover:bg-neutral-900"
+                          ? "border-[#d99133] bg-[#d99133]/10 text-white shadow-lg shadow-[#d99133]/20"
+                          : "border-neutral-800 bg-neutral-900/70 text-neutral-200 hover:border-[#d99133]/50 hover:bg-neutral-900"
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -1087,7 +1136,7 @@ ${deliveryLines.join("\n")}`);
                           <p className="text-base font-bold">{option.label}</p>
                           <p className="text-xs text-neutral-400">Ideal para {option.label.toLowerCase()}</p>
                         </div>
-                        <span className="text-yellow-400 font-black text-xl">S/ {option.price.toFixed(2)}</span>
+                        <span className="text-[#d99133] font-black text-xl">S/ {option.price.toFixed(2)}</span>
                       </div>
                     </button>
                   );
@@ -1095,7 +1144,7 @@ ${deliveryLines.join("\n")}`);
               </div>
               <div className="bg-neutral-950 border-2 border-neutral-800 rounded-2xl p-5 flex items-center justify-between">
                 <span className="text-neutral-400 font-semibold">Subtotal</span>
-                <span className="text-2xl font-black text-yellow-500">
+                <span className="text-2xl font-black text-[#d99133]">
                   {modalSelectedOption ? `S/ ${modalSelectedOption.price.toFixed(2)}` : "—"}
                 </span>
               </div>
@@ -1109,7 +1158,7 @@ ${deliveryLines.join("\n")}`);
                 <button
                   onClick={confirmModalAdd}
                   disabled={!modalSelectedOption}
-                  className="min-h-[56px] rounded-2xl bg-yellow-500 text-black font-black disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed transition-all active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
+                  className="min-h-[56px] rounded-2xl bg-[#d99133] text-black font-black disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed transition-all active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={20} />
                   Agregar
@@ -1133,13 +1182,13 @@ ${deliveryLines.join("\n")}`);
           {/* Panel Lateral */}
           <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl rounded-l-[32px] flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300 z-10">
             <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
-              <h2 className="text-xl font-black flex items-center gap-2">
-                <ShoppingCart className="text-yellow-500" />
+              <h2 className="text-xl font-black flex items-center gap-2 text-white">
+                <ShoppingCart className="text-[#d99133]" />
                 TU PEDIDO
               </h2>
               <button 
                 onClick={() => setIsCartOpen(false)}
-                className="p-2 hover:bg-neutral-800 rounded-full transition-colors"
+                className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white"
               >
                 <X size={24} />
               </button>
@@ -1164,22 +1213,22 @@ ${deliveryLines.join("\n")}`);
                       <button
                         key={item.id}
                         onClick={() => openProductModal(item)}
-                        className="w-full flex items-center gap-4 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 hover:border-yellow-500/50 p-3 rounded-2xl transition-all group text-left"
+                        className="w-full flex items-center gap-4 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 hover:border-[#d99133]/50 p-3 rounded-2xl transition-all group text-left"
                       >
-                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-700 flex-shrink-0">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-700 flex-shrink-0 border border-neutral-600">
                           <img 
                             src={item.image} 
                             alt={item.name} 
                             className="w-full h-full object-cover"
-                            onError={(e) => {e.target.src = "https://placehold.co/100x100/222/yellow?text=BJ"}}
+                            onError={(e) => {e.target.src = "https://placehold.co/100x100/222/d99133?text=BJ"}}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-white group-hover:text-yellow-500 transition-colors truncate">{item.name}</p>
+                          <p className="font-bold text-white group-hover:text-[#d99133] transition-colors truncate">{item.name}</p>
                           <p className="text-xs text-neutral-400 line-clamp-1">{item.description}</p>
-                          <p className="text-yellow-500 font-black text-sm mt-1">S/ {item.options?.[0]?.price.toFixed(2)}</p>
+                          <p className="text-[#d99133] font-black text-sm mt-1">S/ {item.options?.[0]?.price.toFixed(2)}</p>
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-yellow-500 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0">
+                        <div className="w-8 h-8 rounded-full bg-[#d99133] text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 shadow-lg shadow-[#d99133]/20">
                           <Plus size={18} />
                         </div>
                       </button>
@@ -1189,39 +1238,40 @@ ${deliveryLines.join("\n")}`);
               ) : (
                 <div className="space-y-4">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex gap-4 bg-neutral-800/50 p-3 rounded-lg border border-neutral-800">
-                      <div className="w-16 h-16 bg-neutral-700 rounded-md overflow-hidden flex-shrink-0">
+                    <div key={item.id} className="flex gap-4 bg-neutral-800/50 p-3 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-colors">
+                      <div className="w-16 h-16 bg-neutral-700 rounded-xl overflow-hidden flex-shrink-0 border border-neutral-700">
                          <img 
                           src={item.image} 
                           alt={item.name} 
                           className="w-full h-full object-cover"
-                          onError={(e) => {e.target.src = "https://placehold.co/100x100/222/yellow?text=BJ"}}
+                          onError={(e) => {e.target.src = "https://placehold.co/100x100/222/d99133?text=BJ"}}
                         />
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-sm mb-1">{item.name}</h4>
-                        <p className="text-xs text-neutral-500 mb-1">{item.optionLabel}</p>
-                        <p className="text-yellow-500 font-bold text-sm">S/ {(item.price * item.quantity).toFixed(2)}</p>
-                        
-                        <div className="flex items-center gap-3 mt-2">
-                          <button 
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="w-6 h-6 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600"
-                          >
-                            <Minus size={12} />
-                          </button>
-                          <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="w-6 h-6 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600"
-                          >
-                            <Plus size={12} />
-                          </button>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm mb-1 text-white truncate">{item.name}</h4>
+                        <p className="text-xs text-neutral-400 mb-2">{item.optionLabel}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-[#d99133] font-black text-sm">S/ {(item.price * item.quantity).toFixed(2)}</p>
+                          <div className="flex items-center gap-3 bg-neutral-900 rounded-lg p-1 border border-neutral-800">
+                            <button 
+                              onClick={() => updateQuantity(item.id, -1)}
+                              className="w-6 h-6 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 rounded text-white transition-colors"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(item.id, 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-[#d99133] hover:bg-[#c07e2b] text-black rounded transition-colors"
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                       <button 
                         onClick={() => removeFromCart(item.id)}
-                        className="text-neutral-500 hover:text-red-500 self-start p-1"
+                        className="text-neutral-500 hover:text-red-500 self-start p-1 transition-colors"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -1236,7 +1286,7 @@ ${deliveryLines.join("\n")}`);
                   {/* Paso 1: Datos Básicos */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-yellow-500 flex items-center gap-2"><User size={20} /> Tus datos</h3>
+                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><User size={20} /> Tus datos</h3>
                       <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 1</span>
                     </div>
                     <div className="grid gap-5">
@@ -1248,7 +1298,7 @@ ${deliveryLines.join("\n")}`);
                             value={customerName}
                             onChange={(e)=>setCustomerName(e.target.value)}
                             placeholder="Ej: Juan Pérez García"
-                            className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-2xl py-4 pl-12 pr-4 text-base focus:border-yellow-500 outline-none transition-colors text-white placeholder:text-neutral-500"
+                            className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-2xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
                           />
                         </div>
                       </div>
@@ -1258,24 +1308,25 @@ ${deliveryLines.join("\n")}`);
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("pickup")}
-                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${orderType==='pickup'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${orderType==='pickup'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                           >
                             <Clock size={24} />
-                            Recojo en local (15-20 min)
+                            Recojo en local · listo en 15-20 min
                           </button>
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("delivery")}
-                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-yellow-500 text-black border-yellow-500 shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-500'}`}
+                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-500'}`}
                           >
-                            <MapPin size={24} />
-                            Delivery
-                            {!deliveryAvailable && <span className="text-xs text-neutral-400 ml-2">(por PedidosYa)</span>}
+                            <Truck size={24} />
+                            Delivery cercano gratis
+                            <span className="text-xs text-neutral-400 ml-1">(validamos por chat)</span>
                           </button>
                         </div>
-                        {!deliveryAvailable && (
-                          <p className="text-[11px] text-neutral-400 mt-2">Para pedidos a domicilio serás redirigido a PedidosYa.</p>
-                        )}
+                        <p className="text-[11px] text-neutral-400 mt-3 flex items-start gap-2">
+                          <Truck size={14} className="text-[#d99133] flex-shrink-0 mt-0.5" />
+                          <span>Si estás a unas cuadras del local te lo llevamos sin costo. Si estás lejos te guiamos a PedidosYa para que llegue igual.</span>
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1283,7 +1334,7 @@ ${deliveryLines.join("\n")}`);
                   {/* Paso 2: Condicional según tipo */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-yellow-500 flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2">
                         {orderType==='delivery' ? <MapPin size={20} /> : <Clock size={20} />} 
                         {orderType==='delivery' ? 'Información de entrega' : 'Horario de recojo'}
                       </h3>
@@ -1292,6 +1343,10 @@ ${deliveryLines.join("\n")}`);
                     
                     {orderType==='delivery' ? (
                       <div className="space-y-4">
+                        <div className="bg-green-500/10 border-2 border-green-500/30 rounded-xl p-4 text-sm text-green-200 font-semibold flex items-start gap-2">
+                          <Truck size={18} className="flex-shrink-0" />
+                          <span>Delivery sin costo para zonas pegadas a Lince. Cuéntanos tu dirección y confirmamos contigo por WhatsApp.</span>
+                        </div>
                         <div>
                           <label className="block text-sm font-semibold text-white mb-2">Dirección de entrega</label>
                           <div className="relative">
@@ -1300,7 +1355,7 @@ ${deliveryLines.join("\n")}`);
                               value={deliveryAddress}
                               onChange={(e)=>setDeliveryAddress(e.target.value)}
                               placeholder="Calle / Av. y número"
-                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-yellow-500 outline-none transition-colors text-white placeholder:text-neutral-500"
+                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
@@ -1312,7 +1367,7 @@ ${deliveryLines.join("\n")}`);
                               value={deliveryReference}
                               onChange={(e)=>setDeliveryReference(e.target.value)}
                               placeholder="Ej: Frente al parque principal"
-                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-yellow-500 outline-none transition-colors text-white placeholder:text-neutral-500"
+                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
@@ -1321,7 +1376,7 @@ ${deliveryLines.join("\n")}`);
                             type="button"
                             onClick={getUserLocation} 
                             className={`w-full min-h-[56px] rounded-xl text-base font-bold border-2 flex items-center justify-center gap-2 transition-all ${locationLink ? 'bg-green-600/20 border-green-600 text-green-400' : 'bg-blue-600/20 border-blue-600/50 text-blue-400 hover:bg-blue-600/30'}`}>
-                            <MapPin size={20} /> {locationLink ? 'Ubicación guardada ✓' : 'Compartir mi ubicación actual'}
+                            <MapPin size={20} /> {locationLink ? 'Ubicación lista para coordinar' : 'Compartir mi ubicación para validar distancia'}
                           </button>
                           {locationLink && <p className="text-xs text-green-500 text-center font-semibold">Tu ubicación se incluirá en el pedido.</p>}
                         </div>
@@ -1331,8 +1386,8 @@ ${deliveryLines.join("\n")}`);
                       <div>
                         <label className="block text-sm font-semibold text-white mb-3">¿Cuándo lo recoges?</label>
                         {!isOpen && isPreOrder ? (
-                          <div className="bg-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-4 mb-3">
-                            <p className="text-yellow-400 text-sm font-semibold flex items-center gap-2">
+                          <div className="bg-[#d99133]/10 border-2 border-[#d99133]/30 rounded-xl p-4 mb-3">
+                            <p className="text-[#d99133] text-sm font-semibold flex items-center gap-2">
                               <AlertTriangle size={18} />
                               Estamos cerrados. Solo puedes programar tu pedido.
                             </p>
@@ -1347,7 +1402,7 @@ ${deliveryLines.join("\n")}`);
                                 !isOpen && isPreOrder 
                                   ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed opacity-50'
                                   : pickupTime==='now'
-                                    ? 'bg-yellow-500 text-black border-yellow-500'
+                                    ? 'bg-[#d99133] text-black border-[#d99133]'
                                     : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'
                               }`}
                               >
@@ -1357,7 +1412,7 @@ ${deliveryLines.join("\n")}`);
                               <button
                                 type="button"
                                 onClick={()=>setPickupTime("schedule")}
-                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='schedule'? 'bg-yellow-500 text-black border-yellow-500':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='schedule'? 'bg-[#d99133] text-black border-[#d99133]':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                               >
                                 <Clock size={20} />
                                 Programar hora
@@ -1405,7 +1460,7 @@ ${deliveryLines.join("\n")}`);
                                     type="button"
                                     key={slot.value}
                                     onClick={()=>setScheduledTime(slot.value)}
-                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===slot.value ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===slot.value ? 'bg-[#d99133] text-black border-[#d99133]' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                                   >
                                     {slot.label}
                                   </button>
@@ -1428,7 +1483,7 @@ ${deliveryLines.join("\n")}`);
                                   return now.toISOString().slice(0, 16);
                                 })()}
                                 onChange={(e)=>setScheduledTime(e.target.value)}
-                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-yellow-500 outline-none text-white"
+                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-[#d99133] outline-none text-white"
                               />
                             </div>
                             <p className="text-xs text-neutral-400 mt-2 text-center">O elige una fecha y hora personalizada</p>
@@ -1436,7 +1491,7 @@ ${deliveryLines.join("\n")}`);
                         )}
                         
                         {pickupTime==='now' && (
-                          <div className="bg-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-4 text-sm text-yellow-400 font-semibold flex gap-3 items-center animate-in fade-in">
+                          <div className="bg-[#d99133]/10 border-2 border-[#d99133]/30 rounded-xl p-4 text-sm text-[#d99133] font-semibold flex gap-3 items-center animate-in fade-in">
                             <Clock size={18} /> Prepararemos tu pedido en aprox. 15-20 minutos
                           </div>
                         )}
@@ -1456,7 +1511,7 @@ ${deliveryLines.join("\n")}`);
                   {/* Paso 3: Pago y Notas */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-yellow-500 flex items-center gap-2"><CreditCard size={20} /> Método de pago</h3>
+                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><CreditCard size={20} /> Método de pago</h3>
                       <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 3</span>
                     </div>
                     <div className="grid gap-5">
@@ -1474,7 +1529,7 @@ ${deliveryLines.join("\n")}`);
                             disabled={m.disabled}
                             title={m.disabled ? 'Próximamente' : undefined}
                             aria-disabled={m.disabled ? 'true' : 'false'}
-                            className={`min-h-[64px] rounded-xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${paymentMethod===m.id ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${m.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`min-h-[64px] rounded-xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${paymentMethod===m.id ? 'bg-[#d99133] text-black border-[#d99133]' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${m.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             <m.icon size={22} />
                             <div className="flex items-center gap-2">
@@ -1491,7 +1546,7 @@ ${deliveryLines.join("\n")}`);
                           onChange={(e)=>setNotes(e.target.value)}
                           rows={3}
                           placeholder="Ej: Sin cebolla, sin mayonesa, entregar en portería..."
-                          className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl p-4 text-base focus:border-yellow-500 outline-none resize-none text-white placeholder:text-neutral-500"
+                          className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl p-4 text-base focus:border-[#d99133] outline-none resize-none text-white placeholder:text-neutral-500"
                         />
                       </div>
                     </div>
@@ -1512,7 +1567,7 @@ ${deliveryLines.join("\n")}`);
               )}
               <div className="flex justify-between items-center mb-5 text-xl font-bold">
                 <span className="text-white">Total</span>
-                <span className="text-yellow-500 text-3xl">S/ {total.toFixed(2)}</span>
+                <span className="text-[#d99133] text-3xl">S/ {total.toFixed(2)}</span>
               </div>
               <button
                 onClick={sendOrderToWhatsapp}
@@ -1528,14 +1583,18 @@ ${deliveryLines.join("\n")}`);
       )}
 
       {/* Footer Mejorado */}
-      <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-yellow-500/30">
+      <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-[#d99133]/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
           {/* Sección principal */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
             {/* Sobre nosotros */}
             <div className="space-y-5 lg:col-span-1">
               <div>
-                <h3 className="text-2xl sm:text-3xl font-black text-yellow-500 mb-2">{restaurantInfo.name}</h3>
+                <img 
+                  src="/images/bigjacklogotipo.webp" 
+                  alt={restaurantInfo.name} 
+                  className="h-16 w-auto object-contain mb-4 drop-shadow-[0_0_15px_rgba(217,145,51,0.2)]" 
+                />
                 <p className="text-neutral-400 text-sm leading-relaxed">
                   {restaurantInfo.slogan}
                 </p>
@@ -1565,10 +1624,23 @@ ${deliveryLines.join("\n")}`);
                     href={restaurantInfo.contact.tiktok}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-11 h-11 bg-white/10 border border-white/30 hover:bg-white hover:border-white rounded-xl flex items-center justify-center transition-all group"
+                    className="w-11 h-11 bg-black border border-neutral-800 hover:border-white hover:bg-neutral-900 rounded-xl flex items-center justify-center transition-all group"
                     title="TikTok"
                   >
-                    <Music2 size={20} className="text-white/80 group-hover:text-black transition-colors" />
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="20" 
+                      height="20" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      className="text-white/70 group-hover:text-white transition-colors"
+                    >
+                      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                    </svg>
                   </a>
                 </div>
               </div>
@@ -1578,7 +1650,7 @@ ${deliveryLines.join("\n")}`);
             <div className="space-y-5">
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <MapPin size={18} className="text-yellow-500" /> Ubicación
+                  <MapPin size={18} className="text-[#d99133]" /> Ubicación
                 </h4>
                 <div className="space-y-3 text-sm">
                   <p className="text-neutral-400 leading-relaxed">
@@ -1601,18 +1673,18 @@ ${deliveryLines.join("\n")}`);
             <div className="space-y-5">
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <Clock size={18} className="text-yellow-500" /> Horarios
+                  <Clock size={18} className="text-[#d99133]" /> Horarios
                 </h4>
                 <div className="space-y-3 text-sm">
                   <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-4">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-neutral-400">Lun - Jue</span>
-                        <span className="text-white font-semibold">4:00 PM - 11:00 PM</span>
+                        <span className="text-white font-semibold">4:00 PM - 1:00 AM</span>
                       </div>
                       <div className="border-t border-neutral-800 pt-2 flex justify-between items-center">
                         <span className="text-neutral-400">Vie - Dom</span>
-                        <span className="text-yellow-500 font-bold">12:00 PM - 11:00 PM</span>
+                        <span className="text-[#d99133] font-bold">4:00 PM - 1:00 AM</span>
                       </div>
                     </div>
                   </div>
@@ -1622,8 +1694,8 @@ ${deliveryLines.join("\n")}`);
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-500 rounded-xl text-white font-bold transition-all active:scale-95"
                   >
-                    <PhoneCall size={16} />
-                    Llamar ahora
+                    <MessageCircle size={16} />
+                    Abrir chat por WhatsApp
                   </a>
                 </div>
               </div>
@@ -1633,7 +1705,7 @@ ${deliveryLines.join("\n")}`);
             <div className="space-y-5">
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <Clipboard size={18} className="text-yellow-500" /> Legal
+                  <Clipboard size={18} className="text-[#d99133]" /> Legal
                 </h4>
                 <div className="space-y-4">
                   <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-4 space-y-2 text-sm">
@@ -1647,7 +1719,7 @@ ${deliveryLines.join("\n")}`);
                   </div>
                   <Link
                     href="/libro-de-reclamaciones"
-                    className="inline-flex items-center gap-2 px-5 py-3 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-bold transition-all shadow-xl shadow-yellow-500/20 active:scale-95 w-full justify-center"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-[#d99133] hover:bg-[#c07e2b] text-black rounded-xl font-bold transition-all shadow-xl shadow-[#d99133]/20 active:scale-95 w-full justify-center"
                   >
                     <Clipboard size={16} />
                     Libro de Reclamaciones
@@ -1666,24 +1738,24 @@ ${deliveryLines.join("\n")}`);
               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
                 <Link
                   href="/links"
-                  className="text-xs text-yellow-500 hover:text-yellow-400 transition-colors font-bold underline"
+                  className="text-xs text-[#d99133] hover:text-[#c07e2b] transition-colors font-bold underline"
                 >
                   🔗 Todos nuestros enlaces
                 </Link>
                 <Link
                   href="/quienes"
-                  className="text-xs text-neutral-400 hover:text-yellow-500 transition-colors font-semibold"
+                  className="text-xs text-neutral-400 hover:text-[#d99133] transition-colors font-semibold"
                 >
                   Quienes somos
                 </Link>
                 <a
                   href="#menu-section"
-                  className="text-xs text-neutral-400 hover:text-yellow-500 transition-colors font-semibold"
+                  className="text-xs text-neutral-400 hover:text-[#d99133] transition-colors font-semibold"
                 >
                   Volver al menú
                 </a>
                 <p className="text-xs flex items-center gap-2 text-neutral-500">
-                  Desarrollado con <Sparkles size={14} className="text-yellow-500" /> en Perú
+                  Desarrollado con <Sparkles size={14} className="text-[#d99133]" /> en Perú
                 </p>
               </div>
             </div>
@@ -1694,7 +1766,7 @@ ${deliveryLines.join("\n")}`);
       {/* Mini ventana de sugerencia para complementos - MEJORADA */}
       {suggestionVisible && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="max-w-lg w-full bg-gradient-to-b from-neutral-900 to-neutral-950 border-2 border-yellow-500/30 rounded-3xl shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-4 duration-300 max-h-[85vh] overflow-y-auto">
+          <div className="max-w-lg w-full bg-gradient-to-b from-neutral-900 to-neutral-950 border-2 border-[#d99133]/30 rounded-3xl shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-4 duration-300 max-h-[85vh] overflow-y-auto">
             {/* Header */}
             <div className="sticky top-0 bg-gradient-to-b from-neutral-900 to-neutral-900/95 backdrop-blur-sm p-5 pb-4 border-b border-neutral-800 rounded-t-3xl">
               <div className="flex items-start justify-between">
@@ -1722,12 +1794,12 @@ ${deliveryLines.join("\n")}`);
                   onClick={() => toggleSuggestion('papas')}
                   className={`w-full min-h-[80px] px-5 py-4 rounded-2xl font-semibold transition-all flex items-center gap-4 border-2 ${
                     selectedSuggestions.papas
-                      ? 'bg-yellow-500/20 border-yellow-500 shadow-lg shadow-yellow-500/20'
+                      ? 'bg-[#d99133]/20 border-[#d99133] shadow-lg shadow-[#d99133]/20'
                       : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-600'
                   }`}
                 >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-3xl ${
-                    selectedSuggestions.papas ? 'bg-yellow-500/30' : 'bg-neutral-700'
+                    selectedSuggestions.papas ? 'bg-[#d99133]/30' : 'bg-neutral-700'
                   }`}>
                     🍟
                   </div>
@@ -1736,10 +1808,10 @@ ${deliveryLines.join("\n")}`);
                     <p className="text-neutral-400 text-xs mt-0.5">Crujientes y doradas</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-yellow-500 font-black text-lg">S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</span>
+                    <span className="text-[#d99133] font-black text-lg">S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</span>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                       selectedSuggestions.papas
-                        ? 'bg-yellow-500 border-yellow-500'
+                        ? 'bg-[#d99133] border-[#d99133]'
                         : 'border-neutral-600'
                     }`}>
                       {selectedSuggestions.papas && <Check size={16} className="text-black font-bold" />}
@@ -1755,12 +1827,12 @@ ${deliveryLines.join("\n")}`);
                   onClick={() => toggleSuggestion('bebida')}
                   className={`w-full min-h-[80px] px-5 py-4 rounded-2xl font-semibold transition-all flex items-center gap-4 border-2 ${
                     selectedSuggestions.bebida
-                      ? 'bg-yellow-500/20 border-yellow-500 shadow-lg shadow-yellow-500/20'
+                      ? 'bg-[#d99133]/20 border-[#d99133] shadow-lg shadow-[#d99133]/20'
                       : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-600'
                   }`}
                 >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-3xl ${
-                    selectedSuggestions.bebida ? 'bg-yellow-500/30' : 'bg-neutral-700'
+                    selectedSuggestions.bebida ? 'bg-[#d99133]/30' : 'bg-neutral-700'
                   }`}>
                     🥤
                   </div>
@@ -1769,10 +1841,10 @@ ${deliveryLines.join("\n")}`);
                     <p className="text-neutral-400 text-xs mt-0.5">Elige tu favorita</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-yellow-500 font-black text-lg">S/ 3.50</span>
+                    <span className="text-[#d99133] font-black text-lg">S/ 3.50</span>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                       selectedSuggestions.bebida
-                        ? 'bg-yellow-500 border-yellow-500'
+                        ? 'bg-[#d99133] border-[#d99133]'
                         : 'border-neutral-600'
                     }`}>
                       {selectedSuggestions.bebida && <Check size={16} className="text-black font-bold" />}
@@ -1872,7 +1944,7 @@ ${deliveryLines.join("\n")}`);
       {!suggestionVisible && (cart.length === 0 || isCartOpen) && (
         <button 
           onClick={() => setIsCartOpen(true)}
-          className="lg:hidden fixed bottom-6 right-6 z-40 p-4 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all shadow-2xl shadow-yellow-500/40 active:scale-95"
+          className="lg:hidden fixed bottom-6 right-6 z-40 p-4 bg-[#d99133] text-black rounded-full hover:bg-[#c07e2b] transition-all shadow-2xl shadow-[#d99133]/40 active:scale-95"
           style={{
             animation: cart.length > 0 ? 'none' : 'bounce 2s infinite',
           }}

@@ -8,13 +8,13 @@ export const restaurantInfo = {
   // Horarios por día (0 = Domingo, 1 = Lunes, ..., 6 = Sábado)
   // Cada día define { open: "HH:MM", close: "HH:MM" } en horario local
   hours: {
-    0: { open: "12:00", close: "23:00" }, // Domingo
-    1: { open: "16:00", close: "23:00" }, // Lunes
-    2: { open: "16:00", close: "23:00" }, // Martes
-    3: { open: "16:00", close: "23:00" }, // Miércoles
-    4: { open: "16:00", close: "23:00" }, // Jueves
-    5: { open: "12:00", close: "23:00" }, // Viernes
-    6: { open: "12:00", close: "23:00" }, // Sábado
+    0: { open: "17:00", close: "01:00" }, // Domingo
+    1: { open: "16:30", close: "23:00" }, // Lunes
+    2: { open: "16:30", close: "23:00" }, // Martes
+    3: { open: "16:30", close: "23:00" }, // Miércoles
+    4: { open: "16:30", close: "23:00" }, // Jueves
+    5: { open: "17:00", close: "01:00" }, // Viernes
+    6: { open: "17:00", close: "01:00" }, // Sábado
   },
   logo: "/images/big-jack-logo.png", // opcional: coloca tu logo en public/images
   contact: {
@@ -38,12 +38,12 @@ export const menuItems = [
     slug: "bacon-jack",
     category: "LAS INTOCABLES",
     name: "Bacon Jack",
-    description: "Carne jugosa, queso cheddar, tiras de tocino crocante y salsa especial.",
+    description: "Pan brillante, medallón grueso de carne, queso derretido, tira de bacon crocante, pepinillos y salsa Big Jack.",
     image: "/images/baconjack.webp",
     popular: true,
     options: [
-      { id: "simple", label: "Simple (1 carne)", price: 14.0 },
-      { id: "doble", label: "Doble (2 carnes)", price: 22.0 }
+      { id: "simple", label: "Clásica (1 carne) - la de siempre", price: 14.0 },
+      { id: "doble", label: "Doble (2 carnes) - para llenarse", price: 22.0 }
     ]
   },
   {
@@ -51,12 +51,12 @@ export const menuItems = [
     slug: "royal-jack",
     category: "LAS INTOCABLES",
     name: "Royal Jack",
-    description: "Carne jugosa, queso cheddar, jamón inglés y huevo frito en su punto.",
+    description: "Medallón de carne a la plancha, queso fundido, jamón inglés sellado y huevo de yema cremosa con nuestra salsa especial.",
     image: "/images/royaljack.webp",
     popular: false,
     options: [
-      { id: "simple", label: "Simple (1 carne)", price: 14.0 },
-      { id: "doble", label: "Doble (2 carnes)", price: 22.0 }
+      { id: "simple", label: "Clásica (1 carne) - para el antojo", price: 14.0 },
+      { id: "doble", label: "Doble (2 carnes) - full power", price: 22.0 }
     ]
   },
   {
@@ -64,12 +64,12 @@ export const menuItems = [
     slug: "grill-jack",
     category: "LAS INTOCABLES",
     name: "Grill Jack",
-    description: "Carne, chorizo parrillero, queso cheddar, chimichurri y un toque de mostaza.",
+    description: "Burger gruesa con chorizo parrillero, cheddar, chimichurri casero y crema especial Big Jack.",
     image: "/images/grilljack.webp",
     popular: false,
     options: [
-      { id: "simple", label: "Simple (1 carne)", price: 16.0 },
-      { id: "doble", label: "Doble (2 carnes)", price: 24.0 }
+      { id: "simple", label: "Clásica (1 carne) - intensa", price: 16.0 },
+      { id: "doble", label: "Doble (2 carnes) - bestial", price: 24.0 }
     ]
   },
   {
@@ -77,12 +77,12 @@ export const menuItems = [
     slug: "jack-a-lo-pobre",
     category: "LAS INTOCABLES",
     name: "Jack a lo Pobre",
-    description: "Carne, queso cheddar, huevo frito y el toque dulce del plátano maduro.",
+    description: "Medallón de carne jugosa, cheddar, huevo frito y plátano maduro caramelizado que combina dulce y salado.",
     image: "/images/jackpobre.webp",
     popular: false,
     options: [
-      { id: "simple", label: "Simple (1 carne)", price: 14.0 },
-      { id: "doble", label: "Doble (2 carnes)", price: 22.0 }
+      { id: "simple", label: "Clásica (1 carne) - comfort", price: 14.0 },
+      { id: "doble", label: "Doble (2 carnes) - contundente", price: 22.0 }
     ]
   },
   {
@@ -90,29 +90,29 @@ export const menuItems = [
     slug: "papas-fritas",
     category: "GUARNICION",
     name: "Papas Fritas",
-    description: "Papas fritas crujientes.",
+    description: "Corte rápidos, fritas al momento y terminadas con sal al punto.",
     image: "/images/papas-fritas.webp",
     popular: false,
-    options: [{ id: "regular", label: "Porción individual", price: 2.0 }]
+    options: [{ id: "regular", label: "Porción personal - para picar", price: 2.0 }]
   },
   {
     id: 30,
     slug: "inka-cola",
     category: "BEBIDAS",
     name: "Inka Cola",
-    description: "Refresco frío.",
+    description: "Botella helada de 500 ml, dulzona y chispeante.",
     image: "/images/inkacola.webp",
     popular: false,
-    options: [{ id: "botella", label: "Botella 500 ml", price: 3.5 }]
+    options: [{ id: "botella", label: "Botella helada 500 ml", price: 3.5 }]
   },
   {
     id: 31,
     slug: "coca-cola",
     category: "BEBIDAS",
     name: "Coca Cola",
-    description: "Refresco clásico frío.",
+    description: "Clásica cola helada de 500 ml con burbujas intensas.",
     image: "/images/cocacola.webp",
     popular: false,
-    options: [{ id: "botella", label: "Botella 500 ml", price: 3.5 }]
+    options: [{ id: "botella", label: "Botella helada 500 ml", price: 3.5 }]
   }
 ];

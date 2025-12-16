@@ -97,23 +97,23 @@ export default function ProductAddToCart({ product }) {
                 onClick={() => setSelectedOption(option)}
                 className={`flex items-center justify-between rounded-2xl p-5 border-2 transition-all ${
                   selectedOption?.id === option.id
-                    ? "bg-[#d99133] border-[#d99133] text-black"
+                    ? "border-[#d99133] bg-[#d99133]/10 text-white shadow-lg shadow-[#d99133]/20"
                     : "bg-neutral-900 border-neutral-700 text-white hover:border-[#d99133]/50"
                 }`}
               >
                 <div className="text-left">
                   <p className="font-black text-lg">{option.label}</p>
-                  <p className={`text-xs ${selectedOption?.id === option.id ? "text-black/70" : "text-neutral-500"}`}>
+                  <p className={`text-xs ${selectedOption?.id === option.id ? "text-[#d99133]" : "text-neutral-500"}`}>
                     {option.id === 'simple' ? 'Hamburguesa + Papas' : 'Hamburguesa Doble + Papas + Gaseosa'}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-black">
+                  <span className={`text-2xl font-black ${selectedOption?.id === option.id ? "text-[#d99133]" : "text-white"}`}>
                     S/ {option.price.toFixed(2)}
                   </span>
                   {selectedOption?.id === option.id && (
-                    <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                      <Check size={16} className="text-[#d99133]" />
+                    <div className="w-6 h-6 bg-[#d99133] rounded-full flex items-center justify-center">
+                      <Check size={16} className="text-black" />
                     </div>
                   )}
                 </div>

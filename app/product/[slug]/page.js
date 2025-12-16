@@ -104,14 +104,14 @@ export default async function ProductDetail({ params }) {
           <div className="space-y-6">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <div className="inline-flex items-center gap-2 bg-yellow-500/10 border-2 border-yellow-500/30 rounded-xl px-4 py-2">
+                <div className="inline-flex items-center gap-2 bg-[#d99133]/10 border-2 border-[#d99133]/30 rounded-full px-4 py-2">
                   <span className="text-xl">🔥</span>
-                  <p className="text-yellow-500 text-sm font-black uppercase tracking-wider">Premium</p>
+                  <p className="text-[#d99133] text-sm font-black uppercase tracking-wider">Premium</p>
                 </div>
                 {product.popular && (
-                  <div className="inline-flex items-center gap-2 bg-red-500/10 border-2 border-red-500/30 rounded-xl px-4 py-2">
+                  <div className="inline-flex items-center gap-2 bg-[#d99133] text-white rounded-full px-4 py-2 shadow-lg shadow-[#d99133]/20">
                     <span className="text-xl">⭐</span>
-                    <p className="text-red-400 text-sm font-black uppercase tracking-wider">Lo + Pedido</p>
+                    <p className="text-sm font-black uppercase tracking-wider">Lo + Pedido</p>
                   </div>
                 )}
               </div>
@@ -121,7 +121,7 @@ export default async function ProductDetail({ params }) {
               </p>
 
               <div className="flex items-baseline gap-3">
-                <span className="text-5xl font-black text-yellow-500">
+                <span className="text-5xl font-black text-[#d99133]">
                   S/ {minPrice.toFixed(2)}
                 </span>
                 {minPrice !== maxPrice && (
@@ -141,7 +141,7 @@ export default async function ProductDetail({ params }) {
       {/* Características */}
       <section className="max-w-6xl mx-auto px-4 py-12 sm:py-16 border-t-2 border-neutral-900">
         <div className="text-center mb-10 space-y-2">
-          <p className="text-xs uppercase tracking-widest text-yellow-500 font-bold">¿Por qué elegirnos?</p>
+          <p className="text-xs uppercase tracking-widest text-[#d99133] font-bold">¿Por qué elegirnos?</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white">Lo que hace especial a {product.name}</h2>
           <p className="text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto">Cada detalle cuenta para ofrecerte la mejor experiencia</p>
         </div>

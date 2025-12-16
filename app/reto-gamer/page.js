@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Shield, Zap, Target, Bomb, Trophy, Send, X } from "lucide-react";
-import { saveToLeaderboard, generateHash, getPlayerRank, PRIZES } from "./leaderboard";
+import { saveToLeaderboard, generateHash, getPlayerRank } from "./leaderboard";
 
 export default function RetoGamerPage() {
   const canvasRef = useRef(null);
@@ -1406,13 +1406,7 @@ export default function RetoGamerPage() {
               </div>
             </div>
 
-            {/* Premios */}
-            <div className="mt-4 p-3 bg-gradient-to-r from-[#d99133]/10 to-[#b07020]/10 rounded-xl border border-[#d99133]/30 max-w-xs mx-auto">
-              <p className="text-[#d99133] text-xs font-bold mb-1">🏆 PREMIOS 1ER LUGAR:</p>
-              <p className="text-neutral-400 text-[10px] leading-relaxed">
-                🍔 Burger con tu nombre • 💰 50% descuento • 🍟 Papas gratis
-              </p>
-            </div>
+
 
             <div className="mt-4 text-neutral-500 text-xs sm:text-sm max-w-xs mx-auto leading-relaxed">
               <p className="mb-2">
@@ -1473,7 +1467,6 @@ export default function RetoGamerPage() {
               <p className="text-green-400 font-bold mb-2">✅ ¡Registrado exitosamente!</p>
               <p className="text-xs text-neutral-400 mb-2">Tu código de participación:</p>
               <p className="text-lg font-mono text-[#d99133] bg-black/50 p-2 rounded">{redeemCode}</p>
-              <p className="text-xs text-neutral-500 mt-2">Guarda este código para reclamar tu premio</p>
             </div>
           )}
 
