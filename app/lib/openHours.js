@@ -13,27 +13,36 @@ export function isOpenNow(date = new Date(), hours = restaurantInfo.hours) {
   const day = date.getDay(); // 0..6
   const schedule = hours?.[day];
   if (!schedule) return false;
+  
   const open = parseTimeToDate(date, schedule.open);
   const close = parseTimeToDate(date, schedule.close);
 
-  // Si close <= open asumimos cierre al día siguiente (no usado aquí pero cubierto)
+  // Si close <= open significa que cierra al día siguiente (pasada la medianoche)
   if (close <= open) {
-    // cierre al día siguiente
-    if (date >= open) return true;
-    const prevOpen = new Date(open);
-    prevOpen.setDate(prevOpen.getDate() - 1);
-    const prevSchedule = hours?.[(day + 6) % 7];
+    // Ajustar close al día siguiente
+    close.setDate(close.getDate() + 1);
+    // Ahora verificar si estamos en el rango [open, close)
+    if (date >= open && date < close) return true;
+    
+    // También verificar si estamos en la madrugada del cierre del día anterior
+    const prevDay = (day + 6) % 7;
+    const prevSchedule = hours?.[prevDay];
     if (prevSchedule) {
-      const prevOpenDate = parseTimeToDate(prevOpen, prevSchedule.open);
-      const prevCloseDate = parseTimeToDate(prevOpen, prevSchedule.close);
-      // ajustar prevCloseDate al día siguiente
-      prevCloseDate.setDate(prevCloseDate.getDate() + 1);
-      return date >= prevOpenDate && date <= prevCloseDate;
+      const prevOpen = parseTimeToDate(date, prevSchedule.open);
+      prevOpen.setDate(prevOpen.getDate() - 1);
+      const prevClose = parseTimeToDate(date, prevSchedule.close);
+      
+      // Si el día anterior también cierra después de medianoche
+      if (parseTimeToDate(date, prevSchedule.close) <= parseTimeToDate(date, prevSchedule.open)) {
+        // prevClose ya está en el día actual (madrugada)
+        if (date >= prevOpen && date < prevClose) return true;
+      }
     }
     return false;
   }
 
-  return date >= open && date <= close;
+  // Caso normal: horario dentro del mismo día
+  return date >= open && date < close;
 }
 
 // Devuelve la próxima fecha/hora de apertura desde `date`
@@ -45,17 +54,22 @@ export function getNextOpenDate(date = new Date(), hours = restaurantInfo.hours)
     const day = candidate.getDay();
     const schedule = hours?.[day];
     if (!schedule) continue;
+    
     const openDate = parseTimeToDate(candidate, schedule.open);
     const closeDate = parseTimeToDate(candidate, schedule.close);
-    // Si close <= open asumimos cierre al día siguiente: dejamos closeDate al día siguiente
-    if (closeDate <= openDate) closeDate.setDate(closeDate.getDate() + 1);
+    
+    // Si close <= open, significa que cierra al día siguiente
+    if (closeDate <= openDate) {
+      closeDate.setDate(closeDate.getDate() + 1);
+    }
 
     if (add === 0) {
       // mismo día: si la apertura aún no pasó, devolverla
       if (date < openDate) return openDate;
-      // si ya pasó y aún estamos antes del cierre, estamos abiertos -> devolver null
-      if (date <= closeDate) return null;
+      // si ya pasó la apertura y aún estamos antes del cierre, estamos abiertos -> devolver null
+      if (date < closeDate) return null;
     } else {
+      // días futuros: devolver la hora de apertura
       return openDate;
     }
   }
