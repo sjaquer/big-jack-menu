@@ -203,9 +203,35 @@ export default function LinksPage() {
             <span className="text-neutral-300">Abierto</span>
             <span className="text-neutral-600">|</span>
             <MapPin size={14} className="text-[#d99133]" />
-            <span className="text-neutral-400">Lince</span>
+            <span className="text-neutral-400">Lince, Lima</span>
           </div>
         </header>
+
+        {/* Intro SEO/Misión */}
+        <section className="mb-8 text-center space-y-3">
+          <h1 className="text-xl font-black text-white leading-tight">
+            Burger spot de barrio en pleno Lince, Lima
+          </h1>
+          <p className="text-neutral-400 text-sm leading-relaxed">
+            Nacimos en una esquina céntrica para servir hamburguesas gruesas con alma peruana. Atención directa, delivery cercano y la misión de llevar nuestro sabor a más barrios del país.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              href="/"
+              className="px-4 py-2.5 rounded-xl bg-[#d99133] text-black font-bold hover:bg-[#c07e2b] transition-all"
+            >
+              Ver menú y pedir
+            </Link>
+            <a
+              href={restaurantInfo.contact.googleMapsLink}
+              target="_blank"
+              rel="noreferrer"
+              className="px-4 py-2.5 rounded-xl border border-neutral-700 text-white font-semibold hover:border-[#d99133]/60 hover:text-[#d99133] transition-all"
+            >
+              Estamos en Jr. Bartolomé Herrera 133
+            </a>
+          </div>
+        </section>
 
         {/* Google Review CTA */}
         <section className="mb-8">

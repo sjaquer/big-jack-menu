@@ -174,7 +174,7 @@ export default function BigJackMenu() {
     heroPriceRangeRaw[1] === -Infinity ? heroPriceRangeRaw[0] || 0 : heroPriceRangeRaw[1],
   ];
 
-  const marketingDescription = "Hamburguesas gruesas (no smash), fast food de barrio en Lince con delivery cercano y recojo rápido en Jr. Bartolomé Herrera 133.";
+  const marketingDescription = "Hamburguesas gruesas (no smash) hechas en Lima, Perú. Somos fast food de barrio en pleno Lince, con delivery cercano y recojo rápido en Jr. Bartolomé Herrera 133.";
   const openingHoursSpecification = useMemo(
     () =>
       Object.entries(restaurantInfo.hours || {}).map(([day, hours]) => ({
@@ -264,7 +264,7 @@ export default function BigJackMenu() {
         restaurantInfo.contact.googleMapsLink,
       ],
       priceRange: computedPriceRange,
-      servesCuisine: ["Hamburguesas", "Fast Food"],
+      servesCuisine: ["Hamburguesas", "Fast Food", "Comida peruana casual"],
       areaServed,
       openingHoursSpecification,
       hasMenu: {
@@ -343,16 +343,16 @@ export default function BigJackMenu() {
   const PEDIDOSYA_LINK = "https://www.pedidosya.com.pe/restaurantes/lima/big-jack-0c79d59d-90de-48bd-aa0d-3a5277f7da49-menu?origin=shop_list";
   const fastTrackHighlights = [
     {
-      title: "Ingredientes Frescos",
-      desc: "Seleccionamos carne premium y vegetales del día para garantizar el mejor sabor en cada mordida.",
+      title: "Sabor de barrio peruano",
+      desc: "Recetas propias con carne gruesa y salsas caseras para que se sienta el sabor criollo en cada bocado.",
     },
     {
-      title: "Sabor Auténtico",
-      desc: "Nuestras recetas caseras y salsas secretas crean una experiencia única que no encontrarás en otro lugar.",
+      title: "Ubicación céntrica en Lince",
+      desc: "A pasos de las avenidas principales de Lima. Delivery cercano o recojo rápido en Jr. Bartolomé Herrera 133.",
     },
     {
-      title: "Atención Rápida",
-      desc: "Tu tiempo vale oro. Preparamos tu pedido al momento para que lo disfrutes caliente y sin esperas.",
+      title: "Servicio cercano y honesto",
+      desc: "Somos un equipo chico con mirada grande: atención directa, tiempos claros y ganas de llevar nuestra propuesta a más barrios del Perú.",
     },
   ];
 
@@ -771,6 +771,10 @@ ${deliveryLines.join("\n")}`);
           name="keywords"
           content="hamburguesas lince, comida rápida lince, fast food barrio, hamburguesas gruesas, no smash burger, delivery lince, big jack"
         />
+        <meta name="geo.region" content="PE-LMA" />
+        <meta name="geo.placename" content="Lince, Lima, Perú" />
+        <meta name="geo.position" content="-12.081387;-77.038263" />
+        <meta name="ICBM" content="-12.081387, -77.038263" />
         <link rel="canonical" href={siteUrl} />
         <meta property="og:title" content={`${restaurantInfo.name} - Hamburguesas en Lince`} />
         <meta property="og:description" content={marketingDescription} />
@@ -912,10 +916,10 @@ ${deliveryLines.join("\n")}`);
             <div className="space-y-4">
               <h2 className="text-4xl sm:text-5xl font-black leading-[0.95] text-white tracking-tight">
                 HAMBURGUESAS <br/>
-                <span className="text-[#d99133]">BRUTALES</span>
+                <span className="text-[#d99133]">BRUTALES EN LINCE</span>
               </h2>
-              <p className="text-neutral-400 text-lg font-medium max-w-md mx-auto md:mx-0">
-                Abierto 4:00 PM - 1:00 AM
+              <p className="text-neutral-300 text-lg font-semibold max-w-xl mx-auto md:mx-0 leading-snug">
+                Burger spot peruano en el corazón de Lima. Sabor de barrio, porciones contundentes y servicio directo. Abierto de 4:00 PM a 1:00 AM con recojo y delivery cercano.
               </p>
               
               {/* Status Pills */}
@@ -927,6 +931,10 @@ ${deliveryLines.join("\n")}`);
                   <Clock size={12} /> Recojo 15 min
                 </span>
               </div>
+
+              <p className="text-neutral-400 text-sm max-w-xl mx-auto md:mx-0">
+                Nuestra misión: democratizar una burger de calidad con alma de barrio. Queremos ser la parada confiable para comer bien hoy en Lince y mañana en más distritos del Perú.
+              </p>
             </div>
 
             {/* Actions */}
