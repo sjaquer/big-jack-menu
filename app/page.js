@@ -698,65 +698,125 @@ export default function BigJackMenu() {
 
     const sections = [];
 
+    // Construir mensaje en formato limpio y legible para cocina
+    // Detectar si es dispositivo móvil en tiempo de ejecución y habilitar emojis solo en móvil
+    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+    const useEmojis = isMobile; // evita problemas de render en WhatsApp Web/PC
+    const header = (emoji, label) => (useEmojis ? `${emoji} ${label}` : label);
+    const lines = [];
+
     if (isPreOrder) {
       const nextOpenDate = getNextOpenDate(new Date());
       const countdown = nextOpenMs ? formatMsToCountdown(nextOpenMs) : null;
       const when = nextOpenDate
         ? nextOpenDate.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })
         : "la próxima apertura";
-      sections.push([
-        "*⚠ PRE-ORDEN (solo recojo)*",
-        `_Se procesa al abrir: ${when}${countdown ? ` (en ${countdown})` : ""}_`
-      ].join("\n"));
+      lines.push("PRE-ORDEN (solo recojo)");
+      lines.push(`Se procesa al abrir: ${when}${countdown ? ` (en ${countdown})` : ""}`);
+      lines.push("");
     }
 
-    sections.push("🔥 *PEDIDO BIG JACK* 🔥");
+    lines.push(useEmojis ? "🔥 PEDIDO BIG JACK 🔥" : "PEDIDO BIG JACK");
+    lines.push("");
 
-    const basics = [`👤 *Cliente:* ${customerName}`, `🛵 *Modalidad:* ${orderType === "delivery" ? "Delivery" : "Recojo en tienda"}`];
+    // Datos básicos
+    lines.push(header("👤", "CLIENTE:"));
+    lines.push(customerName);
+    lines.push("");
+    lines.push(header("🛵", "MODALIDAD:"));
+    lines.push(orderType === "delivery" ? "Delivery" : "Recojo en tienda");
+    lines.push("");
 
+    // Datos de entrega o recojo
     if (orderType === "delivery") {
-      const deliveryLines = [
-        `📍 *Dirección:* ${deliveryAddress || "Ubicación compartida"}`,
-        deliveryReference ? `🏠 *Referencia:* ${deliveryReference}` : null,
-        locationLink ? `🗺️ *Mapa:* ${locationLink}` : null,
-      ].filter(Boolean);
-      basics.push(`*📦 Datos de Entrega:*
-${deliveryLines.join("\n")}`);
+      lines.push(header("📍", "DIRECCIÓN:"));
+      lines.push(deliveryAddress || "Ubicación compartida");
+      if (deliveryReference) {
+        lines.push("");
+        lines.push(header("🏠", "REFERENCIA:"));
+        lines.push(deliveryReference);
+      }
+      if (locationLink) {
+        lines.push("");
+        lines.push(header("🗺️", "MAPA:"));
+        lines.push(locationLink);
+      }
     } else {
       if (isPreOrder) {
         const nextOpenDate = getNextOpenDate(new Date());
         const when = nextOpenDate
           ? nextOpenDate.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })
           : "nuestra próxima apertura";
-        basics.push(`⏰ *Recojo:* PRE-ORDEN — disponible desde ${when}`);
+        lines.push(header("⏰", "RECOJO:"));
+        lines.push(`PRE-ORDEN — disponible desde ${when}`);
       } else {
-        basics.push(
-          `⏰ *Recojo:* ${
-            pickupTime === "now" ? "Inmediato (15-20 min)" : `Programado: ${formatScheduledPickup()}`
-          }`
-        );
+        lines.push(header("⏰", "RECOJO:"));
+        lines.push(pickupTime === "now" ? "Inmediato (15-20 min)" : `Programado: ${formatScheduledPickup()}`);
       }
     }
 
-    sections.push(basics.join("\n"));
+    lines.push("");
 
-    const itemsSection = ["🍔 *Tu Pedido:*"].concat(
-      cart.map((item, index) => `• ${item.quantity}x*${item.name}* (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`)
-    );
-    sections.push(itemsSection.join("\n"));
+    // Items
+    lines.push(header("🍔", "PEDIDO:"));
+    cart.forEach((item) => {
+      lines.push(`• ${item.quantity}x ${item.name} (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`);
+    });
 
-    const totals = [`💰 *TOTAL A PAGAR:* S/ ${total.toFixed(2)}`, `💳 *Método de Pago:* ${paymentMethod.toUpperCase()}`];
-    if (notes.trim()) totals.push(`📝 *Notas:* ${notes.trim()}`);
-    sections.push(totals.join("\n"));
+    lines.push("");
 
-    sections.push("¡Gracias por elegir *Big Jack*! Tu pedido se procesará en breve. 🧡🔥");
+    // Totales y pago
+    lines.push(header("💰", "TOTAL A PAGAR:"));
+    lines.push(`S/ ${total.toFixed(2)}`);
+    lines.push("");
+    lines.push(header("💳", "MÉTODO DE PAGO:"));
+    lines.push(paymentMethod.toUpperCase());
 
-    const message = sections.join("\n\n");
+    if (notes.trim()) {
+      lines.push("");
+      lines.push(header("📝", "NOTAS:"));
+      lines.push(notes.trim());
+    }
+
+    lines.push("");
+    lines.push("Tu pedido se procesará en breve.");
+
+    const message = lines.join("\n");
 
     // Normalizar espacios alrededor de marcadores de formato para WhatsApp
+    // Reglas aplicadas:
+    // 1) Limpiar espacios internos: "* Cliente *" => "*Cliente*"
+    // 2) Mover puntuación hacia afuera: "*Cliente:*" => "*Cliente*:" (mejor lectura y render en WhatsApp)
+    // 3) Asegurar espacio después de un cierre si falta: "*Cliente*Sebastian" => "*Cliente* Sebastian"
+    // 4) Asegurar espacio antes de una apertura si falta: "Hola*Cliente*" => "Hola *Cliente*"
+    // 5) Colapsar espacios repetidos y trim final
     let normalized = message
+      // 1) limpiar espacios dentro de marcadores
       .replace(/\*\s+([^*]+?)\s+\*/g, "*$1*")
-      .replace(/_\s+([^_]+?)\s+_/g, "_$1_");
+      .replace(/_\s+([^_]+?)\s+_/g, "_$1_")
+      // 2) mover puntuación fuera de los marcadores (ej: *Texto:* -> *Texto*:) para evitar problemas de parseo
+      .replace(/\*([^*]+?)([:;,.!?])\*/g, "*$1*$2")
+      .replace(/_([^_]+?)([:;,.!?])_/g, "_$1_$2")
+      // 3) asegurar espacio después del cierre si el siguiente carácter no es espacio (incluye letras, dígitos, emojis, paréntesis, etc.)
+      .replace(/(\*[^*]+\*)(?=\S)/g, "$1 ")
+      .replace(/(_[^_]+_)(?=\S)/g, "$1 ")
+      // 4) asegurar espacio antes de una apertura si el carácter previo no es espacio
+      .replace(/(\S)(\*|_)(?=\S)/g, "$1 $2")
+      // colapsar múltiples espacios consecutivos en uno y recortar
+      .replace(/\s{2,}/g, " ")
+      .trim();
+
+    // Si hay marcadores sin pareja (asterisco o guión bajo), quitar el último para evitar asteriscos sueltos en el mensaje
+    const starCount = (normalized.match(/\*/g) || []).length;
+    if (starCount % 2 === 1) {
+      const last = normalized.lastIndexOf("*");
+      if (last !== -1) normalized = normalized.slice(0, last) + normalized.slice(last + 1);
+    }
+    const underCount = (normalized.match(/_/g) || []).length;
+    if (underCount % 2 === 1) {
+      const lastU = normalized.lastIndexOf("_");
+      if (lastU !== -1) normalized = normalized.slice(0, lastU) + normalized.slice(lastU + 1);
+    }
 
     const url = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(normalized)}`;
     window.open(url, "_blank");

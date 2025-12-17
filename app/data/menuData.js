@@ -93,7 +93,7 @@ export const menuItems = [
     description: "Chorizo parrillero jugoso en pan con chimichurri casero, cebolla caramelizada y un toque de mostaza.",
     image: "/images/choripan.webp",
     popular: false,
-    options: [{ id: "simple", label: "Clásico - sabor auténtico", price: 10.0 }]
+    options: [{ id: "simple", label: "Clásico - sabor auténtico", price: 6.50 }]
   },
   {
     id: 6,
