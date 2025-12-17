@@ -58,8 +58,9 @@ export default function BigJackMenu() {
   const [modalOptionId, setModalOptionId] = useState(null);
   const [suggestionVisible, setSuggestionVisible] = useState(false);
   const [suggestionFor, setSuggestionFor] = useState(null);
-  const [selectedSuggestions, setSelectedSuggestions] = useState({ papas: false, bebida: false });
-  const [selectedDrink, setSelectedDrink] = useState(null); // 'inka' | 'coca' | null
+  const [suggestedPapasQty, setSuggestedPapasQty] = useState(0);
+  const [suggestedInkaQty, setSuggestedInkaQty] = useState(0);
+  const [suggestedCocaQty, setSuggestedCocaQty] = useState(0);
   const [closedNoticeHidden, setClosedNoticeHidden] = useState(false);
   const [isPreOrder, setIsPreOrder] = useState(false);
 
@@ -403,49 +404,66 @@ export default function BigJackMenu() {
   };
 
   // --- Sugerencias de complementos (mini ventana) ---
-  const toggleSuggestion = (type) => {
-    setSelectedSuggestions(prev => ({
-      ...prev,
-      [type]: !prev[type]
-    }));
-    // Si deselecciona bebida, limpiar elección de tipo
-    if (type === 'bebida' && selectedSuggestions.bebida) {
-      setSelectedDrink(null);
+  const changeSuggestedQty = (type, delta) => {
+    if (type === 'papas') {
+      setSuggestedPapasQty(prev => Math.max(0, Math.min(10, prev + delta)));
+    } else if (type === 'inka') {
+      setSuggestedInkaQty(prev => Math.max(0, Math.min(10, prev + delta)));
+    } else if (type === 'coca') {
+      setSuggestedCocaQty(prev => Math.max(0, Math.min(10, prev + delta)));
     }
   };
 
   const handleConfirmSuggestions = () => {
-    // Agregar papas si fue seleccionada
-    if (selectedSuggestions.papas && suggestedGuarn) {
+    // Agregar papas según cantidad
+    if (suggestedPapasQty > 0 && suggestedGuarn) {
       const option = suggestedGuarn.options?.[0];
-      if (option) addToCart(suggestedGuarn, option, false);
+      if (option) {
+        for (let i = 0; i < suggestedPapasQty; i++) {
+          addToCart(suggestedGuarn, option, false);
+        }
+      }
     }
     
-    // Agregar bebida según elección
-    if (selectedSuggestions.bebida && selectedDrink) {
-      const drinkProduct = selectedDrink === 'inka' ? suggestedInka : suggestedCoca;
-      if (drinkProduct) {
-        const option = drinkProduct.options?.[0];
-        if (option) addToCart(drinkProduct, option, false);
+    // Agregar Inka Cola según cantidad
+    if (suggestedInkaQty > 0 && suggestedInka) {
+      const option = suggestedInka.options?.[0];
+      if (option) {
+        for (let i = 0; i < suggestedInkaQty; i++) {
+          addToCart(suggestedInka, option, false);
+        }
+      }
+    }
+    
+    // Agregar Coca Cola según cantidad
+    if (suggestedCocaQty > 0 && suggestedCoca) {
+      const option = suggestedCoca.options?.[0];
+      if (option) {
+        for (let i = 0; i < suggestedCocaQty; i++) {
+          addToCart(suggestedCoca, option, false);
+        }
       }
     }
     
     // Resetear y cerrar
-    setSelectedSuggestions({ papas: false, bebida: false });
-    setSelectedDrink(null);
+    setSuggestedPapasQty(0);
+    setSuggestedInkaQty(0);
+    setSuggestedCocaQty(0);
     setSuggestionVisible(false);
     setTimeout(() => setIsCartOpen(true), 300);
   };
 
   const handleCloseSuggestion = () => {
-    setSelectedSuggestions({ papas: false, bebida: false });
-    setSelectedDrink(null);
+    setSuggestedPapasQty(0);
+    setSuggestedInkaQty(0);
+    setSuggestedCocaQty(0);
     setSuggestionVisible(false);
   };
 
   const handleSkipSuggestion = () => {
-    setSelectedSuggestions({ papas: false, bebida: false });
-    setSelectedDrink(null);
+    setSuggestedPapasQty(0);
+    setSuggestedInkaQty(0);
+    setSuggestedCocaQty(0);
     setSuggestionVisible(false);
     setTimeout(() => setIsCartOpen(true), 300);
   };
@@ -581,12 +599,12 @@ ${deliveryLines.join("\n")}`);
     sections.push(basics.join("\n"));
 
     const itemsSection = ["🍔 *Tu Pedido:*"].concat(
-      cart.map((item, index) => `• ${item.quantity}x *${item.name}* (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`)
+      cart.map((item, index) => `• ${item.quantity}x*${item.name}* (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`)
     );
     sections.push(itemsSection.join("\n"));
 
     const totals = [`💰 *TOTAL A PAGAR:* S/ ${total.toFixed(2)}`, `💳 *Método de Pago:* ${paymentMethod.toUpperCase()}`];
-    if (notes.trim()) totals.push(`📝 *Notas:* _${notes.trim()}_`);
+    if (notes.trim()) totals.push(`📝 *Notas:* ${notes.trim()}`);
     sections.push(totals.join("\n"));
 
     sections.push("¡Gracias por elegir *Big Jack*! Tu pedido se procesará en breve. 🧡🔥");
@@ -1134,7 +1152,7 @@ ${deliveryLines.join("\n")}`);
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-base font-bold">{option.label}</p>
-                          <p className="text-xs text-neutral-400">Ideal para {option.label.toLowerCase()}</p>
+                          <p className="text-xs text-neutral-400">Recomendada: {option.label.toLowerCase()}</p>
                         </div>
                         <span className="text-[#d99133] font-black text-xl">S/ {option.price.toFixed(2)}</span>
                       </div>
@@ -1763,7 +1781,7 @@ ${deliveryLines.join("\n")}`);
         </div>
       </footer>
 
-      {/* Mini ventana de sugerencia para complementos - MEJORADA */}
+      {/* Mini ventana de sugerencia para complementos - CON CANTIDADES */}
       {suggestionVisible && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="max-w-lg w-full bg-gradient-to-b from-neutral-900 to-neutral-950 border-2 border-[#d99133]/30 rounded-3xl shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-4 duration-300 max-h-[85vh] overflow-y-auto">
@@ -1774,7 +1792,7 @@ ${deliveryLines.join("\n")}`);
                   <p className="font-black text-white text-xl flex items-center gap-2">
                     <span className="text-green-500 text-2xl">✓</span> ¡Agregado!
                   </p>
-                  <p className="text-sm text-neutral-400 mt-1.5 leading-relaxed">Completa tu pedido con estos complementos</p>
+                  <p className="text-sm text-neutral-400 mt-1.5 leading-relaxed">¿Quieres completar tu combo? Agrega las cantidades que necesites</p>
                 </div>
                 <button 
                   onClick={handleCloseSuggestion} 
@@ -1788,122 +1806,160 @@ ${deliveryLines.join("\n")}`);
 
             {/* Content */}
             <div className="p-5 space-y-4">
-              {/* Papas Option */}
-              {suggestedGuarn && !cart.some(i => i.category === "GUARNICION") && (
-                <button
-                  onClick={() => toggleSuggestion('papas')}
-                  className={`w-full min-h-[80px] px-5 py-4 rounded-2xl font-semibold transition-all flex items-center gap-4 border-2 ${
-                    selectedSuggestions.papas
-                      ? 'bg-[#d99133]/20 border-[#d99133] shadow-lg shadow-[#d99133]/20'
-                      : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-600'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-3xl ${
-                    selectedSuggestions.papas ? 'bg-[#d99133]/30' : 'bg-neutral-700'
-                  }`}>
-                    🍟
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-white font-bold text-base">Papas Fritas</p>
-                    <p className="text-neutral-400 text-xs mt-0.5">Crujientes y doradas</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[#d99133] font-black text-lg">S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</span>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedSuggestions.papas
-                        ? 'bg-[#d99133] border-[#d99133]'
-                        : 'border-neutral-600'
-                    }`}>
-                      {selectedSuggestions.papas && <Check size={16} className="text-black font-bold" />}
+              {/* Papas con cantidad */}
+              {suggestedGuarn && (
+                <div className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-[#d99133]/10 rounded-xl flex items-center justify-center text-3xl">
+                      🍟
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-bold text-base">Papas Fritas</p>
+                      <p className="text-neutral-400 text-xs mt-0.5">Crujientes y doradas · S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</p>
                     </div>
                   </div>
-                </button>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-sm text-neutral-400">Cantidad:</span>
+                    <div className="flex items-center gap-3 bg-neutral-900 rounded-xl p-1.5 border border-neutral-700">
+                      <button 
+                        onClick={() => changeSuggestedQty('papas', -1)}
+                        disabled={suggestedPapasQty === 0}
+                        className="w-8 h-8 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white transition-colors"
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <span className="text-lg font-bold w-8 text-center">{suggestedPapasQty}</span>
+                      <button 
+                        onClick={() => changeSuggestedQty('papas', 1)}
+                        disabled={suggestedPapasQty >= 10}
+                        className="w-8 h-8 flex items-center justify-center bg-[#d99133] hover:bg-[#c07e2b] disabled:opacity-30 disabled:cursor-not-allowed text-black rounded transition-colors"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  {suggestedPapasQty > 0 && (
+                    <div className="text-right text-xs text-[#d99133] font-bold">
+                      Subtotal: S/ {(suggestedGuarn.options?.[0]?.price * suggestedPapasQty).toFixed(2)}
+                    </div>
+                  )}
+                </div>
               )}
 
-              {/* Bebida Option */}
-              {!cart.some(i => i.category === "BEBIDAS") && (
+              {/* Bebidas con cantidades separadas */}
               <div className="space-y-3">
-                <button
-                  onClick={() => toggleSuggestion('bebida')}
-                  className={`w-full min-h-[80px] px-5 py-4 rounded-2xl font-semibold transition-all flex items-center gap-4 border-2 ${
-                    selectedSuggestions.bebida
-                      ? 'bg-[#d99133]/20 border-[#d99133] shadow-lg shadow-[#d99133]/20'
-                      : 'bg-neutral-800/50 border-neutral-700 hover:border-neutral-600'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-3xl ${
-                    selectedSuggestions.bebida ? 'bg-[#d99133]/30' : 'bg-neutral-700'
-                  }`}>
-                    🥤
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-white font-bold text-base">Bebida</p>
-                    <p className="text-neutral-400 text-xs mt-0.5">Elige tu favorita</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[#d99133] font-black text-lg">S/ 3.50</span>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedSuggestions.bebida
-                        ? 'bg-[#d99133] border-[#d99133]'
-                        : 'border-neutral-600'
-                    }`}>
-                      {selectedSuggestions.bebida && <Check size={16} className="text-black font-bold" />}
+                <p className="text-sm text-neutral-300 font-semibold">Bebidas:</p>
+                
+                {/* Inka Cola */}
+                {suggestedInka && (
+                  <div className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-5 space-y-3">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-3xl">
+                        🟡
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-bold text-base">Inka Cola</p>
+                        <p className="text-neutral-400 text-xs mt-0.5">500ml helada · S/ {suggestedInka.options?.[0]?.price?.toFixed(2)}</p>
+                      </div>
                     </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-neutral-400">Cantidad:</span>
+                      <div className="flex items-center gap-3 bg-neutral-900 rounded-xl p-1.5 border border-neutral-700">
+                        <button 
+                          onClick={() => changeSuggestedQty('inka', -1)}
+                          disabled={suggestedInkaQty === 0}
+                          className="w-8 h-8 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white transition-colors"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="text-lg font-bold w-8 text-center">{suggestedInkaQty}</span>
+                        <button 
+                          onClick={() => changeSuggestedQty('inka', 1)}
+                          disabled={suggestedInkaQty >= 10}
+                          className="w-8 h-8 flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-black rounded transition-colors"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    {suggestedInkaQty > 0 && (
+                      <div className="text-right text-xs text-yellow-500 font-bold">
+                        Subtotal: S/ {(suggestedInka.options?.[0]?.price * suggestedInkaQty).toFixed(2)}
+                      </div>
+                    )}
                   </div>
-                </button>
+                )}
 
-                {/* Drink Type Selection */}
-                {selectedSuggestions.bebida && (
-                  <div className="pl-4 space-y-2 animate-in slide-in-from-top-2 duration-200">
-                    <p className="text-xs text-neutral-400 font-semibold mb-2">¿Cuál prefieres?</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {suggestedInka && (
-                        <button
-                          onClick={() => setSelectedDrink('inka')}
-                          className={`min-h-[70px] px-3 py-3 rounded-xl font-bold transition-all flex flex-col items-center justify-center gap-2 border-2 text-sm ${
-                            selectedDrink === 'inka'
-                              ? 'bg-yellow-600/30 border-yellow-600 text-white shadow-md'
-                              : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-600'
-                          }`}
-                        >
-                          <span className="text-2xl">🟡</span>
-                          <span>Inka Cola</span>
-                        </button>
-                      )}
-                      {suggestedCoca && (
-                        <button
-                          onClick={() => setSelectedDrink('coca')}
-                          className={`min-h-[70px] px-3 py-3 rounded-xl font-bold transition-all flex flex-col items-center justify-center gap-2 border-2 text-sm ${
-                            selectedDrink === 'coca'
-                              ? 'bg-red-600/30 border-red-600 text-white shadow-md'
-                              : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-600'
-                          }`}
-                        >
-                          <span className="text-2xl">🔴</span>
-                          <span>Coca Cola</span>
-                        </button>
-                      )}
+                {/* Coca Cola */}
+                {suggestedCoca && (
+                  <div className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-5 space-y-3">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-3xl">
+                        🔴
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-bold text-base">Coca Cola</p>
+                        <p className="text-neutral-400 text-xs mt-0.5">500ml helada · S/ {suggestedCoca.options?.[0]?.price?.toFixed(2)}</p>
+                      </div>
                     </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-neutral-400">Cantidad:</span>
+                      <div className="flex items-center gap-3 bg-neutral-900 rounded-xl p-1.5 border border-neutral-700">
+                        <button 
+                          onClick={() => changeSuggestedQty('coca', -1)}
+                          disabled={suggestedCocaQty === 0}
+                          className="w-8 h-8 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white transition-colors"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="text-lg font-bold w-8 text-center">{suggestedCocaQty}</span>
+                        <button 
+                          onClick={() => changeSuggestedQty('coca', 1)}
+                          disabled={suggestedCocaQty >= 10}
+                          className="w-8 h-8 flex items-center justify-center bg-red-500 hover:bg-red-400 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded transition-colors"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    {suggestedCocaQty > 0 && (
+                      <div className="text-right text-xs text-red-500 font-bold">
+                        Subtotal: S/ {(suggestedCoca.options?.[0]?.price * suggestedCocaQty).toFixed(2)}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-              )}
             </div>
 
             {/* Footer Actions */}
             <div className="sticky bottom-0 bg-gradient-to-t from-neutral-950 to-neutral-950/95 backdrop-blur-sm p-5 pt-4 border-t border-neutral-800 rounded-b-3xl space-y-3">
+              {(suggestedPapasQty > 0 || suggestedInkaQty > 0 || suggestedCocaQty > 0) && (
+                <div className="bg-[#d99133]/10 border border-[#d99133]/30 rounded-xl p-4">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-neutral-300">Total complementos:</span>
+                    <span className="text-[#d99133] font-black text-xl">
+                      S/ {(
+                        (suggestedGuarn?.options?.[0]?.price || 0) * suggestedPapasQty +
+                        (suggestedInka?.options?.[0]?.price || 0) * suggestedInkaQty +
+                        (suggestedCoca?.options?.[0]?.price || 0) * suggestedCocaQty
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
               <button 
                 onClick={handleConfirmSuggestions}
-                disabled={selectedSuggestions.bebida && !selectedDrink}
+                disabled={suggestedPapasQty === 0 && suggestedInkaQty === 0 && suggestedCocaQty === 0}
                 className={`w-full min-h-[60px] rounded-2xl font-black text-base transition-all flex items-center justify-center gap-3 shadow-lg ${
-                  (selectedSuggestions.papas || (selectedSuggestions.bebida && selectedDrink))
+                  (suggestedPapasQty > 0 || suggestedInkaQty > 0 || suggestedCocaQty > 0)
                     ? 'bg-gradient-to-r from-[#d99133] to-[#b07020] hover:from-[#eeb055] hover:to-[#d99133] text-black active:scale-[0.98]'
                     : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                 }`}
               >
                 <ShoppingCart size={20} />
-                {selectedSuggestions.papas || selectedSuggestions.bebida
-                  ? `Agregar ${selectedSuggestions.papas && selectedSuggestions.bebida ? 'ambos' : selectedSuggestions.papas ? 'papas' : 'bebida'} al carrito`
+                {(suggestedPapasQty > 0 || suggestedInkaQty > 0 || suggestedCocaQty > 0)
+                  ? 'Agregar al carrito'
                   : 'Selecciona al menos uno'
                 }
               </button>

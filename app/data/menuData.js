@@ -86,6 +86,30 @@ export const menuItems = [
     ]
   },
   {
+    id: 5,
+    slug: "choripan",
+    category: "LAS INTOCABLES",
+    name: "Choripan",
+    description: "Chorizo parrillero jugoso en pan con chimichurri casero, cebolla caramelizada y un toque de mostaza.",
+    image: "/images/choripan.webp",
+    popular: false,
+    options: [{ id: "simple", label: "Clásico - sabor auténtico", price: 10.0 }]
+  },
+  {
+    id: 6,
+    slug: "salchipapa",
+    category: "LAS INTOCABLES",
+    name: "Salchipapa",
+    description: "Papas fritas doradas con salchicha cortada, bañadas en salsas de la casa. La opción 'Especial' incluye chorizo, queso y huevo.",
+    image: "/images/salchipapa.webp",
+    popular: false,
+    options: [
+      { id: "clasica", label: "Clásica - con salchicha", price: 10.0 },
+      { id: "chorizo", label: "Con Chorizo - más intenso", price: 12.0 },
+      { id: "especial", label: "Especial - chorizo, queso y huevo", price: 14.0 }
+    ]
+  },
+  {
     id: 20,
     slug: "papas-fritas",
     category: "GUARNICION",
