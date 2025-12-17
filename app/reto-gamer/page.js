@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Shield, Zap, Target, Bomb, Trophy, Send, X } from "lucide-react";
-import { saveToLeaderboard, generateHash, getPlayerRank } from "./leaderboard";
+import { saveToLeaderboard, generateHash, getPlayerRank, getRankingByCategory, getStats, CATEGORIES } from "./leaderboard";
 
 export default function RetoGamerPage() {
   const canvasRef = useRef(null);
@@ -30,6 +30,24 @@ export default function RetoGamerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
+  const [menuPulse, setMenuPulse] = useState(false);
+
+  // Leaderboard local
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardRankings, setLeaderboardRankings] = useState([]);
+  const [leaderboardStats, setLeaderboardStats] = useState(null);
+  const [leaderboardCategory, setLeaderboardCategory] = useState('high_score');
+
+  const loadLeaderboard = (category = leaderboardCategory) => {
+    try {
+      const data = getRankingByCategory(category, 20);
+      setLeaderboardRankings(data);
+      setLeaderboardStats(getStats());
+    } catch (e) {
+      setLeaderboardRankings([]);
+      setLeaderboardStats(null);
+    }
+  };
 
   // Detectar móvil
   useEffect(() => {
@@ -1029,6 +1047,25 @@ export default function RetoGamerPage() {
         }));
       }
       
+      // Guardado automático en leaderboard usando los datos de la partida
+      try {
+        const entry = saveToLeaderboard({
+          playerName: 'Jugador',
+          whatsapp: '',
+          ...gameDataForLeaderboard
+        });
+        setRedeemCode(entry?.redeemCode || '');
+        setSubmitSuccess(true);
+        setShowRegisterModal(false);
+      } catch (e) {
+        console.error('Error saving leaderboard on gameover:', e);
+      }
+
+      // Animar y regresar al menú en unos segundos
+      setMenuPulse(true);
+      setTimeout(() => setMenuPulse(false), 2500);
+      setTimeout(() => goToMenu(), 3500);
+
       setGameState('gameover');
     }
 
@@ -1256,6 +1293,27 @@ export default function RetoGamerPage() {
     }
   }, [playerName, playerWhatsApp, gameData]);
 
+  // Guardado automático al terminar la partida (usa defaults si no hay nombre)
+  const autoSaveScore = useCallback(() => {
+    if (!gameData) return null;
+
+    try {
+      const entry = saveToLeaderboard({
+        playerName: 'Jugador',
+        whatsapp: '',
+        ...gameData
+      });
+
+      setRedeemCode(entry.redeemCode);
+      setSubmitSuccess(true);
+      setShowRegisterModal(false);
+      return entry;
+    } catch (e) {
+      console.error('Auto-save error:', e);
+      return null;
+    }
+  }, [gameData]);
+
   // Power-up icons for HUD
   const powerUpIcons = {
     SHIELD: { icon: Shield, color: 'text-cyan-400' },
@@ -1378,14 +1436,14 @@ export default function RetoGamerPage() {
               🎮 INSERTAR MONEDA
             </button>
 
-            {/* Ver ranking */}
-            <Link
-              href="/reto-gamer/ranking"
+            {/* Ver ranking (modal local) */}
+            <button
+              onClick={() => { loadLeaderboard('high_score'); setShowLeaderboard(true); }}
               className="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-[#d99133] font-bold rounded-xl transition-all"
             >
               <Trophy size={18} />
               Ver Ranking
-            </Link>
+            </button>
 
             {/* Power-up legend */}
             <div className="mt-6 p-4 bg-black/50 rounded-xl border border-neutral-700 max-w-xs mx-auto">
@@ -1479,19 +1537,19 @@ export default function RetoGamerPage() {
             </button>
             <button
               onClick={goToMenu}
-              className="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg rounded-xl border-2 border-neutral-600 transition-all active:scale-95"
+              className={`px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg rounded-xl border-2 border-neutral-600 transition-all active:scale-95 ${menuPulse ? 'animate-bounce ring-2 ring-[#d99133]/30' : ''}`}
             >
               📋 MENÚ
             </button>
           </div>
 
-          <div className="flex gap-4 mt-4">
-            <Link
-              href="/reto-gamer/ranking"
+            <div className="flex gap-4 mt-4">
+            <button
+              onClick={() => { loadLeaderboard('high_score'); setShowLeaderboard(true); }}
               className="text-[#d99133] hover:text-[#eeb055] font-semibold transition-colors flex items-center gap-1"
             >
               <Trophy size={16} /> Ver Ranking
-            </Link>
+            </button>
             <Link
               href="/"
               className="text-neutral-400 hover:text-white font-semibold transition-colors"
@@ -1572,6 +1630,51 @@ export default function RetoGamerPage() {
           </div>
         </div>
       )}
+
+        {/* Leaderboard Modal (local) */}
+        {showLeaderboard && (
+          <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#020204]/90 backdrop-blur-sm p-4">
+            <div className="bg-neutral-900 rounded-2xl p-6 max-w-4xl w-full border border-neutral-700 relative">
+              <button
+                onClick={() => setShowLeaderboard(false)}
+                className="absolute top-4 right-4 text-neutral-500 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-black text-[#d99133]">🏆 RANKING (Récord local)</h2>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => { loadLeaderboard('high_score'); }} className="px-3 py-1 bg-neutral-800 rounded text-sm">Actualizar</button>
+                </div>
+              </div>
+
+              <div className="mb-4 text-neutral-400">{leaderboardStats && leaderboardStats.totalGames > 0 ? `Récord: ${leaderboardStats.highestScore}` : 'No hay registros aún'}</div>
+
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                {leaderboardRankings.length === 0 ? (
+                  <div className="text-center py-12 bg-neutral-900/50 rounded-2xl border border-neutral-800">
+                    <p className="text-neutral-500">No hay registros aún</p>
+                  </div>
+                ) : (
+                  leaderboardRankings.map((entry, index) => (
+                    <div key={entry.id || index} className={`flex items-center gap-4 p-4 rounded-xl border bg-neutral-900/50`}>
+                      <div className="w-10 flex justify-center text-[#d99133] font-mono font-bold">#{index+1}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-white truncate">{entry.playerName || 'Jugador Anónimo'}</div>
+                        <div className="text-xs text-neutral-500">Oleada {entry.wave || 1} • {entry.kills || 0} kills</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-[#d99133]">{entry.score?.toLocaleString() || 0}</div>
+                        <div className="text-xs text-neutral-500">{entry.date}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

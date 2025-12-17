@@ -1,241 +1,116 @@
-// Sistema de Leaderboard para Big Jack Reto Gamer
-// Guarda datos en localStorage y permite exportar a CSV/Excel
+// Sistema de ranking simplificado: solo un récord local guardado en localStorage
+const RECORD_KEY = 'bj_local_record_v1';
 
-const LEADERBOARD_KEY = 'bj_leaderboard_v1';
-
-// Categorías del torneo
 export const CATEGORIES = {
-  HIGH_SCORE: {
-    id: 'high_score',
-    name: 'High Score',
-    description: 'Puntaje más alto',
-    icon: '🏆',
-    sortBy: 'score',
-    sortOrder: 'desc'
-  },
-  SPEEDRUN_BOSS: {
-    id: 'speedrun_boss',
-    name: 'Speedrun Boss 1',
-    description: 'Llegar al primer boss más rápido',
-    icon: '⚡',
-    sortBy: 'timeToBoss',
-    sortOrder: 'asc'
-  },
-  SURVIVAL: {
-    id: 'survival',
-    name: 'Supervivencia',
-    description: 'Mayor tiempo sobrevivido',
-    icon: '⏱️',
-    sortBy: 'survivalTime',
-    sortOrder: 'desc'
-  }
+  HIGH_SCORE: { id: 'high_score', name: 'High Score', description: 'Récord local (mejor puntuación)', icon: '🏆' }
 };
 
-// Premios para el primer lugar de cada categoría
-export const PRIZES = {
-  main: "🍔 Nombrar una burger en tu honor con tu nombre",
-  discount: "💰 50% descuento en todos los pedidos de una burger (1 por semana, sabores seleccionados)",
-  fries: "🍟 Papas grandes GRATIS en cada pedido"
-};
-
-// Generar código único para canjear
-export function generateRedeemCode(playerName, category) {
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  const categoryCode = category.substring(0, 2).toUpperCase();
-  return `BJ-${categoryCode}-${timestamp.slice(-4)}-${random}`;
+// Generar código simple para canje
+export function generateRedeemCode(playerName = '') {
+  const code = `BJ-${playerName.replace(/\s+/g, '').slice(0,6).toUpperCase()}-${Date.now().toString(36).slice(-4).toUpperCase()}`;
+  return code;
 }
 
-// Generar hash de verificación
+// Hash ligero (mantener la función para compatibilidad)
 export function generateHash(data) {
-  const str = `${data.score}-${data.wave}-${data.kills}-${data.duration}-${data.sessionId}`;
-  let hash = 0;
+  const str = `${data.score}-${data.wave || 0}-${data.duration || 0}`;
+  let h = 0;
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+    h = (h << 5) - h + str.charCodeAt(i);
+    h |= 0;
   }
-  return Math.abs(hash).toString(36);
+  return Math.abs(h).toString(36);
 }
 
-// Validar datos del juego
-export function validateGameData(data) {
-  // Verificar que el tiempo sea razonable
-  const minTimeForScore = data.score / 250; // Max ~250 puntos por segundo
-  if (data.duration < minTimeForScore) return false;
-  
-  // Verificar correlación kills/score
-  const expectedMinKills = Math.floor(data.score / 300);
-  if (data.kills < expectedMinKills * 0.3) return false;
-  
-  // Verificar hash
-  const expectedHash = generateHash(data);
-  if (data.hash !== expectedHash) return false;
-  
-  return true;
-}
-
-// Obtener leaderboard
-export function getLeaderboard() {
+function getRecord() {
   try {
-    const data = localStorage.getItem(LEADERBOARD_KEY);
-    if (!data) return [];
-    return JSON.parse(data);
+    const raw = localStorage.getItem(RECORD_KEY);
+    return raw ? JSON.parse(raw) : null;
   } catch {
-    return [];
-  }
-}
-
-// Guardar entrada en leaderboard
-export function saveToLeaderboard(entry) {
-  const leaderboard = getLeaderboard();
-  
-  // Agregar timestamp y código
-  const newEntry = {
-    ...entry,
-    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-    timestamp: Date.now(),
-    date: new Date().toLocaleDateString('es-PE'),
-    redeemCode: generateRedeemCode(entry.playerName, entry.category || 'high_score'),
-    verified: false
-  };
-  
-  leaderboard.push(newEntry);
-  
-  // Ordenar por score descendente
-  leaderboard.sort((a, b) => b.score - a.score);
-  
-  // Guardar
-  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
-  
-  return newEntry;
-}
-
-// Obtener ranking por categoría
-export function getRankingByCategory(categoryId, limit = 10) {
-  const leaderboard = getLeaderboard();
-  const category = Object.values(CATEGORIES).find(c => c.id === categoryId);
-  
-  if (!category) return [];
-  
-  // Filtrar y ordenar según la categoría
-  let sorted = [...leaderboard];
-  
-  if (category.sortBy === 'timeToBoss') {
-    sorted = sorted.filter(e => e.timeToBoss && e.timeToBoss > 0);
-    sorted.sort((a, b) => category.sortOrder === 'asc' 
-      ? a.timeToBoss - b.timeToBoss 
-      : b.timeToBoss - a.timeToBoss
-    );
-  } else if (category.sortBy === 'survivalTime') {
-    sorted.sort((a, b) => category.sortOrder === 'asc'
-      ? a.duration - b.duration
-      : b.duration - a.duration
-    );
-  } else {
-    sorted.sort((a, b) => category.sortOrder === 'asc'
-      ? a.score - b.score
-      : b.score - a.score
-    );
-  }
-  
-  return sorted.slice(0, limit);
-}
-
-// Obtener posición del jugador
-export function getPlayerRank(score, categoryId = 'high_score') {
-  const ranking = getRankingByCategory(categoryId, 1000);
-  const position = ranking.findIndex(e => e.score <= score);
-  return position === -1 ? ranking.length + 1 : position + 1;
-}
-
-// Exportar a CSV
-export function exportToCSV() {
-  const leaderboard = getLeaderboard();
-  
-  if (leaderboard.length === 0) {
     return null;
   }
-  
-  const headers = [
-    'Posición',
-    'Nombre',
-    'WhatsApp',
-    'Puntuación',
-    'Oleada',
-    'Enemigos Eliminados',
-    'Tiempo (seg)',
-    'Tiempo al Boss 1 (seg)',
-    'Código Canje',
-    'Fecha',
-    'Verificado'
-  ];
-  
-  const rows = leaderboard.map((entry, index) => [
-    index + 1,
-    entry.playerName || 'Anónimo',
-    entry.whatsapp || '-',
-    entry.score,
-    entry.wave || 1,
-    entry.kills || 0,
-    Math.round(entry.duration || 0),
-    entry.timeToBoss ? Math.round(entry.timeToBoss) : '-',
-    entry.redeemCode || '-',
-    entry.date || '-',
-    entry.verified ? 'Sí' : 'No'
-  ]);
-  
-  const csvContent = [
-    headers.join(','),
-    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-  ].join('\n');
-  
-  return csvContent;
 }
 
-// Descargar CSV
+function saveRecord(record) {
+  try {
+    localStorage.setItem(RECORD_KEY, JSON.stringify(record));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Guardar puntuación: si es mejor que el récord local lo reemplaza
+export function saveToLeaderboard(entry) {
+  const current = getRecord();
+  const newEntry = {
+    playerName: entry.playerName || 'Jugador',
+    whatsapp: entry.whatsapp || '',
+    score: entry.score || 0,
+    wave: entry.wave || 1,
+    kills: entry.kills || 0,
+    duration: entry.duration || 0,
+    timeToBoss: entry.timeToBoss || 0,
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2,5),
+    date: new Date().toLocaleDateString('es-PE'),
+    redeemCode: generateRedeemCode(entry.playerName || 'J'),
+    verified: false
+  };
+
+  // Si no existe récord o la nueva puntuación es mayor, reemplazar
+  if (!current || (newEntry.score > (current.score || 0))) {
+    saveRecord(newEntry);
+    return newEntry;
+  }
+
+  // Si no supera, devolver el actual sin cambiar
+  return current;
+}
+
+// Obtener ranking por categoría (devuelve array con 0 o 1 elemento)
+export function getRankingByCategory(categoryId, limit = 10) {
+  const rec = getRecord();
+  if (!rec) return [];
+  return [rec].slice(0, limit);
+}
+
+// Estadísticas simples
+export function getStats() {
+  const rec = getRecord();
+  if (!rec) return { totalPlayers: 0, highestScore: 0, averageScore: 0, totalGames: 0, bestWave: 0 };
+  return {
+    totalPlayers: 1,
+    highestScore: rec.score || 0,
+    averageScore: rec.score || 0,
+    totalGames: 1,
+    bestWave: rec.wave || 0
+  };
+}
+
+// Descargar CSV (si existe récord)
 export function downloadCSV() {
-  const csv = exportToCSV();
-  if (!csv) {
+  const rec = getRecord();
+  if (!rec) {
     alert('No hay datos para exportar');
     return;
   }
-  
+  const headers = ['Nombre','WhatsApp','Puntuación','Oleada','Kills','Tiempo(s)','Código','Fecha'];
+  const row = [rec.playerName, rec.whatsapp, rec.score, rec.wave, rec.kills, Math.round(rec.duration||0), rec.redeemCode, rec.date];
+  const csv = [headers.join(','), row.map(c => `"${c}"`).join(',')].join('\n');
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
-  
   link.setAttribute('href', url);
-  link.setAttribute('download', `big_jack_leaderboard_${new Date().toISOString().split('T')[0]}.csv`);
+  link.setAttribute('download', `big_jack_record_${new Date().toISOString().split('T')[0]}.csv`);
   link.style.visibility = 'hidden';
-  
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
 
-// Obtener estadísticas generales
-export function getStats() {
-  const leaderboard = getLeaderboard();
-  
-  if (leaderboard.length === 0) {
-    return {
-      totalPlayers: 0,
-      highestScore: 0,
-      averageScore: 0,
-      totalGames: 0,
-      bestWave: 0
-    };
-  }
-  
-  const scores = leaderboard.map(e => e.score);
-  const waves = leaderboard.map(e => e.wave || 1);
-  
-  return {
-    totalPlayers: new Set(leaderboard.map(e => e.whatsapp || e.playerName)).size,
-    highestScore: Math.max(...scores),
-    averageScore: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
-    totalGames: leaderboard.length,
-    bestWave: Math.max(...waves)
-  };
+// Obtener posición simple: 1 si supera el récord, 2 si no
+export function getPlayerRank(score, categoryId = 'high_score') {
+  const rec = getRecord();
+  if (!rec) return 1;
+  return score > (rec.score || 0) ? 1 : 2;
 }

@@ -295,7 +295,7 @@ export default function LinksPage() {
               <div className="h-px bg-neutral-800"></div>
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400">Vie - Dom</span>
-                <span className="text-[#d99133] font-bold">4:00 PM - 1:00 AM</span>
+                <span className="text-[#d99133] font-bold">5:00 PM - 1:00 AM</span>
               </div>
             </div>
           </div>
@@ -304,7 +304,7 @@ export default function LinksPage() {
         {/* Footer */}
         <footer className="text-center pt-6 border-t border-neutral-800">
           <p className="text-neutral-600 text-xs mb-2">
-            Hamburguesas brutales desde 2024
+            Hamburguesas brutales desde 2025
           </p>
           <p className="text-neutral-700 text-xs">
             RUC: {restaurantInfo.ruc}

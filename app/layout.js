@@ -23,8 +23,18 @@ export const metadata = {
     default: 'BIG JACK | Hamburguesas Brutales en Lince, Lima',
     template: '%s | BIG JACK'
   },
-  description: 'Hamburguesas brutales con sabor que prende fuego. Pide online o recoge en tienda. Ubicados en Jirón Bartolomé Herrera 133, Lince, Lima. Delivery disponible.',
-  keywords: ['hamburguesas', 'burgers', 'comida rápida', 'Lince', 'Lima', 'delivery', 'fast food', 'BIG JACK', 'hamburguesas Lima', 'mejor hamburguesa'],
+  description: 'Hamburguesas gruesas (no smash) estilo fast food de barrio en Lince. Pide online o recoge en Jr. Bartolomé Herrera 133. Delivery rápido en zonas cercanas.',
+  keywords: [
+    'hamburguesas lince',
+    'hamburguesas lima',
+    'comida rápida lince',
+    'fast food barrio',
+    'no smash burger',
+    'delivery lince',
+    'big jack',
+    'hamburguesas con queso',
+    'jr bartolome herrera 133'
+  ],
   authors: [{ name: 'BIG JACK Perú' }],
   creator: 'BIG JACK Perú S.A.C.',
   publisher: 'BIG JACK Perú',
@@ -35,7 +45,7 @@ export const metadata = {
   },
   openGraph: {
     title: 'BIG JACK | Hamburguesas Brutales en Lince',
-    description: 'Hamburguesas brutales con sabor que prende fuego. Pide online o recoge en tienda.',
+    description: 'Hamburguesas gruesas, no smash. Fast food de barrio en Lince con delivery cercano y recojo rápido.',
     url: 'https://bigjack.vercel.app',
     siteName: 'BIG JACK',
     locale: 'es_PE',
@@ -52,7 +62,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'BIG JACK | Hamburguesas Brutales',
-    description: 'Hamburguesas brutales con sabor que prende fuego en Lince, Lima.',
+    description: 'Hamburguesas gruesas y rápidas en Lince. Pide por WhatsApp o recoge en tienda.',
     images: ['/images/baconjack.webp'],
   },
   robots: {

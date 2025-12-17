@@ -36,6 +36,9 @@ import SecureMap from "./components/SecureMap";
 
 const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
 const COMPLEMENT_CATEGORIES = ["GUARNICION", "BEBIDAS"];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://bigjack.vercel.app";
+const areaServed = "Lince, Lima, Perú";
 
 export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
@@ -170,6 +173,145 @@ export default function BigJackMenu() {
     heroPriceRangeRaw[0] === Infinity ? 0 : heroPriceRangeRaw[0],
     heroPriceRangeRaw[1] === -Infinity ? heroPriceRangeRaw[0] || 0 : heroPriceRangeRaw[1],
   ];
+
+  const marketingDescription = "Hamburguesas gruesas (no smash), fast food de barrio en Lince con delivery cercano y recojo rápido en Jr. Bartolomé Herrera 133.";
+  const openingHoursSpecification = useMemo(
+    () =>
+      Object.entries(restaurantInfo.hours || {}).map(([day, hours]) => ({
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: DAY_NAMES[Number(day)] || "Monday",
+        opens: hours.open,
+        closes: hours.close,
+      })),
+    []
+  );
+
+  const priceValues = useMemo(
+    () =>
+      menuItems.flatMap((item) => {
+        if (item.options?.length) return item.options.map((opt) => opt.price);
+        if (item.price) return [item.price];
+        return [];
+      }),
+    []
+  );
+
+  const computedPriceRange = useMemo(() => {
+    if (!priceValues.length) return "S/ 0";
+    const min = Math.min(...priceValues);
+    const max = Math.max(...priceValues);
+    return `S/ ${min.toFixed(2)} - S/ ${max.toFixed(2)}`;
+  }, [priceValues]);
+
+  const menuSections = useMemo(
+    () =>
+      categories
+        .map((cat) => ({
+          "@type": "MenuSection",
+          name: cat,
+          hasMenuItem: menuItems
+            .filter((item) => item.category === cat)
+            .map((item) => ({
+              "@type": "MenuItem",
+              name: item.name,
+              description: item.description,
+              image: item.image,
+              offers: (item.options || []).map((opt) => ({
+                "@type": "Offer",
+                name: opt.label,
+                price: opt.price,
+                priceCurrency: "PEN",
+                availability: "https://schema.org/InStock",
+              })),
+            })),
+        }))
+        .filter((section) => section.hasMenuItem.length > 0),
+    []
+  );
+
+  const restaurantSchema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "@id": siteUrl,
+      name: restaurantInfo.name,
+      description: marketingDescription,
+      image: [
+        "/images/baconjack.webp",
+        "/images/royaljack.webp",
+        "/images/grilljack.webp",
+      ],
+      logo: restaurantInfo.logo,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Jirón Bartolomé Herrera 133",
+        addressLocality: "Lince",
+        addressRegion: "Lima",
+        addressCountry: "PE",
+        postalCode: "15046",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: "-12.081387",
+        longitude: "-77.038263",
+      },
+      telephone: `+${restaurantInfo.contact.whatsapp}`,
+      url: siteUrl,
+      sameAs: [
+        `https://instagram.com/${restaurantInfo.contact.instagram.replace("@", "")}`,
+        restaurantInfo.contact.tiktok,
+        `https://wa.me/${restaurantInfo.contact.whatsapp}`,
+        restaurantInfo.contact.googleMapsLink,
+      ],
+      priceRange: computedPriceRange,
+      servesCuisine: ["Hamburguesas", "Fast Food"],
+      areaServed,
+      openingHoursSpecification,
+      hasMenu: {
+        "@type": "Menu",
+        hasMenuSection: menuSections,
+      },
+      paymentAccepted: ["Efectivo", "Yape", "Plin"],
+      acceptsReservations: false,
+      delivery: true,
+      takeaway: true,
+    }),
+    [openingHoursSpecification, menuSections, computedPriceRange]
+  );
+
+  const faqSchema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "¿Hacen smash burger?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No hacemos smash. Usamos medallones gruesos estilo fast food de barrio con salsas propias.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "¿Tienen delivery en Lince?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Sí. Delivery rápido en zonas cercanas a Lince y recojo en Jr. Bartolomé Herrera 133 en 15-20 minutos.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "¿Qué medios de pago aceptan?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Aceptamos efectivo, Yape y Plin para pedidos directos.",
+          },
+        },
+      ],
+    }),
+    []
+  );
 
   const socialLinks = [
     {
@@ -623,86 +765,23 @@ ${deliveryLines.join("\n")}`);
   return (
     <div className="flex flex-col min-h-screen bg-neutral-900 text-white font-sans overflow-x-hidden">
       <Head>
-        <title>{restaurantInfo.name} | Menú Digital</title>
-        <meta name="description" content={`${restaurantInfo.slogan} — Pide online o recoge en tienda. ${restaurantInfo.contact.address}`} />
-        <link rel="canonical" href={restaurantInfo.contact.googleMapsLink} />
-        <meta property="og:title" content={`${restaurantInfo.name} - Menú`} />
-        <meta property="og:description" content={restaurantInfo.slogan} />
+        <title>{restaurantInfo.name} | Hamburguesas en Lince</title>
+        <meta name="description" content={marketingDescription} />
+        <meta
+          name="keywords"
+          content="hamburguesas lince, comida rápida lince, fast food barrio, hamburguesas gruesas, no smash burger, delivery lince, big jack"
+        />
+        <link rel="canonical" href={siteUrl} />
+        <meta property="og:title" content={`${restaurantInfo.name} - Hamburguesas en Lince`} />
+        <meta property="og:description" content={marketingDescription} />
         <meta property="og:type" content="restaurant" />
-        <meta property="og:url" content={restaurantInfo.contact.googleMapsLink} />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:locale" content="es_PE" />
         <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Restaurant",
-          "@id": "https://bigjack.vercel.app",
-          name: restaurantInfo.name,
-          description: restaurantInfo.slogan,
-          image: [
-            "/images/baconjack.webp",
-            "/images/royaljack.webp",
-            "/images/grilljack.webp"
-          ],
-          logo: restaurantInfo.logo,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: "Jirón Bartolomé Herrera 133",
-            addressLocality: "Lince",
-            addressRegion: "Lima",
-            addressCountry: "PE",
-            postalCode: "15046"
-          },
-          geo: {
-            "@type": "GeoCoordinates",
-            latitude: "-12.081387",
-            longitude: "-77.038263"
-          },
-          telephone: `+${restaurantInfo.contact.whatsapp}`,
-          url: "https://bigjack.vercel.app",
-          sameAs: [
-            `https://instagram.com/${restaurantInfo.contact.instagram.replace('@', '')}`,
-            restaurantInfo.contact.tiktok,
-            `https://wa.me/${restaurantInfo.contact.whatsapp}`
-          ],
-          priceRange: "S/ 14 - S/ 24",
-          servesCuisine: ["Hamburguesas", "Fast Food", "Comida Americana"],
-          acceptsReservations: false,
-          openingHoursSpecification: [
-            {
-              "@type": "OpeningHoursSpecification",
-              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday"],
-              opens: "16:00",
-              closes: "01:00"
-            },
-            {
-              "@type": "OpeningHoursSpecification",
-              dayOfWeek: ["Friday", "Saturday", "Sunday"],
-              opens: "16:00",
-              closes: "01:00"
-            }
-          ],
-          paymentAccepted: ["Efectivo", "Yape", "Plin"],
-          currenciesAccepted: "PEN",
-          hasMenu: {
-            "@type": "Menu",
-            hasMenuSection: menuItems.slice(0, 4).map(item => ({
-              "@type": "MenuSection",
-              name: item.name,
-              description: item.description,
-              offers: {
-                "@type": "Offer",
-                price: item.options?.[0]?.price || item.price,
-                priceCurrency: "PEN"
-              }
-            }))
-          },
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: "4.8",
-            reviewCount: "127",
-            bestRating: "5",
-            worstRating: "1"
-          }
-        }) }} />
+        <meta name="twitter:title" content={`${restaurantInfo.name} - Hamburguesas en Lince`} />
+        <meta name="twitter:description" content={marketingDescription} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       </Head>
       {/* HEADER */}
       <header className="sticky top-0 z-50 bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 backdrop-blur-md border-b-2 border-[#d99133]/20 shadow-2xl">
