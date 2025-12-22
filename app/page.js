@@ -28,6 +28,7 @@ import {
   Clipboard,
   Check,
   Truck,
+  ArrowUpRight,
 } from "lucide-react";
 import { Suspense } from "react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
@@ -621,10 +622,10 @@ export default function BigJackMenu() {
         const { latitude, longitude } = position.coords;
         const link = `https://www.google.com/maps?q=${latitude},${longitude}`;
         setLocationLink(link);
-        alert("¡Ubicación obtenida! Se enviará junto con tu pedido.");
+        alert("¡Ubicación lista! La usaremos para coordinar tu delivery por inDrive.");
       },
       () => {
-        alert("No pudimos obtener tu ubicación. Por favor escribe tu dirección.");
+        alert("No pudimos obtener tu ubicación automáticamente. Escribe tu dirección o pega un enlace de Google Maps.");
       }
     );
   };
@@ -638,6 +639,10 @@ export default function BigJackMenu() {
       return;
     }
     setOrderType(type);
+    // Si cambia a delivery y el método era efectivo, seleccionar Yape por defecto
+    if (type === 'delivery' && paymentMethod === 'efectivo') {
+      setPaymentMethod('yape');
+    }
   };
 
   const formatScheduledPickup = () => {
@@ -670,6 +675,10 @@ export default function BigJackMenu() {
 
     if (!customerName.trim()) {
       alert("Por favor ingresa tu nombre.");
+      return;
+    }
+    if (orderType === 'delivery' && paymentMethod === 'efectivo') {
+      alert('Para delivery solo aceptamos Yape o Plin. Por favor elige uno de esos métodos.');
       return;
     }
     if (orderType === "delivery" && !deliveryAddress.trim() && !locationLink) {
@@ -724,7 +733,7 @@ export default function BigJackMenu() {
     lines.push(customerName);
     lines.push("");
     lines.push(header("🛵", "MODALIDAD:"));
-    lines.push(orderType === "delivery" ? "Delivery" : "Recojo en tienda");
+    lines.push(orderType === "delivery" ? "Delivery (coordinado por inDrive)" : "Recojo en tienda");
     lines.push("");
 
     // Datos de entrega o recojo
@@ -741,6 +750,9 @@ export default function BigJackMenu() {
         lines.push(header("🗺️", "MAPA:"));
         lines.push(locationLink);
       }
+      lines.push("");
+      lines.push(header("🚕", "COORDINACIÓN:"));
+      lines.push("Delivery por inDrive. Te enviaremos el enlace del conductor cuando acepten el viaje.");
     } else {
       if (isPreOrder) {
         const nextOpenDate = getNextOpenDate(new Date());
@@ -1451,7 +1463,7 @@ export default function BigJackMenu() {
                   {/* Paso 1: Datos Básicos */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><User size={20} /> Tus datos</h3>
+                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><User size={20} /> Paso 1 · Tu nombre</h3>
                       <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 1</span>
                     </div>
                     <div className="grid gap-5">
@@ -1469,28 +1481,34 @@ export default function BigJackMenu() {
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-white mb-3">¿Cómo recibes tu pedido?</label>
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("pickup")}
-                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${orderType==='pickup'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${orderType==='pickup'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                           >
-                            <Clock size={24} />
-                            Recojo en local · listo en 15-20 min
+                            <span className={`w-14 h-14 rounded-full border-2 flex items-center justify-center ${orderType==='pickup' ? 'border-black/20 bg-black/10 text-black' : 'border-neutral-700 bg-neutral-900 text-white'}`}>
+                              <Clock size={26} />
+                            </span>
+                            <span className="text-lg font-black">Recojo en local</span>
+                            <span className={`text-xs font-semibold ${orderType==='pickup' ? 'text-black/70' : 'text-neutral-300'}`}>Listo en 15-20 minutos</span>
                           </button>
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("delivery")}
-                            className={`min-h-[70px] rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-500'}`}
+                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-200 hover:border-neutral-500'}`}
                           >
-                            <Truck size={24} />
-                            Delivery cercano gratis
-                            <span className="text-xs text-neutral-400 ml-1">(validamos por chat)</span>
+                            <span className={`w-14 h-14 rounded-full border-2 flex items-center justify-center ${deliveryAvailable && orderType==='delivery' ? 'border-black/20 bg-black/10 text-black' : 'border-neutral-700 bg-neutral-900 text-white'}`}>
+                              <Truck size={26} />
+                            </span>
+                            <span className="text-lg font-black">Delivery por inDrive</span>
+                            <span className={`text-xs font-semibold ${deliveryAvailable && orderType==='delivery' ? 'text-black/70' : 'text-neutral-400'}`}>Coordinamos el viaje y te mandamos el link</span>
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Sin recargo en Lince</span>
                           </button>
                         </div>
                         <p className="text-[11px] text-neutral-400 mt-3 flex items-start gap-2">
                           <Truck size={14} className="text-[#d99133] flex-shrink-0 mt-0.5" />
-                          <span>Si estás a unas cuadras del local te lo llevamos sin costo. Si estás lejos te guiamos a PedidosYa para que llegue igual.</span>
+                          <span>Si estás a unas cuadras del local te lo llevamos sin costo usando inDrive. Si estás lejos te guiamos a PedidosYa para que llegue igual.</span>
                         </p>
                       </div>
                     </div>
@@ -1501,7 +1519,7 @@ export default function BigJackMenu() {
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2">
                         {orderType==='delivery' ? <MapPin size={20} /> : <Clock size={20} />} 
-                        {orderType==='delivery' ? 'Información de entrega' : 'Horario de recojo'}
+                        {orderType==='delivery' ? 'Paso 2 · Entrega' : 'Paso 2 · Recojo'}
                       </h3>
                       <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 2</span>
                     </div>
@@ -1510,40 +1528,107 @@ export default function BigJackMenu() {
                       <div className="space-y-4">
                         <div className="bg-green-500/10 border-2 border-green-500/30 rounded-xl p-4 text-sm text-green-200 font-semibold flex items-start gap-2">
                           <Truck size={18} className="flex-shrink-0" />
-                          <span>Delivery sin costo para zonas pegadas a Lince. Cuéntanos tu dirección y confirmamos contigo por WhatsApp.</span>
+                          <span>Delivery gratis cerca de Lince. Coordinamos por inDrive y te enviamos el enlace por WhatsApp.</span>
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-white mb-2">Dirección de entrega</label>
+                          <label className="block text-sm font-semibold text-white mb-2">Dirección</label>
                           <div className="relative">
                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                             <input
                               value={deliveryAddress}
                               onChange={(e)=>setDeliveryAddress(e.target.value)}
-                              placeholder="Calle / Av. y número"
+                              placeholder="Calle y número"
                               className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-white mb-2">Referencia adicional</label>
+                          <label className="block text-sm font-semibold text-white mb-2">Referencia</label>
                           <div className="relative">
                             <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                             <input
                               value={deliveryReference}
                               onChange={(e)=>setDeliveryReference(e.target.value)}
-                              placeholder="Ej: Frente al parque principal"
+                              placeholder="Ej: Frente al parque"
                               className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
-                        <div className="flex flex-col gap-3">
+                        <div className="space-y-4">
+                          <div className="bg-blue-600/10 border-2 border-blue-500/30 rounded-xl p-4 text-sm text-blue-200 font-semibold flex items-start gap-2">
+                            <MapPin size={18} className="flex-shrink-0" />
+                            <span>Comparte tu ubicación (Google Maps) y coordinamos tu delivery por inDrive.</span>
+                          </div>
+
                           <button 
                             type="button"
                             onClick={getUserLocation} 
-                            className={`w-full min-h-[56px] rounded-xl text-base font-bold border-2 flex items-center justify-center gap-2 transition-all ${locationLink ? 'bg-green-600/20 border-green-600 text-green-400' : 'bg-blue-600/20 border-blue-600/50 text-blue-400 hover:bg-blue-600/30'}`}>
-                            <MapPin size={20} /> {locationLink ? 'Ubicación lista para coordinar' : 'Compartir mi ubicación para validar distancia'}
+                            className={`w-full min-h-[140px] rounded-2xl border-3 flex flex-col items-center justify-center gap-4 px-8 text-center transition-all shadow-xl ${locationLink ? 'bg-green-600/20 border-green-500 text-white' : 'bg-[#4285F4] border-[#4285F4] text-white hover:bg-[#3367D6] active:scale-[0.98]'}`}
+                          >
+                            <span className={`w-16 h-16 rounded-full flex items-center justify-center ${locationLink ? 'bg-green-500 text-white' : 'bg-white/20 backdrop-blur-sm'}`}>
+                              <MapPin size={32} strokeWidth={2.5} />
+                            </span>
+                            <div className="space-y-1">
+                              <span className="text-xl font-black leading-tight block">
+                                {locationLink ? '✓ Ubicación enviada' : 'Compartir mi ubicación'}
+                              </span>
+                              <span className="text-sm opacity-90 font-semibold block">
+                                {locationLink ? 'Se enviará por WhatsApp' : 'Presiona para activar GPS'}
+                              </span>
+                            </div>
                           </button>
-                          {locationLink && <p className="text-xs text-green-500 text-center font-semibold">Tu ubicación se incluirá en el pedido.</p>}
+
+                          {locationLink && (
+                            <div className="bg-green-600/10 border-2 border-green-500/30 rounded-xl p-4 space-y-2 animate-in fade-in">
+                              <p className="text-sm text-green-200 font-bold flex items-center gap-2">
+                                <Check size={18} className="text-green-400" />
+                                Tu ubicación está lista
+                              </p>
+                              <p className="text-xs text-green-300/80 leading-relaxed break-all">
+                                {locationLink}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => setLocationLink("")}
+                                className="text-xs text-green-200 hover:text-white underline font-semibold"
+                              >
+                                Cambiar ubicación
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="bg-neutral-900/80 border border-neutral-700 rounded-xl p-5 space-y-3">
+                          <p className="text-base font-bold text-white flex items-center gap-2">
+                            <Sparkles size={18} className="text-[#d99133]" />
+                            Instrucciones fáciles
+                          </p>
+                          <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-300 leading-relaxed">
+                            <li className="pl-2">Presiona el botón azul grande que dice <span className="font-bold text-white">"Compartir mi ubicación"</span></li>
+                            <li className="pl-2">Tu navegador te pedirá permiso para usar tu ubicación. Dale <span className="font-bold text-white">"Permitir"</span> o <span className="font-bold text-white">"Aceptar"</span></li>
+                            <li className="pl-2">Listo! El enlace de Google Maps se guardará automáticamente y se enviará por WhatsApp</li>
+                          </ol>
+                          <div className="bg-neutral-800/60 rounded-lg p-3 mt-3">
+                            <p className="text-xs text-neutral-400 leading-relaxed">
+                              <span className="font-semibold text-neutral-300">¿Necesitas ayuda?</span> Pide a alguien de confianza que presione el botón azul por ti. El sistema hará todo automáticamente.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="bg-[#ea004b]/10 border border-[#ea004b]/30 rounded-xl p-4 text-xs text-[#ff80aa] space-y-2">
+                          <p className="text-sm font-semibold flex items-center gap-2">
+                            <Send size={16} className="text-[#ff99bb]" />
+                            ¿Fuera de la zona de inDrive?
+                          </p>
+                          <p>Si estás lejos de Lince puedes hacer tu pedido por PedidosYa y llegará igual de rápido.</p>
+                          <a
+                            href={PEDIDOSYA_LINK}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ea004b] hover:bg-[#d60044] text-white font-semibold transition-all w-full justify-center"
+                          >
+                            Abrir PedidosYa
+                            <ArrowUpRight size={14} />
+                          </a>
                         </div>
                       </div>
                     ) : (
@@ -1673,36 +1758,44 @@ export default function BigJackMenu() {
                     )}
                   </div>
 
-                  {/* Paso 3: Pago y Notas */}
+                  {/* Paso 3: Pago */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><CreditCard size={20} /> Método de pago</h3>
+                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><CreditCard size={20} /> Paso 3 · Pago</h3>
                       <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 3</span>
                     </div>
                     <div className="grid gap-5">
-                      <div className="grid grid-cols-1 gap-3">
+                      {orderType==='delivery' && (
+                        <div className="bg-yellow-600/10 border-2 border-yellow-600/30 rounded-xl p-3 text-xs text-yellow-200 font-semibold">
+                          Para delivery: paga con <span className="font-bold">Yape</span> o <span className="font-bold">Plin</span>.
+                        </div>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {[
                           {id: 'efectivo', label: 'Efectivo', icon: Banknote},
                           {id: 'yape', label: 'Yape', icon: Smartphone},
                           {id: 'plin', label: 'Plin', icon: Smartphone},
-                          {id: 'tarjeta', label: 'Tarjeta', icon: CreditCard, disabled: true}
-                        ].map(m => (
-                          <button
-                            type="button"
-                            key={m.id}
-                            onClick={() => { if (!m.disabled) setPaymentMethod(m.id); }}
-                            disabled={m.disabled}
-                            title={m.disabled ? 'Próximamente' : undefined}
-                            aria-disabled={m.disabled ? 'true' : 'false'}
-                            className={`min-h-[64px] rounded-xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${paymentMethod===m.id ? 'bg-[#d99133] text-black border-[#d99133]' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${m.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          >
-                            <m.icon size={22} />
-                            <div className="flex items-center gap-2">
+                        ].map(m => {
+                          const isCashDisabled = orderType==='delivery' && m.id==='efectivo';
+                          const disabled = m.disabled || isCashDisabled;
+                          const isActive = paymentMethod===m.id && !disabled;
+                          return (
+                            <button
+                              type="button"
+                              key={m.id}
+                              onClick={() => { if (!disabled) setPaymentMethod(m.id); }}
+                              disabled={disabled}
+                              aria-disabled={disabled ? 'true' : 'false'}
+                              className={`min-h-[96px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-4 text-center transition-all ${isActive ? 'bg-[#d99133] text-black border-[#d99133] shadow-lg' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <span className={`w-12 h-12 rounded-full flex items-center justify-center ${isActive ? 'bg-black/10 text-black' : 'bg-neutral-900 text-white border border-neutral-700'}`}>
+                                <m.icon size={22} />
+                              </span>
                               <span>{m.label}</span>
-                              {m.disabled && <span className="text-xs text-neutral-400 ml-1">(Próximamente)</span>}
-                            </div>
-                          </button>
-                        ))}
+                              {isCashDisabled && <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">No disponible en delivery</span>}
+                            </button>
+                          );
+                        })}
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-white mb-2">Instrucciones especiales (Opcional)</label>
