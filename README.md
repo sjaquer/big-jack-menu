@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Big Jack Menu
 
-## Getting Started
+Sitio web del menú y checkout de Big Jack, integrado con el ERP para registrar pedidos en línea.
 
-First, run the development server:
+## Configuración rápida
+
+1. Instala dependencias:
+
+```bash
+npm install
+```
+
+2. Crea `.env.local` con estas variables:
+
+```env
+ERP_BASE_URL=https://bigjack-rp.vercel.app
+ERP_ONLINE_ORDERS_KEY=tu_api_key
+```
+
+También puedes usar `ONLINE_ORDERS_API_KEY` en lugar de `ERP_ONLINE_ORDERS_KEY`.
+
+3. Ejecuta el proyecto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Flujo de pedidos online
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. El cliente arma carrito en frontend con SKU por variante.
+2. El checkout construye payload ERP con `externalOrderId` idempotente.
+3. Frontend envía `POST /api/online-orders`.
+4. La API de Next.js reenvía al ERP en `${ERP_BASE_URL}/api/online-orders` con header `x-online-orders-key`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estructura clave
 
-## Learn More
+- `app/data/menuData.js`: catálogo con SKU en producto y opciones.
+- `app/lib/cartModel.js`: modelo de carrito y migración de carritos legacy.
+- `app/lib/onlineOrders.js`: armado de payload + cliente de pedidos online.
+- `app/api/online-orders/route.js`: proxy seguro al ERP.
+- `app/page.js`: checkout y envío del pedido al sistema.
 
-To learn more about Next.js, take a look at the following resources:
+## Notas técnicas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Si faltan SKUs válidos, el pedido no se envía.
+- En horario cerrado se permite pre-orden para recojo.
+- El endpoint devuelve `orderId` y `saleId` cuando aplica, y se muestran en UI.

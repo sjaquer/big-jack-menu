@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Plus, Minus, Check } from "lucide-react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "../../lib/openHours";
+import { buildCartItem, migrateLegacyCartItems } from "../../lib/cartModel";
+import { menuItems } from "../../data/menuData";
 
 export default function ProductAddToCart({ product }) {
   const router = useRouter();
@@ -12,15 +14,11 @@ export default function ProductAddToCart({ product }) {
   const [added, setAdded] = useState(false);
 
   const addToCart = () => {
-    // Bloquear si estamos cerrados
-    if (!isOpen) {
-      alert("Estamos cerrados ahora. No es posible agregar al carrito hasta la próxima apertura.");
-      return;
-    }
     if (!selectedOption) return;
 
     // Obtener carrito actual
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const saved = JSON.parse(localStorage.getItem("cart") || "[]");
+    const cart = migrateLegacyCartItems(saved, menuItems);
     
     // Crear ID único que coincida con el formato de la página principal
     const uniqueId = `${product.id}-${selectedOption.id}`;
@@ -32,22 +30,14 @@ export default function ProductAddToCart({ product }) {
       // Incrementar cantidad
       cart[existingIndex].quantity += quantity;
     } else {
-      // Agregar nuevo item con el formato correcto que espera page.js
-      cart.push({
-        id: uniqueId,
-        productId: product.id,
-        name: product.name,
-        image: product.image,
-        category: product.category,
-        optionId: selectedOption.id,
-        optionLabel: selectedOption.label,
-        price: selectedOption.price,
-        quantity: quantity
-      });
+      cart.push(buildCartItem(product, selectedOption, quantity));
     }
 
     // Guardar en localStorage
     localStorage.setItem("cart", JSON.stringify(cart));
+    if (!isOpen) {
+      localStorage.setItem("bj_preorder", JSON.stringify(true));
+    }
     
     // Mostrar feedback
     setAdded(true);
@@ -158,7 +148,7 @@ export default function ProductAddToCart({ product }) {
         <div className="grid grid-cols-1 gap-3">
           <button
             onClick={goToCartAndCheckout}
-            disabled={!selectedOption || !isOpen}
+            disabled={!selectedOption}
             className={`w-full min-h-[64px] rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all shadow-xl ${
               added
                 ? "bg-green-600 text-white"
@@ -180,7 +170,7 @@ export default function ProductAddToCart({ product }) {
 
           <button
             onClick={addToCart}
-            disabled={!selectedOption || !isOpen}
+            disabled={!selectedOption}
             className="w-full min-h-[56px] bg-neutral-800 hover:bg-neutral-700 border-2 border-neutral-700 text-white rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus size={20} />
@@ -191,7 +181,7 @@ export default function ProductAddToCart({ product }) {
 
       {!isOpen ? (
         <div className="bg-red-500/10 border-2 border-red-500/30 rounded-xl p-3 text-center text-sm text-red-200">
-          <p className="font-semibold">Ahora estamos cerrados.</p>
+          <p className="font-semibold">Ahora estamos cerrados, pero puedes dejar una pre-orden.</p>
           {countdown ? (
             <p className="text-xs mt-1">Abrimos en {countdown}</p>
           ) : (

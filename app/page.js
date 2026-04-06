@@ -29,9 +29,12 @@ import {
   Check,
   Truck,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 import { Suspense } from "react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
+import { buildCartItem, migrateLegacyCartItems, hasMissingSku } from "./lib/cartModel";
+import { buildOnlineOrderPayload, createOnlineOrder } from "./lib/onlineOrders";
 import ClientSearchParams from "./components/ClientSearchParams";
 import SecureMap from "./components/SecureMap";
 
@@ -67,13 +70,14 @@ export default function BigJackMenu() {
   const [suggestedCocaQty, setSuggestedCocaQty] = useState(0);
   const [closedNoticeHidden, setClosedNoticeHidden] = useState(false);
   const [isPreOrder, setIsPreOrder] = useState(false);
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [submitResult, setSubmitResult] = useState(null);
 
   // Cargar estado desde localStorage al iniciar
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("bj_checkout"));
       if (saved) {
-        /* eslint-disable react-hooks/set-state-in-effect */
         setCustomerName(saved.customerName || "");
         const persistedOrderType =
           saved.orderType && saved.orderType !== "pickup"
@@ -86,7 +90,6 @@ export default function BigJackMenu() {
         setScheduledTime(saved.scheduledTime || "");
         setPaymentMethod(saved.paymentMethod || "efectivo");
         setNotes(saved.notes || "");
-        /* eslint-enable react-hooks/set-state-in-effect */
       }
     } catch {}
   }, []);
@@ -95,7 +98,7 @@ export default function BigJackMenu() {
     try {
       const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
       if (Array.isArray(savedCart) && savedCart.length > 0) {
-        setCart(enforceComplementRules(savedCart));
+        setCart(enforceComplementRules(migrateLegacyCartItems(savedCart, menuItems)));
       }
       const pj = JSON.parse(localStorage.getItem("bj_preorder") || "false");
       if (pj) setIsPreOrder(true);
@@ -104,15 +107,14 @@ export default function BigJackMenu() {
     const handleStorage = () => {
       try {
         const latest = JSON.parse(localStorage.getItem("cart") || "[]");
-        setCart(enforceComplementRules(Array.isArray(latest) ? latest : []));
+        const migrated = migrateLegacyCartItems(Array.isArray(latest) ? latest : [], menuItems);
+        setCart(enforceComplementRules(migrated));
       } catch (e) {}
     };
 
     // Escucha tanto eventos reales de storage (otros tabs) como el evento manual
     window.addEventListener("storage", handleStorage);
-    window.addEventListener("storage", handleStorage);
     return () => {
-      window.removeEventListener("storage", handleStorage);
       window.removeEventListener("storage", handleStorage);
     };
   }, []);
@@ -454,6 +456,7 @@ export default function BigJackMenu() {
       return;
     }
     const uniqueId = `${product.id}-${option.id || "default"}`;
+    const newItem = buildCartItem(product, option, 1);
     setCart((prev) => {
       const existing = prev.find((item) => item.id === uniqueId);
       if (existing) {
@@ -471,19 +474,10 @@ export default function BigJackMenu() {
       }
       return enforceComplementRules([
         ...prev,
-        {
-          id: uniqueId,
-          productId: product.id,
-          category: product.category,
-          name: product.name,
-          optionId: option.id,
-          optionLabel: option.label,
-          price: option.price,
-          image: product.image,
-          quantity: 1,
-        },
+        newItem,
       ]);
     });
+    setSubmitResult(null);
     setRecentlyAdded(uniqueId);
     
     // Lógica inteligente de sugerencias (Smart Upselling)
@@ -519,11 +513,13 @@ export default function BigJackMenu() {
 
   const removeFromCart = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
+    setSubmitResult(null);
   };
 
   const clearCart = () => {
     if (window.confirm('¿Estás seguro de vaciar todo el carrito?')) {
       setCart([]);
+      setSubmitResult(null);
       setIsPreOrder(false);
       try {
         localStorage.removeItem('cart');
@@ -544,6 +540,7 @@ export default function BigJackMenu() {
         })
       )
     );
+    setSubmitResult(null);
   };
 
   // --- Sugerencias de complementos (mini ventana) ---
@@ -645,18 +642,7 @@ export default function BigJackMenu() {
     }
   };
 
-  const formatScheduledPickup = () => {
-    if (!scheduledTime) return "Programado";
-    if (scheduledTime.includes("T")) {
-      const date = new Date(scheduledTime);
-      if (!Number.isNaN(date.getTime())) {
-        return date.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
-      }
-    }
-    return scheduledTime;
-  };
-
-  const sendOrderToWhatsapp = () => {
+  const submitOrderToSystem = async () => {
     if (cart.length === 0) return;
 
     // Si es una pre-orden, solo permitir recojo en tienda
@@ -666,9 +652,9 @@ export default function BigJackMenu() {
         return;
       }
     } else {
-      // flujo normal: no permitir enviar si estamos cerrados
+      // Flujo normal: no permitir enviar si estamos cerrados.
       if (!isOpen) {
-        alert("Estamos cerrados ahora. El envío de pedidos por WhatsApp está deshabilitado hasta la próxima apertura.");
+        alert("Estamos cerrados ahora. El envío de pedidos está deshabilitado hasta la próxima apertura.");
         return;
       }
     }
@@ -683,6 +669,12 @@ export default function BigJackMenu() {
     }
     if (orderType === "delivery" && !deliveryAddress.trim() && !locationLink) {
       alert("Por favor ingresa tu dirección o comparte tu ubicación.");
+      return;
+    }
+
+    const migratedCart = migrateLegacyCartItems(cart, menuItems);
+    if (hasMissingSku(migratedCart) || migratedCart.length !== cart.length) {
+      alert("Hay productos sin SKU válido. Actualiza el carrito para poder enviar el pedido.");
       return;
     }
 
@@ -705,133 +697,48 @@ export default function BigJackMenu() {
       }
     }
 
-    const sections = [];
+    try {
+      setIsSubmittingOrder(true);
+      setSubmitResult(null);
 
-    // Construir mensaje en formato limpio y legible para cocina
-    // Detectar si es dispositivo móvil en tiempo de ejecución y habilitar emojis solo en móvil
-    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-    const useEmojis = isMobile; // evita problemas de render en WhatsApp Web/PC
-    const header = (emoji, label) => (useEmojis ? `${emoji} ${label}` : label);
-    const lines = [];
+      const payload = buildOnlineOrderPayload({
+        cart: migratedCart,
+        customerName,
+        paymentMethod,
+        notes,
+        orderType,
+        deliveryAddress,
+        deliveryReference,
+        pickupTime,
+        scheduledTime: pickupTime === "schedule" ? scheduledTime : "",
+        locationLink,
+        isPreOrder,
+      });
 
-    if (isPreOrder) {
-      const nextOpenDate = getNextOpenDate(new Date());
-      const countdown = nextOpenMs ? formatMsToCountdown(nextOpenMs) : null;
-      const when = nextOpenDate
-        ? nextOpenDate.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })
-        : "la próxima apertura";
-      lines.push("PRE-ORDEN (solo recojo)");
-      lines.push(`Se procesa al abrir: ${when}${countdown ? ` (en ${countdown})` : ""}`);
-      lines.push("");
+      const response = await createOnlineOrder(payload);
+      setSubmitResult({
+        type: "success",
+        message: response?.duplicated
+          ? response?.message || "Pedido ya registrado previamente."
+          : response?.message || "Pedido enviado correctamente al sistema.",
+        orderId: response?.orderId || null,
+        saleId: response?.saleId || null,
+      });
+
+      setCart([]);
+      setIsPreOrder(false);
+      setNotes("");
+      setLocationLink("");
+      localStorage.removeItem("cart");
+      localStorage.removeItem("bj_preorder");
+    } catch (error) {
+      setSubmitResult({
+        type: "error",
+        message: error?.message || "No se pudo enviar el pedido. Intenta nuevamente.",
+      });
+    } finally {
+      setIsSubmittingOrder(false);
     }
-
-    lines.push(useEmojis ? "🔥 PEDIDO BIG JACK 🔥" : "PEDIDO BIG JACK");
-    lines.push("");
-
-    // Datos básicos
-    lines.push(header("👤", "CLIENTE:"));
-    lines.push(customerName);
-    lines.push("");
-    lines.push(header("🛵", "MODALIDAD:"));
-    lines.push(orderType === "delivery" ? "Delivery (coordinado por inDrive)" : "Recojo en tienda");
-    lines.push("");
-
-    // Datos de entrega o recojo
-    if (orderType === "delivery") {
-      lines.push(header("📍", "DIRECCIÓN:"));
-      lines.push(deliveryAddress || "Ubicación compartida");
-      if (deliveryReference) {
-        lines.push("");
-        lines.push(header("🏠", "REFERENCIA:"));
-        lines.push(deliveryReference);
-      }
-      if (locationLink) {
-        lines.push("");
-        lines.push(header("🗺️", "MAPA:"));
-        lines.push(locationLink);
-      }
-      lines.push("");
-      lines.push(header("🚕", "COORDINACIÓN:"));
-      lines.push("Delivery por inDrive. Te enviaremos el enlace del conductor cuando acepten el viaje.");
-    } else {
-      if (isPreOrder) {
-        const nextOpenDate = getNextOpenDate(new Date());
-        const when = nextOpenDate
-          ? nextOpenDate.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })
-          : "nuestra próxima apertura";
-        lines.push(header("⏰", "RECOJO:"));
-        lines.push(`PRE-ORDEN — disponible desde ${when}`);
-      } else {
-        lines.push(header("⏰", "RECOJO:"));
-        lines.push(pickupTime === "now" ? "Inmediato (15-20 min)" : `Programado: ${formatScheduledPickup()}`);
-      }
-    }
-
-    lines.push("");
-
-    // Items
-    lines.push(header("🍔", "PEDIDO:"));
-    cart.forEach((item) => {
-      lines.push(`• ${item.quantity}x ${item.name} (${item.optionLabel}) — S/ ${(item.price * item.quantity).toFixed(2)}`);
-    });
-
-    lines.push("");
-
-    // Totales y pago
-    lines.push(header("💰", "TOTAL A PAGAR:"));
-    lines.push(`S/ ${total.toFixed(2)}`);
-    lines.push("");
-    lines.push(header("💳", "MÉTODO DE PAGO:"));
-    lines.push(paymentMethod.toUpperCase());
-
-    if (notes.trim()) {
-      lines.push("");
-      lines.push(header("📝", "NOTAS:"));
-      lines.push(notes.trim());
-    }
-
-    lines.push("");
-    lines.push("Tu pedido se procesará en breve.");
-
-    const message = lines.join("\n");
-
-    // Normalizar espacios alrededor de marcadores de formato para WhatsApp
-    // Reglas aplicadas:
-    // 1) Limpiar espacios internos: "* Cliente *" => "*Cliente*"
-    // 2) Mover puntuación hacia afuera: "*Cliente:*" => "*Cliente*:" (mejor lectura y render en WhatsApp)
-    // 3) Asegurar espacio después de un cierre si falta: "*Cliente*Sebastian" => "*Cliente* Sebastian"
-    // 4) Asegurar espacio antes de una apertura si falta: "Hola*Cliente*" => "Hola *Cliente*"
-    // 5) Colapsar espacios repetidos y trim final
-    let normalized = message
-      // 1) limpiar espacios dentro de marcadores
-      .replace(/\*\s+([^*]+?)\s+\*/g, "*$1*")
-      .replace(/_\s+([^_]+?)\s+_/g, "_$1_")
-      // 2) mover puntuación fuera de los marcadores (ej: *Texto:* -> *Texto*:) para evitar problemas de parseo
-      .replace(/\*([^*]+?)([:;,.!?])\*/g, "*$1*$2")
-      .replace(/_([^_]+?)([:;,.!?])_/g, "_$1_$2")
-      // 3) asegurar espacio después del cierre si el siguiente carácter no es espacio (incluye letras, dígitos, emojis, paréntesis, etc.)
-      .replace(/(\*[^*]+\*)(?=\S)/g, "$1 ")
-      .replace(/(_[^_]+_)(?=\S)/g, "$1 ")
-      // 4) asegurar espacio antes de una apertura si el carácter previo no es espacio
-      .replace(/(\S)(\*|_)(?=\S)/g, "$1 $2")
-      // colapsar múltiples espacios consecutivos en uno y recortar
-      .replace(/\s{2,}/g, " ")
-      .trim();
-
-    // Si hay marcadores sin pareja (asterisco o guión bajo), quitar el último para evitar asteriscos sueltos en el mensaje
-    const starCount = (normalized.match(/\*/g) || []).length;
-    if (starCount % 2 === 1) {
-      const last = normalized.lastIndexOf("*");
-      if (last !== -1) normalized = normalized.slice(0, last) + normalized.slice(last + 1);
-    }
-    const underCount = (normalized.match(/_/g) || []).length;
-    if (underCount % 2 === 1) {
-      const lastU = normalized.lastIndexOf("_");
-      if (lastU !== -1) normalized = normalized.slice(0, lastU) + normalized.slice(lastU + 1);
-    }
-
-    const url = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(normalized)}`;
-    window.open(url, "_blank");
   };
 
   return (
@@ -1604,8 +1511,8 @@ export default function BigJackMenu() {
                             Instrucciones fáciles
                           </p>
                           <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-300 leading-relaxed">
-                            <li className="pl-2">Presiona el botón azul grande que dice <span className="font-bold text-white">"Compartir mi ubicación"</span></li>
-                            <li className="pl-2">Tu navegador te pedirá permiso para usar tu ubicación. Dale <span className="font-bold text-white">"Permitir"</span> o <span className="font-bold text-white">"Aceptar"</span></li>
+                            <li className="pl-2">Presiona el botón azul grande que dice <span className="font-bold text-white">&quot;Compartir mi ubicación&quot;</span></li>
+                            <li className="pl-2">Tu navegador te pedirá permiso para usar tu ubicación. Dale <span className="font-bold text-white">&quot;Permitir&quot;</span> o <span className="font-bold text-white">&quot;Aceptar&quot;</span></li>
                             <li className="pl-2">Listo! El enlace de Google Maps se guardará automáticamente y se enviará por WhatsApp</li>
                           </ol>
                           <div className="bg-neutral-800/60 rounded-lg p-3 mt-3">
@@ -1828,13 +1735,26 @@ export default function BigJackMenu() {
                 <span className="text-[#d99133] text-3xl">S/ {total.toFixed(2)}</span>
               </div>
               <button
-                onClick={sendOrderToWhatsapp}
-                disabled={cart.length === 0}
+                onClick={submitOrderToSystem}
+                disabled={cart.length === 0 || isSubmittingOrder}
                 className="w-full min-h-[68px] bg-green-600 hover:bg-green-500 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 text-lg shadow-xl shadow-green-900/30 active:scale-[0.98]"
               >
-                <Send size={22} />
-                  ENVIAR PEDIDO POR WHATSAPP
+                {isSubmittingOrder ? <Loader2 size={22} className="animate-spin" /> : <Send size={22} />}
+                {isSubmittingOrder ? "ENVIANDO PEDIDO..." : "ENVIAR PEDIDO AL SISTEMA"}
               </button>
+              {submitResult && (
+                <div
+                  className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
+                    submitResult.type === "success"
+                      ? "border-green-500/40 bg-green-500/10 text-green-200"
+                      : "border-red-500/40 bg-red-500/10 text-red-200"
+                  }`}
+                >
+                  <p className="font-semibold">{submitResult.message}</p>
+                  {submitResult.orderId && <p className="mt-1">OrderId: {submitResult.orderId}</p>}
+                  {submitResult.saleId && <p className="mt-1">SaleId: {submitResult.saleId}</p>}
+                </div>
+              )}
             </div>
           </div>
         </div>

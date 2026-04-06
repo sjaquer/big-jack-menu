@@ -35,6 +35,7 @@ export const categories = [
 export const menuItems = [
   {
     id: 1,
+    sku: "BURG-001",
     slug: "bacon-jack",
     category: "LAS INTOCABLES",
     name: "Bacon Jack",
@@ -42,12 +43,13 @@ export const menuItems = [
     image: "/images/baconjack.webp",
     popular: true,
     options: [
-      { id: "simple", label: "Clásica (1 carne) - la de siempre", price: 14.0 },
-      { id: "doble", label: "Doble (2 carnes) - para llenarse", price: 22.0 }
+      { id: "simple", sku: "BURG-001", label: "Clásica (1 carne) - la de siempre", price: 14.0 },
+      { id: "doble", sku: "BURG-002", label: "Doble (2 carnes) - para llenarse", price: 22.0 }
     ]
   },
   {
     id: 2,
+    sku: "BURG-003",
     slug: "royal-jack",
     category: "LAS INTOCABLES",
     name: "Royal Jack",
@@ -55,12 +57,13 @@ export const menuItems = [
     image: "/images/royaljack.webp",
     popular: false,
     options: [
-      { id: "simple", label: "Clásica (1 carne) - para el antojo", price: 14.0 },
-      { id: "doble", label: "Doble (2 carnes) - full power", price: 22.0 }
+      { id: "simple", sku: "BURG-003", label: "Clásica (1 carne) - para el antojo", price: 14.0 },
+      { id: "doble", sku: "BURG-004", label: "Doble (2 carnes) - full power", price: 22.0 }
     ]
   },
   {
     id: 3,
+    sku: "BURG-005",
     slug: "grill-jack",
     category: "LAS INTOCABLES",
     name: "Grill Jack",
@@ -68,12 +71,13 @@ export const menuItems = [
     image: "/images/grilljack.webp",
     popular: false,
     options: [
-      { id: "simple", label: "Clásica (1 carne) - intensa", price: 16.0 },
-      { id: "doble", label: "Doble (2 carnes) - bestial", price: 24.0 }
+      { id: "simple", sku: "BURG-005", label: "Clásica (1 carne) - intensa", price: 16.0 },
+      { id: "doble", sku: "BURG-006", label: "Doble (2 carnes) - bestial", price: 24.0 }
     ]
   },
   {
     id: 4,
+    sku: "BURG-007",
     slug: "jack-a-lo-pobre",
     category: "LAS INTOCABLES",
     name: "Jack a lo Pobre",
@@ -81,22 +85,24 @@ export const menuItems = [
     image: "/images/jackpobre.webp",
     popular: false,
     options: [
-      { id: "simple", label: "Clásica (1 carne) - comfort", price: 14.0 },
-      { id: "doble", label: "Doble (2 carnes) - contundente", price: 22.0 }
+      { id: "simple", sku: "BURG-007", label: "Clásica (1 carne) - comfort", price: 14.0 },
+      { id: "doble", sku: "BURG-008", label: "Doble (2 carnes) - contundente", price: 22.0 }
     ]
   },
   {
     id: 5,
+    sku: "SNACK-001",
     slug: "choripan",
     category: "LAS INTOCABLES",
     name: "Choripan",
     description: "Chorizo parrillero jugoso en pan con chimichurri casero, cebolla caramelizada y un toque de mostaza.",
     image: "/images/choripan.webp",
     popular: false,
-    options: [{ id: "simple", label: "Clásico - sabor auténtico", price: 6.50 }]
+    options: [{ id: "simple", sku: "SNACK-001", label: "Clásico - sabor auténtico", price: 6.50 }]
   },
   {
     id: 6,
+    sku: "SNACK-002",
     slug: "salchipapa",
     category: "LAS INTOCABLES",
     name: "Salchipapa",
@@ -104,39 +110,42 @@ export const menuItems = [
     image: "/images/salchipapa.webp",
     popular: false,
     options: [
-      { id: "clasica", label: "Clásica - con salchicha", price: 10.0 },
-      { id: "chorizo", label: "Con Chorizo - más intenso", price: 12.0 },
-      { id: "especial", label: "Especial - chorizo, queso y huevo", price: 14.0 }
+      { id: "clasica", sku: "SNACK-002", label: "Clásica - con salchicha", price: 10.0 },
+      { id: "chorizo", sku: "SNACK-003", label: "Con Chorizo - más intenso", price: 12.0 },
+      { id: "especial", sku: "SNACK-004", label: "Especial - chorizo, queso y huevo", price: 14.0 }
     ]
   },
   {
     id: 20,
+    sku: "SIDE-001",
     slug: "papas-fritas",
     category: "GUARNICION",
     name: "Papas Fritas",
     description: "Corte rápidos, fritas al momento y terminadas con sal al punto.",
     image: "/images/papas-fritas.webp",
     popular: false,
-    options: [{ id: "regular", label: "Porción personal - para picar", price: 2.0 }]
+    options: [{ id: "regular", sku: "SIDE-001", label: "Porción personal - para picar", price: 2.0 }]
   },
   {
     id: 30,
+    sku: "DRINK-001",
     slug: "inka-cola",
     category: "BEBIDAS",
     name: "Inka Cola",
     description: "Botella helada de 500 ml, dulzona y chispeante.",
     image: "/images/inkacola.webp",
     popular: false,
-    options: [{ id: "botella", label: "Botella helada 500 ml", price: 3.5 }]
+    options: [{ id: "botella", sku: "DRINK-001", label: "Botella helada 500 ml", price: 3.5 }]
   },
   {
     id: 31,
+    sku: "DRINK-002",
     slug: "coca-cola",
     category: "BEBIDAS",
     name: "Coca Cola",
     description: "Clásica cola helada de 500 ml con burbujas intensas.",
     image: "/images/cocacola.webp",
     popular: false,
-    options: [{ id: "botella", label: "Botella helada 500 ml", price: 3.5 }]
+    options: [{ id: "botella", sku: "DRINK-002", label: "Botella helada 500 ml", price: 3.5 }]
   }
 ];
