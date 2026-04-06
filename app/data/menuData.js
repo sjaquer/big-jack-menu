@@ -35,7 +35,7 @@ export const categories = [
 export const menuItems = [
   {
     id: 1,
-    sku: "BURG-001",
+    sku: "PRD-BIG-A0R4",
     slug: "bacon-jack",
     category: "LAS INTOCABLES",
     name: "Bacon Jack",
@@ -43,8 +43,8 @@ export const menuItems = [
     image: "/images/baconjack.webp",
     popular: true,
     options: [
-      { id: "simple", sku: "BURG-001", label: "Clásica (1 carne) - la de siempre", price: 14.0 },
-      { id: "doble", sku: "BURG-002", label: "Doble (2 carnes) - para llenarse", price: 22.0 }
+      { id: "simple", sku: "PRD-BIG-A0R4", label: "Clásica (1 carne) - la de siempre", price: 14.0 },
+      { id: "doble", sku: "PRD-BIG-BE7B", label: "Doble (2 carnes) - para llenarse", price: 22.0 }
     ]
   },
   {
