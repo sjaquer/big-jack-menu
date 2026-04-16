@@ -1,13 +1,9 @@
-import { Anton, Geist, Geist_Mono } from "next/font/google";
+import { Anton, Parkinsans, Poppins } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
+  variable: "--font-poppins",
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
 });
 
@@ -17,23 +13,28 @@ const anton = Anton({
   subsets: ["latin"],
 });
 
+const parkinsans = Parkinsans({
+  variable: "--font-parkinsans",
+  weight: ["700", "800"],
+  subsets: ["latin"],
+});
+
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://bigjack.vercel.app'),
   title: {
-    default: 'BIG JACK | Hamburguesas Brutales en Lince, Lima',
+    default: 'BIG JACK | Hamburguesas Brutales en Centro de Lima',
     template: '%s | BIG JACK'
   },
-  description: 'Hamburguesas gruesas (no smash) estilo fast food de barrio en Lince. Pide online o recoge en Jr. Bartolomé Herrera 133. Delivery rápido en zonas cercanas.',
+  description: 'Hamburguesas gruesas (no smash) estilo fast food de barrio en Centro de Lima. Pide online o recoge en tienda. Delivery rápido en zonas cercanas.',
   keywords: [
-    'hamburguesas lince',
+    'hamburguesas centro de lima',
     'hamburguesas lima',
-    'comida rápida lince',
+    'comida rápida centro de lima',
     'fast food barrio',
     'no smash burger',
-    'delivery lince',
+    'delivery centro de lima',
     'big jack',
-    'hamburguesas con queso',
-    'jr bartolome herrera 133'
+    'hamburguesas con queso'
   ],
   authors: [{ name: 'BIG JACK Perú' }],
   creator: 'BIG JACK Perú S.A.C.',
@@ -44,8 +45,8 @@ export const metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'BIG JACK | Hamburguesas Brutales en Lince',
-    description: 'Hamburguesas gruesas, no smash. Fast food de barrio en Lince con delivery cercano y recojo rápido.',
+    title: 'BIG JACK | Hamburguesas Brutales en Centro de Lima',
+    description: 'Hamburguesas gruesas, no smash. Fast food de barrio en Centro de Lima con delivery cercano y recojo rápido.',
     url: 'https://bigjack.vercel.app',
     siteName: 'BIG JACK',
     locale: 'es_PE',
@@ -62,7 +63,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'BIG JACK | Hamburguesas Brutales',
-    description: 'Hamburguesas gruesas y rápidas en Lince. Pide por WhatsApp o recoge en tienda.',
+    description: 'Hamburguesas gruesas y rápidas en Centro de Lima. Pide por WhatsApp o recoge en tienda.',
     images: ['/images/baconjack.webp'],
   },
   robots: {
@@ -85,7 +86,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} antialiased`}
+        className={`${poppins.variable} ${anton.variable} ${parkinsans.variable} antialiased`}
       >
         {children}
       </body>

@@ -42,7 +42,7 @@ const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
 const COMPLEMENT_CATEGORIES = ["GUARNICION", "BEBIDAS"];
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://bigjack.vercel.app";
-const areaServed = "Lince, Lima, Perú";
+const areaServed = "Centro de Lima, Peru";
 
 export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
@@ -177,7 +177,7 @@ export default function BigJackMenu() {
     heroPriceRangeRaw[1] === -Infinity ? heroPriceRangeRaw[0] || 0 : heroPriceRangeRaw[1],
   ];
 
-  const marketingDescription = "Hamburguesas gruesas (no smash) hechas en Lima, Perú. Somos fast food de barrio en pleno Lince, con delivery cercano y recojo rápido en Jr. Bartolomé Herrera 133.";
+  const marketingDescription = "Potencia Honesta en Centro de Lima: carne, fuego y barrio. Cocina directa, tecnica y sin humo, con recojo rapido y delivery cercano.";
   const openingHoursSpecification = useMemo(
     () =>
       Object.entries(restaurantInfo.hours || {}).map(([day, hours]) => ({
@@ -247,8 +247,8 @@ export default function BigJackMenu() {
       logo: restaurantInfo.logo,
       address: {
         "@type": "PostalAddress",
-        streetAddress: "Jirón Bartolomé Herrera 133",
-        addressLocality: "Lince",
+        streetAddress: "Centro de Lima",
+        addressLocality: "Centro de Lima",
         addressRegion: "Lima",
         addressCountry: "PE",
         postalCode: "15046",
@@ -297,10 +297,10 @@ export default function BigJackMenu() {
         },
         {
           "@type": "Question",
-          name: "¿Tienen delivery en Lince?",
+          name: "¿Tienen delivery en Centro de Lima?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Sí. Delivery rápido en zonas cercanas a Lince y recojo en Jr. Bartolomé Herrera 133 en 15-20 minutos.",
+            text: "Sí. Delivery rápido en zonas cercanas a Centro de Lima y recojo en tienda en 15-20 minutos.",
           },
         },
         {
@@ -350,8 +350,8 @@ export default function BigJackMenu() {
       desc: "Recetas propias con carne gruesa y salsas caseras para que se sienta el sabor criollo en cada bocado.",
     },
     {
-      title: "Ubicación céntrica en Lince",
-      desc: "A pasos de las avenidas principales de Lima. Delivery cercano o recojo rápido en Jr. Bartolomé Herrera 133.",
+      title: "Ubicación céntrica en Centro de Lima",
+      desc: "A pasos de avenidas principales. Delivery cercano o recojo rápido en tienda.",
     },
     {
       title: "Servicio cercano y honesto",
@@ -370,14 +370,14 @@ export default function BigJackMenu() {
     {
       id: "pickup",
       title: "Recojo express",
-      subtitle: "Jr. Bartolomé Herrera 133",
+      subtitle: "Centro de Lima",
       description: "Listo en 15-20 min, llegas y lo entregamos caliente.",
       icon: MapPin,
     },
     {
       id: "delivery",
       title: "Delivery cercano gratis",
-      subtitle: "Solo zonas pegadas a Lince",
+      subtitle: "Solo zonas cercanas a Centro de Lima",
       description: "Te confirmamos por chat y lo llevamos sin recargo.",
       icon: Truck,
     },
@@ -744,30 +744,30 @@ export default function BigJackMenu() {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-900 text-white font-sans overflow-x-hidden">
       <Head>
-        <title>{restaurantInfo.name} | Hamburguesas en Lince</title>
+        <title>{restaurantInfo.name} | Hamburguesas en Centro de Lima</title>
         <meta name="description" content={marketingDescription} />
         <meta
           name="keywords"
-          content="hamburguesas lince, comida rápida lince, fast food barrio, hamburguesas gruesas, no smash burger, delivery lince, big jack"
+          content="hamburguesas centro de lima, comida rápida centro de lima, fast food barrio, hamburguesas gruesas, no smash burger, delivery centro de lima, big jack"
         />
         <meta name="geo.region" content="PE-LMA" />
-        <meta name="geo.placename" content="Lince, Lima, Perú" />
+        <meta name="geo.placename" content="Centro de Lima, Perú" />
         <meta name="geo.position" content="-12.081387;-77.038263" />
         <meta name="ICBM" content="-12.081387, -77.038263" />
         <link rel="canonical" href={siteUrl} />
-        <meta property="og:title" content={`${restaurantInfo.name} - Hamburguesas en Lince`} />
+        <meta property="og:title" content={`${restaurantInfo.name} - Hamburguesas en Centro de Lima`} />
         <meta property="og:description" content={marketingDescription} />
         <meta property="og:type" content="restaurant" />
         <meta property="og:url" content={siteUrl} />
         <meta property="og:locale" content="es_PE" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${restaurantInfo.name} - Hamburguesas en Lince`} />
+        <meta name="twitter:title" content={`${restaurantInfo.name} - Hamburguesas en Centro de Lima`} />
         <meta name="twitter:description" content={marketingDescription} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       </Head>
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 backdrop-blur-md border-b-2 border-[#d99133]/20 shadow-2xl">
+      <header className="sticky top-0 z-50 bg-[#1E1E1E]/95 backdrop-blur-md border-b-2 border-[#FCC900]/40 shadow-[0_10px_35px_rgba(0,0,0,0.55)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center py-3 sm:py-4">
             {/* Logo y título */}
@@ -776,24 +776,24 @@ export default function BigJackMenu() {
                 <img 
                   src="/images/bigjacktitle.webp" 
                   alt={restaurantInfo.name} 
-                  className="h-10 sm:h-12 w-auto object-contain hover:scale-105 transition-transform drop-shadow-[0_0_15px_rgba(217,145,51,0.3)]" 
+                  className="h-10 sm:h-12 w-auto object-contain hover:scale-105 transition-transform drop-shadow-[0_0_15px_rgba(252,201,0,0.35)]" 
                 />
-                <p className="text-[10px] text-neutral-500 hidden sm:block mt-1 font-medium tracking-wide ml-1">{restaurantInfo.slogan}</p>
+                <p className="text-[10px] text-[#C0C0C0] hidden sm:block mt-1 font-semibold tracking-wide ml-1">Hablamos legal</p>
               </Link>
             </div>
 
             {/* Info rápida - Solo desktop */}
             <div className="hidden lg:flex items-center gap-6 mx-6">
               <div className="flex items-center gap-2 text-xs">
-                <Clock size={16} className="text-[#d99133]" />
+                <Clock size={16} className="text-[#FCC900]" />
                 <div>
-                  <p className="text-neutral-400">Lun-Jue: 4:30-11PM</p>
-                  <p className="text-neutral-300 font-semibold">Vie-Dom: 5PM-1AM</p>
+                  <p className="text-[#C0C0C0]">Lun-Jue: 4:30-11PM</p>
+                  <p className="text-white font-semibold">Vie-Dom: 5PM-1AM</p>
                 </div>
               </div>
               <Link
                 href="/quienes"
-                className="hidden xl:inline-flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-white text-sm font-semibold transition-all"
+                className="hidden xl:inline-flex items-center gap-2 px-4 py-2 bg-[#2A2A2A] hover:bg-[#353535] rounded-xl text-white text-sm font-semibold transition-all border border-[#C0C0C0]/30"
               >
                 <User size={16} />
                 Quienes somos
@@ -802,22 +802,22 @@ export default function BigJackMenu() {
                 href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
+                className="flex items-center gap-2 px-4 py-2 bg-[#FCC900] hover:bg-[#e2b500] rounded-xl text-black text-sm font-black transition-all active:scale-95"
               >
                 <MessageCircle size={18} />
-                WhatsApp
+                Pedido rapido
               </a>
             </div>
 
             {/* Botón de carrito */}
             <button 
               onClick={() => setIsCartOpen(!isCartOpen)}
-              className="relative p-3 bg-[#d99133] text-white rounded-2xl hover:bg-[#c07e2b] transition-all shadow-lg shadow-[#d99133]/20 active:scale-95"
+              className="relative p-3 bg-[#FCC900] text-black rounded-2xl hover:bg-[#e2b500] transition-all shadow-lg shadow-[#FCC900]/20 active:scale-95"
               aria-label="Abrir carrito"
             >
               <ShoppingCart size={24} />
               {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-black w-6 h-6 flex items-center justify-center rounded-full shadow-lg animate-pulse">
+                <span className="absolute -top-2 -right-2 bg-[#B22222] text-white text-xs font-black w-6 h-6 flex items-center justify-center rounded-full shadow-lg animate-pulse">
                   {cart.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}
@@ -825,19 +825,19 @@ export default function BigJackMenu() {
           </div>
 
           {/* Barra de acciones rápidas móvil */}
-          <div className="lg:hidden pb-3 flex items-center justify-between gap-3 border-t border-neutral-800 pt-3">
+          <div className="lg:hidden pb-3 flex items-center justify-between gap-3 border-t border-[#C0C0C0]/25 pt-3">
             <a
               href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
               target="_blank"
               rel="noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-green-600 hover:bg-green-500 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-[#FCC900] hover:bg-[#e2b500] rounded-xl text-black text-sm font-black transition-all active:scale-95"
             >
               <MessageCircle size={16} />
-              Pedir por WhatsApp
+              Pedir
             </a>
             <Link
               href="/quienes"
-              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-white text-sm font-semibold transition-all active:scale-95"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-[#2A2A2A] hover:bg-[#353535] border border-[#C0C0C0]/35 rounded-xl text-white text-sm font-semibold transition-all active:scale-95"
             >
               <User size={16} />
               Quienes somos
@@ -846,7 +846,7 @@ export default function BigJackMenu() {
               href={restaurantInfo.contact.googleMapsLink}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-white text-sm font-semibold transition-all active:scale-95"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-[#2A2A2A] hover:bg-[#353535] border border-[#C0C0C0]/35 rounded-xl text-white text-sm font-semibold transition-all active:scale-95"
             >
               <MapPin size={16} />
               Ubicación
@@ -870,11 +870,17 @@ export default function BigJackMenu() {
             </div>
           )}
 
-      {/* HERO EXPERIENCE - CLEAN & BRANDED */}
-      <section className="relative overflow-hidden border-b border-neutral-800 bg-[#020204]">
-        {/* Background Effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(217,145,51,0.15),_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] opacity-20"></div>
+      {/* HERO EXPERIENCE - POTENCIA HONESTA */}
+      <section className="relative overflow-hidden border-b border-[#C0C0C0]/35 bg-[#1E1E1E]">
+        {/* Background Effects - Fuego y Potencia */}
+        {/* Radial gradient inferior derecho: amarillo potencia */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(252,201,0,0.22),_transparent_58%)]" />
+        {/* Radial gradient superior izquierdo: rojo fuego sutil */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(178,34,34,0.14),_transparent_55%)]" />
+        {/* Textura diagonal metallic/duro (vecino confiable) */}
+        <div className="absolute inset-0 opacity-[0.12]" style={{backgroundImage: "repeating-linear-gradient(45deg, rgba(192,192,192,0.15) 0px, rgba(192,192,192,0.15) 2px, transparent 2px, transparent 6px)"}} />
+        {/* Fade overlay fondo oscuro profundo */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/65 via-black/25 to-transparent" />
         
         <div className="relative z-10 max-w-6xl mx-auto px-4 pt-10 pb-12 md:py-20 grid gap-10 md:grid-cols-2 items-center">
           {/* Brand & Content */}
@@ -882,7 +888,7 @@ export default function BigJackMenu() {
             
             {/* Logo Brand */}
             <div className="relative w-64 h-32 mx-auto md:mx-0">
-               <div className="absolute inset-0 bg-[#d99133] blur-[80px] opacity-20 rounded-full pointer-events-none"></div>
+              <div className="absolute inset-0 bg-[#FCC900] blur-[80px] opacity-20 rounded-full pointer-events-none"></div>
                <Image 
                  src="/images/bigjacklogotipo.webp" 
                  alt="Big Jack Logo"
@@ -893,26 +899,29 @@ export default function BigJackMenu() {
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-4xl sm:text-5xl font-black leading-[0.95] text-white tracking-tight">
-                HAMBURGUESAS <br/>
-                <span className="text-[#d99133]">BRUTALES EN LINCE</span>
-              </h2>
-              <p className="text-neutral-300 text-lg font-semibold max-w-xl mx-auto md:mx-0 leading-snug">
-                Burger spot peruano en el corazón de Lima. Sabor de barrio, porciones contundentes y servicio directo. Abierto de 4:00 PM a 1:00 AM con recojo y delivery cercano.
+              <h1 className="font-anton text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-white tracking-[-0.04em]">
+                POTENCIA <br/>
+                <span className="text-[#FCC900]">HONESTA</span>
+              </h1>
+              <p className="text-[#C0C0C0] text-sm sm:text-base font-semibold uppercase tracking-[0.12em]">
+                No vendemos humo. Vendemos carne, fuego y barrio.
+              </p>
+              <p className="text-neutral-200 text-lg font-semibold max-w-xl mx-auto md:mx-0 leading-snug">
+                Hamburguesa de barrio, directa y tecnica. Sin cuentos, sin poses: producto real, punto preciso y entrega rapida.
               </p>
               
               {/* Status Pills */}
               <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-wide">
-                  <Truck size={12} /> Delivery Gratis (Zonas cercanas)
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCC900]/10 border border-[#FCC900]/25 text-[#FCC900] text-xs font-bold uppercase tracking-wide">
+                  <Truck size={12} /> Delivery serio (zonas cercanas)
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d99133]/10 border border-[#d99133]/20 text-[#d99133] text-xs font-bold uppercase tracking-wide">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B22222]/12 border border-[#B22222]/35 text-[#ffb4b4] text-xs font-bold uppercase tracking-wide">
                   <Clock size={12} /> Recojo 15 min
                 </span>
               </div>
 
-              <p className="text-neutral-400 text-sm max-w-xl mx-auto md:mx-0">
-                Nuestra misión: democratizar una burger de calidad con alma de barrio. Queremos ser la parada confiable para comer bien hoy en Lince y mañana en más distritos del Perú.
+              <p className="text-[#C0C0C0] text-sm max-w-xl mx-auto md:mx-0">
+                Esta brava. Hacemos cocina de plancha para la calle: clara, potente y al grano.
               </p>
             </div>
 
@@ -922,16 +931,16 @@ export default function BigJackMenu() {
                 href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
-                className="h-14 px-8 rounded-2xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 transition-all active:scale-95 hover:-translate-y-0.5"
+                className="h-14 px-8 rounded-2xl bg-[#FCC900] hover:bg-[#e2b500] text-black font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-[#FCC900]/20 transition-all active:scale-95 hover:-translate-y-0.5"
               >
                 <MessageCircle size={22} /> 
-                Pedir por WhatsApp
+                Pedir ahora
               </a>
               <button
                 onClick={scrollToMenu}
-                className="h-14 px-8 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-95 hover:-translate-y-0.5"
+                className="h-14 px-8 rounded-2xl bg-[#2A2A2A] hover:bg-[#353535] text-white font-bold text-lg flex items-center justify-center gap-2 border border-[#C0C0C0]/35 transition-all active:scale-95 hover:-translate-y-0.5"
               >
-                <Flame size={22} className="text-[#d99133]" /> 
+                <Flame size={22} className="text-[#B22222]" /> 
                 Ver carta
               </button>
             </div>
@@ -939,12 +948,12 @@ export default function BigJackMenu() {
 
           {/* Hero Image */}
           <div className="relative order-1 md:order-2">
-            <div className="relative aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden border-4 border-neutral-900 shadow-2xl shadow-orange-900/20 group rotate-1 hover:rotate-0 transition-all duration-500">
+            <div className="relative aspect-square md:aspect-[4/3] rounded-[1.8rem] overflow-hidden border-4 border-[#FCC900]/35 shadow-2xl shadow-black/40 group -rotate-1 hover:rotate-0 transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
               {heroHighlight ? (
                 <img
                   src={heroHighlight.image}
-                  alt={heroHighlight.name}
+                  alt="Hamburguesa real Big Jack"
                   className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
                     e.currentTarget.src = "https://placehold.co/600x600/222/yellow?text=BIG+JACK";
@@ -955,11 +964,80 @@ export default function BigJackMenu() {
                   <Flame size={48} className="text-neutral-700" />
                 </div>
               )}
+
+              <div className="absolute top-6 left-6 z-20 bg-black/65 border border-[#FCC900]/40 px-4 py-2 rounded-xl">
+                <p className="text-[11px] tracking-[0.2em] uppercase text-[#FCC900] font-black">Mostramos la grasa</p>
+              </div>
               
               {/* Floating Price Tag */}
-              <div className="absolute bottom-6 right-6 z-20 bg-[#d99133] text-white px-6 py-3 rounded-2xl shadow-xl transform group-hover:scale-110 transition-transform">
+              <div className="absolute bottom-6 right-6 z-20 bg-[#FCC900] text-black px-6 py-3 rounded-2xl shadow-xl transform group-hover:scale-110 transition-transform border-2 border-black/25">
                 <p className="text-xs font-bold uppercase opacity-90 mb-0.5">Desde</p>
                 <p className="text-3xl font-black">S/ {heroPriceRange[0].toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden border-y border-[#C0C0C0]/25 bg-gradient-to-b from-[#191919] via-[#1E1E1E] to-[#1a1a1a]">
+        {/* Subtle fire accent lines */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#B22222]/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#FCC900]/20 to-transparent" />
+        
+        <div className="relative z-10 max-w-6xl mx-auto px-4 py-10 md:py-16 grid md:grid-cols-[1.3fr_1.1fr] gap-8 items-start">
+          {/* Left Column: Identidad y Mision */}
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#FCC900] font-black mb-3 flex items-center gap-2">
+                <Flame size={14} className="text-[#B22222]" /> Potencia Honesta
+              </p>
+              <h2 className="font-anton text-4xl sm:text-5xl tracking-[-0.03em] text-white leading-[0.95] mb-4">
+                Especialista audaz y confiable
+              </h2>
+              <p className="text-[#C0C0C0] text-base leading-relaxed">
+                Somos el vecino confiable que vos buscas. Autoridad fuerte y cercana que prioriza tu saciedad total por encima de exclusividades superficiales. Sin relleno corporativo, sin humo: solo carne, técnica y barrio.
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t border-[#C0C0C0]/15">
+              <div className="flex gap-3 items-start">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#B22222]/20 border border-[#B22222]/40 flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-[#B22222]" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm mb-1">Imágenes de alto impacto</p>
+                  <p className="text-[#999] text-xs">Texturas reales que generan antojo inmediato. Pulidas para marketing, comprometidas con la realidad técnica del producto.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 items-start">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FCC900]/20 border border-[#FCC900]/40 flex items-center justify-center mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-[#FCC900]" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm mb-1">Lenguaje directo y casero</p>
+                  <p className="text-[#999] text-xs">Conectamos con jóvenes y adultos rechazando el relleno corporativo. Experiencia audaz, transparente y genuinamente satisfactoria.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Principios clave */}
+          <div className="rounded-2xl border border-[#C0C0C0]/20 bg-gradient-to-br from-[#242424] to-[#1a1a1a] p-6 md:p-8 backdrop-blur-sm space-y-5">
+            <p className="text-xs text-[#FCC900] uppercase tracking-[0.18em] font-black">Nuestras verdades</p>
+            
+            <div className="space-y-4">
+              <div className="pb-4 border-b border-[#C0C0C0]/10">
+                <p className="text-white font-black text-sm mb-1">🔥 Fuego y contundencia</p>
+                <p className="text-[#BBB] text-xs leading-snug">Hamburguesa que no deja duda. Técnica de plancha directa, clara y potente.</p>
+              </div>
+              <div className="pb-4 border-b border-[#C0C0C0]/10">
+                <p className="text-white font-black text-sm mb-1">⚡ Velocidad real</p>
+                <p className="text-[#BBB] text-xs leading-snug">Recojo en 15 min. Delivery serio en zonas cercanas. Sin esperas fantasma.</p>
+              </div>
+              <div>
+                <p className="text-white font-black text-sm mb-1">💪 Integridad total</p>
+                <p className="text-[#BBB] text-xs leading-snug">Cada producto es real. Especificaciones técnicas que no mentimos. Punto preciso.</p>
               </div>
             </div>
           </div>
@@ -978,7 +1056,7 @@ export default function BigJackMenu() {
             </div>
             <div className="flex gap-3">
               <button onClick={() => { setClosedNoticeHidden(true); const el = document.getElementById('menu-section'); if (el) el.scrollIntoView({behavior:'smooth'}); }} className="flex-1 px-4 py-3 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-white font-semibold">Ver Menú</button>
-              <button onClick={() => { window.location.href = '/libro-de-reclamaciones'; }} className="px-4 py-3 rounded-2xl bg-[#d99133] hover:bg-[#c07e2b] text-white font-bold">Libro de Reclamaciones</button>
+              <button onClick={() => { window.location.href = '/libro-de-reclamaciones'; }} className="px-4 py-3 rounded-2xl bg-[#FCC900] hover:bg-[#e2b500] text-white font-bold">Libro de Reclamaciones</button>
             </div>
           </div>
         </div>
@@ -997,8 +1075,8 @@ export default function BigJackMenu() {
                   onClick={() => setSelectedCategory(cat)}
                   className={`min-h-[44px] px-6 py-2.5 rounded-full text-sm font-black tracking-wide transition-all border whitespace-nowrap active:scale-95 ${
                     isActive
-                      ? "bg-[#d99133] text-white border-[#d99133] shadow-lg shadow-[#d99133]/25 scale-105"
-                      : "bg-neutral-900/80 text-neutral-400 border-neutral-800 hover:border-[#d99133]/50 hover:text-white hover:bg-neutral-800"
+                      ? "bg-[#FCC900] text-white border-[#FCC900] shadow-lg shadow-[#FCC900]/25 scale-105"
+                      : "bg-neutral-900/80 text-neutral-400 border-neutral-800 hover:border-[#FCC900]/50 hover:text-white hover:bg-neutral-800"
                   }`}
                 >
                   {cat === "TODOS" ? "🔥 TODO" : cat}
@@ -1013,18 +1091,18 @@ export default function BigJackMenu() {
       <main id="menu-section" className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-widest text-[#d99133] font-bold">Estás viendo</p>
+            <p className="text-xs uppercase tracking-widest text-[#FCC900] font-bold">Estás viendo</p>
             <h2 className="text-3xl sm:text-4xl font-black text-white">{selectedCategory === "TODOS" ? "Menú Completo" : selectedCategory}</h2>
             <p className="text-sm text-neutral-400">{filteredItems.length} {filteredItems.length === 1 ? 'producto disponible' : 'productos disponibles'}</p>
           </div>
           <div className="bg-neutral-900/80 border-2 border-neutral-800 rounded-2xl p-4 max-w-md">
                 <p className="text-xs text-neutral-400 leading-relaxed flex items-start gap-2">
-              <Sparkles size={16} className="text-[#d99133]" />
+              <Sparkles size={16} className="text-[#FCC900]" />
               <span><span className="font-semibold text-white">Tip:</span> Toca cualquier imagen para ver detalles completos o usa los botones para añadir rápido al carrito.</span>
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
           {filteredItems.map((item) => {
             const isComplement = COMPLEMENT_CATEGORIES.includes(item.category);
             const isPrimary = PRIMARY_CATEGORIES.includes(item.category);
@@ -1033,80 +1111,103 @@ export default function BigJackMenu() {
               ? item.options
               : [{ id: "regular", label: "Regular", price: item.price || 0 }];
             const basePrice = optionsToRender.reduce((min, opt) => Math.min(min, opt.price), optionsToRender[0].price);
-            return (
-              <div key={item.id} className="group relative bg-neutral-900 border border-neutral-800 rounded-[2rem] overflow-hidden hover:border-[#d99133]/50 transition-all duration-300 flex flex-col sm:block shadow-lg hover:shadow-[#d99133]/10">
-                {/* Mobile Layout: Horizontal Card */}
-                <div className="flex sm:block h-full p-2 sm:p-3">
-                  {/* Image Section */}
-                  <Link href={`/product/${item.slug}`} className="w-1/3 sm:w-full sm:h-56 relative block overflow-hidden bg-neutral-800 flex-shrink-0 rounded-2xl sm:rounded-[1.5rem] border border-neutral-800 shadow-inner">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        onError={(e) => {
-                          e.currentTarget.src = "https://placehold.co/600x400/222/d99133?text=BIG+JACK";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-neutral-500 text-xs">Sin foto</div>
-                    )}
-                    {item.popular && (
-                      <span className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-[#d99133] text-white text-[10px] sm:text-xs font-black px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg z-10">
-                        HIT
-                      </span>
-                    )}
-                  </Link>
+            
+            // Cantidad actual de este producto en el carrito (para pedidos grandes)
+            const itemQtyInCart = cart.filter(c => c.productId === item.id).reduce((sum, c) => sum + c.quantity, 0);
 
-                  {/* Content Section */}
-                  <div className="flex-1 pl-4 py-1 pr-1 sm:p-4 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start gap-2 mb-1">
-                        <div>
-                          <p className="text-[10px] uppercase tracking-wider text-[#d99133] font-bold mb-0.5">{item.category}</p>
-                          <h3 className="text-lg sm:text-xl font-black text-white leading-tight line-clamp-2">{item.name}</h3>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="text-lg font-black text-[#d99133]">S/ {basePrice.toFixed(2)}</p>
+            return (
+              <div key={item.id} className="group relative bg-[#1E1E1E] border-2 border-[#C0C0C0]/20 rounded-[2.5rem] overflow-hidden hover:border-[#FCC900]/50 transition-all duration-300 flex flex-col shadow-lg hover:shadow-2xl hover:shadow-[#FCC900]/10">
+                {/* Image Section - BIG & IMMERSIVE */}
+                <div className="relative block overflow-hidden bg-black flex-shrink-0 aspect-square sm:aspect-[4/3] w-full">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://placehold.co/800x600/222/fcc900?text=BIG+JACK";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-neutral-500 font-bold uppercase tracking-widest text-sm bg-neutral-900">Sin foto</div>
+                  )}
+                  
+                  {/* Dark Gradient Overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1E1E1E] via-[#1e1e1e]/60 to-transparent sm:via-[#1e1e1e]/40" />
+                  <div className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100 bg-black/10 pointer-events-none" />
+
+                  {item.popular && (
+                    <span className="absolute top-5 left-5 bg-[#FCC900] text-black text-xs font-black uppercase tracking-[0.1em] px-4 py-2 rounded-full shadow-xl border-2 border-black/20 z-10 animate-bounce-slow">
+                      HIT DE BARRIO
+                    </span>
+                  )}
+
+                  {/* Header & Price Tag container layered on image */}
+                  <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end z-20">
+                    <div className="flex-1 pr-4">
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-[#FCC900] font-black mb-1 drop-shadow-md">{item.category}</p>
+                      <h3 className="font-anton text-3xl sm:text-4xl text-white leading-[0.9] tracking-[-0.02em] font-normal drop-shadow-xl">{item.name}</h3>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <div className="bg-[#FCC900] border-2 border-black/20 text-black px-4 py-2 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.4)] transform transition-transform group-hover:-translate-y-1">
+                        <span className="text-[10px] font-black uppercase opacity-70 block leading-none mb-1">Desde</span>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-sm font-bold opacity-90 leading-none">S/</span>
+                          <span className="text-2xl sm:text-3xl font-black leading-none">{basePrice.toFixed(2)}</span>
                         </div>
                       </div>
-                      <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed line-clamp-2 mb-3 sm:mb-4">{item.description}</p>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Actions */}
-                    <div className="mt-auto">
-                      {isPrimary ? (
+                {/* Content Section */}
+                <div className="p-6 flex-1 flex flex-col justify-between z-10 relative bg-[#1E1E1E]">
+                  <p className="text-[#C0C0C0] text-sm sm:text-base leading-relaxed mb-6 font-medium line-clamp-3">{item.description}</p>
+
+                  {/* Actions for easy bulk add */}
+                  <div className="mt-auto border-t border-[#C0C0C0]/10 pt-5">
+                    {isPrimary ? (
+                      <div className="flex items-center gap-3">
                         <button
                           onClick={() => openProductModal(item)}
-                          className="w-full py-3 rounded-full bg-[#d99133] text-white text-sm font-bold hover:bg-[#c07e2b] transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-[#d99133]/20"
+                          className="flex-1 py-4 px-6 rounded-2xl bg-[#FCC900] text-black text-base font-black hover:bg-[#e2b500] transition-all active:scale-95 flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(252,201,0,0.15)] group-hover:shadow-[0_8px_20px_rgba(252,201,0,0.3)]"
                         >
-                          <Plus size={18} />
-                            <span className="hidden sm:inline">Personalizar</span>
-                            <span className="sm:hidden">Agregar</span>
+                          <Plus size={20} className="transition-transform group-hover:rotate-90" />
+                          <span className="hidden sm:inline">Armar combo / Agregar</span>
+                          <span className="sm:hidden">Pedir ahora</span>
                         </button>
-                      ) : (
-                        <div className="space-y-2">
-                          {optionsToRender.map((option) => {
-                            const isRecent = recentlyAdded === `${item.id}-${option.id}`;
-                            return (
-                              <button
-                                key={option.id}
-                                onClick={() => handleAddProduct(item, option.id)}
-                                disabled={complementBlocked}
-                                className={`w-full py-2.5 px-4 rounded-full border text-left transition-all flex items-center justify-between active:scale-95 ${
-                                  isRecent
-                                    ? "border-green-500 bg-green-500/10 text-green-400"
-                                    : "border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-[#d99133]/50 hover:text-white"
-                                } ${complementBlocked ? "opacity-50 cursor-not-allowed" : ""}`}
-                              >
-                                <span className="text-xs font-bold truncate mr-2">{option.label}</span>
-                                {isRecent ? <Check size={14} /> : <Plus size={14} />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+                        
+                        {itemQtyInCart > 0 && (
+                          <div className="w-14 h-14 bg-[#B22222]/10 border-2 border-[#B22222] text-[#ffb4b4] rounded-2xl flex items-center justify-center text-xl font-black flex-shrink-0 animate-in pop-in">
+                            x{itemQtyInCart}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <p className="text-[10px] text-[#C0C0C0] uppercase tracking-[0.2em] font-black mb-1">Elige opcion</p>
+                        {optionsToRender.map((option) => {
+                          const isRecent = recentlyAdded === `${item.id}-${option.id}`;
+                          return (
+                            <button
+                              key={option.id}
+                              onClick={() => handleAddProduct(item, option.id)}
+                              disabled={complementBlocked}
+                              className={`w-full py-4 px-5 rounded-2xl border-2 text-left transition-all flex items-center justify-between active:scale-95 shadow-sm hover:shadow-md ${
+                                isRecent
+                                  ? "border-green-500 bg-green-500/10 text-green-400"
+                                  : "border-[#C0C0C0]/15 bg-[#2A2A2A] text-white hover:border-[#FCC900]/50"
+                              } ${complementBlocked ? "opacity-50 cursor-not-allowed" : ""}`}
+                            >
+                              <span className="text-sm font-bold truncate mr-2">{option.label}</span>
+                              <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isRecent ? 'bg-green-500 text-white' : 'bg-black/40 text-white group-hover:bg-[#FCC900] group-hover:text-black'}`}>
+                                {isRecent ? <Check size={16} /> : <Plus size={16} />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1122,7 +1223,7 @@ export default function BigJackMenu() {
             {/* Fast Track Info */}
             <div className="space-y-6">
               <h3 className="text-2xl font-black text-white flex items-center gap-2">
-                <Sparkles className="text-[#d99133]" /> Experiencia Big Jack
+                <Sparkles className="text-[#FCC900]" /> Experiencia Big Jack
               </h3>
               <div className="grid gap-4">
                 {fastTrackHighlights.map((feature) => (
@@ -1130,7 +1231,7 @@ export default function BigJackMenu() {
                     key={feature.title}
                     className="flex gap-4 p-4 rounded-2xl bg-neutral-800/50 border border-neutral-800"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#d99133]/10 flex items-center justify-center text-[#d99133] flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-[#FCC900]/10 flex items-center justify-center text-[#FCC900] flex-shrink-0">
                       <Check size={20} />
                     </div>
                     <div>
@@ -1145,7 +1246,7 @@ export default function BigJackMenu() {
             {/* Mapa */}
             <div className="space-y-6">
               <h3 className="text-2xl font-black text-white flex items-center gap-2">
-                <MapPin className="text-[#d99133]" /> Encuéntranos
+                <MapPin className="text-[#FCC900]" /> Encuéntranos
               </h3>
               <div className="rounded-2xl overflow-hidden border border-neutral-800 h-64 shadow-2xl">
                 <SecureMap />
@@ -1187,7 +1288,7 @@ export default function BigJackMenu() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-[#d99133] mb-1">{modalProduct.category}</p>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-[#FCC900] mb-1">{modalProduct.category}</p>
                 <h3 className="text-2xl font-bold text-white leading-tight mb-2">{modalProduct.name}</h3>
                 <p className="text-sm text-neutral-400 line-clamp-3">{modalProduct.description}</p>
               </div>
@@ -1211,8 +1312,8 @@ export default function BigJackMenu() {
                       onClick={() => setModalOptionId(option.id)}
                       className={`w-full min-h-[68px] rounded-2xl border-2 px-5 py-4 text-left transition-all active:scale-95 ${
                         isActive
-                          ? "border-[#d99133] bg-[#d99133]/10 text-white shadow-lg shadow-[#d99133]/20"
-                          : "border-neutral-800 bg-neutral-900/70 text-neutral-200 hover:border-[#d99133]/50 hover:bg-neutral-900"
+                          ? "border-[#FCC900] bg-[#FCC900]/10 text-white shadow-lg shadow-[#FCC900]/20"
+                          : "border-neutral-800 bg-neutral-900/70 text-neutral-200 hover:border-[#FCC900]/50 hover:bg-neutral-900"
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -1220,7 +1321,7 @@ export default function BigJackMenu() {
                           <p className="text-base font-bold">{option.label}</p>
                           <p className="text-xs text-neutral-400">Recomendada: {option.label.toLowerCase()}</p>
                         </div>
-                        <span className="text-[#d99133] font-black text-xl">S/ {option.price.toFixed(2)}</span>
+                        <span className="text-[#FCC900] font-black text-xl">S/ {option.price.toFixed(2)}</span>
                       </div>
                     </button>
                   );
@@ -1228,7 +1329,7 @@ export default function BigJackMenu() {
               </div>
               <div className="bg-neutral-950 border-2 border-neutral-800 rounded-2xl p-5 flex items-center justify-between">
                 <span className="text-neutral-400 font-semibold">Subtotal</span>
-                <span className="text-2xl font-black text-[#d99133]">
+                <span className="text-2xl font-black text-[#FCC900]">
                   {modalSelectedOption ? `S/ ${modalSelectedOption.price.toFixed(2)}` : "—"}
                 </span>
               </div>
@@ -1242,7 +1343,7 @@ export default function BigJackMenu() {
                 <button
                   onClick={confirmModalAdd}
                   disabled={!modalSelectedOption}
-                  className="min-h-[56px] rounded-2xl bg-[#d99133] text-black font-black disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed transition-all active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
+                  className="min-h-[56px] rounded-2xl bg-[#FCC900] text-black font-black disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed transition-all active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={20} />
                   Agregar
@@ -1267,7 +1368,7 @@ export default function BigJackMenu() {
           <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl rounded-l-[32px] flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300 z-10">
             <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
               <h2 className="text-xl font-black flex items-center gap-2 text-white">
-                <ShoppingCart className="text-[#d99133]" />
+                <ShoppingCart className="text-[#FCC900]" />
                 TU PEDIDO
               </h2>
               <button 
@@ -1297,7 +1398,7 @@ export default function BigJackMenu() {
                       <button
                         key={item.id}
                         onClick={() => openProductModal(item)}
-                        className="w-full flex items-center gap-4 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 hover:border-[#d99133]/50 p-3 rounded-2xl transition-all group text-left"
+                        className="w-full flex items-center gap-4 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 hover:border-[#FCC900]/50 p-3 rounded-2xl transition-all group text-left"
                       >
                         <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-700 flex-shrink-0 border border-neutral-600">
                           <img 
@@ -1308,11 +1409,11 @@ export default function BigJackMenu() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-white group-hover:text-[#d99133] transition-colors truncate">{item.name}</p>
+                          <p className="font-bold text-white group-hover:text-[#FCC900] transition-colors truncate">{item.name}</p>
                           <p className="text-xs text-neutral-400 line-clamp-1">{item.description}</p>
-                          <p className="text-[#d99133] font-black text-sm mt-1">S/ {item.options?.[0]?.price.toFixed(2)}</p>
+                          <p className="text-[#FCC900] font-black text-sm mt-1">S/ {item.options?.[0]?.price.toFixed(2)}</p>
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-[#d99133] text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 shadow-lg shadow-[#d99133]/20">
+                        <div className="w-8 h-8 rounded-full bg-[#FCC900] text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 shadow-lg shadow-[#FCC900]/20">
                           <Plus size={18} />
                         </div>
                       </button>
@@ -1335,7 +1436,7 @@ export default function BigJackMenu() {
                         <h4 className="font-bold text-sm mb-1 text-white truncate">{item.name}</h4>
                         <p className="text-xs text-neutral-400 mb-2">{item.optionLabel}</p>
                         <div className="flex items-center justify-between">
-                          <p className="text-[#d99133] font-black text-sm">S/ {(item.price * item.quantity).toFixed(2)}</p>
+                          <p className="text-[#FCC900] font-black text-sm">S/ {(item.price * item.quantity).toFixed(2)}</p>
                           <div className="flex items-center gap-3 bg-neutral-900 rounded-lg p-1 border border-neutral-800">
                             <button 
                               onClick={() => updateQuantity(item.id, -1)}
@@ -1346,7 +1447,7 @@ export default function BigJackMenu() {
                             <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
                             <button 
                               onClick={() => updateQuantity(item.id, 1)}
-                              className="w-6 h-6 flex items-center justify-center bg-[#d99133] hover:bg-[#c07e2b] text-black rounded transition-colors"
+                              className="w-6 h-6 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] text-black rounded transition-colors"
                             >
                               <Plus size={14} />
                             </button>
@@ -1370,7 +1471,7 @@ export default function BigJackMenu() {
                   {/* Paso 1: Datos Básicos */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><User size={20} /> Paso 1 · Tu nombre</h3>
+                      <h3 className="text-lg font-bold text-[#FCC900] flex items-center gap-2"><User size={20} /> Paso 1 · Tu nombre</h3>
                       <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 1</span>
                     </div>
                     <div className="grid gap-5">
@@ -1382,7 +1483,7 @@ export default function BigJackMenu() {
                             value={customerName}
                             onChange={(e)=>setCustomerName(e.target.value)}
                             placeholder="Ej: Juan Pérez García"
-                            className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-2xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
+                            className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-2xl py-4 pl-12 pr-4 text-base focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
                           />
                         </div>
                       </div>
@@ -1392,7 +1493,7 @@ export default function BigJackMenu() {
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("pickup")}
-                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${orderType==='pickup'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${orderType==='pickup'? 'bg-[#FCC900] text-black border-[#FCC900] shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                           >
                             <span className={`w-14 h-14 rounded-full border-2 flex items-center justify-center ${orderType==='pickup' ? 'border-black/20 bg-black/10 text-black' : 'border-neutral-700 bg-neutral-900 text-white'}`}>
                               <Clock size={26} />
@@ -1403,18 +1504,18 @@ export default function BigJackMenu() {
                           <button
                             type="button"
                             onClick={()=>handleSelectOrderType("delivery")}
-                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-[#d99133] text-black border-[#d99133] shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-200 hover:border-neutral-500'}`}
+                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-[#FCC900] text-black border-[#FCC900] shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-200 hover:border-neutral-500'}`}
                           >
                             <span className={`w-14 h-14 rounded-full border-2 flex items-center justify-center ${deliveryAvailable && orderType==='delivery' ? 'border-black/20 bg-black/10 text-black' : 'border-neutral-700 bg-neutral-900 text-white'}`}>
                               <Truck size={26} />
                             </span>
                             <span className="text-lg font-black">Delivery por inDrive</span>
                             <span className={`text-xs font-semibold ${deliveryAvailable && orderType==='delivery' ? 'text-black/70' : 'text-neutral-400'}`}>Coordinamos el viaje y te mandamos el link</span>
-                            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Sin recargo en Lince</span>
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Sin recargo en zonas cercanas</span>
                           </button>
                         </div>
                         <p className="text-[11px] text-neutral-400 mt-3 flex items-start gap-2">
-                          <Truck size={14} className="text-[#d99133] flex-shrink-0 mt-0.5" />
+                          <Truck size={14} className="text-[#FCC900] flex-shrink-0 mt-0.5" />
                           <span>Si estás a unas cuadras del local te lo llevamos sin costo usando inDrive. Si estás lejos te guiamos a PedidosYa para que llegue igual.</span>
                         </p>
                       </div>
@@ -1424,7 +1525,7 @@ export default function BigJackMenu() {
                   {/* Paso 2: Condicional según tipo */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-[#FCC900] flex items-center gap-2">
                         {orderType==='delivery' ? <MapPin size={20} /> : <Clock size={20} />} 
                         {orderType==='delivery' ? 'Paso 2 · Entrega' : 'Paso 2 · Recojo'}
                       </h3>
@@ -1435,7 +1536,7 @@ export default function BigJackMenu() {
                       <div className="space-y-4">
                         <div className="bg-green-500/10 border-2 border-green-500/30 rounded-xl p-4 text-sm text-green-200 font-semibold flex items-start gap-2">
                           <Truck size={18} className="flex-shrink-0" />
-                          <span>Delivery gratis cerca de Lince. Coordinamos por inDrive y te enviamos el enlace por WhatsApp.</span>
+                          <span>Delivery gratis cerca de Centro de Lima. Coordinamos por inDrive y te enviamos el enlace por WhatsApp.</span>
                         </div>
                         <div>
                           <label className="block text-sm font-semibold text-white mb-2">Dirección</label>
@@ -1445,7 +1546,7 @@ export default function BigJackMenu() {
                               value={deliveryAddress}
                               onChange={(e)=>setDeliveryAddress(e.target.value)}
                               placeholder="Calle y número"
-                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
+                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
@@ -1457,7 +1558,7 @@ export default function BigJackMenu() {
                               value={deliveryReference}
                               onChange={(e)=>setDeliveryReference(e.target.value)}
                               placeholder="Ej: Frente al parque"
-                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#d99133] outline-none transition-colors text-white placeholder:text-neutral-500"
+                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
                             />
                           </div>
                         </div>
@@ -1507,7 +1608,7 @@ export default function BigJackMenu() {
 
                         <div className="bg-neutral-900/80 border border-neutral-700 rounded-xl p-5 space-y-3">
                           <p className="text-base font-bold text-white flex items-center gap-2">
-                            <Sparkles size={18} className="text-[#d99133]" />
+                            <Sparkles size={18} className="text-[#FCC900]" />
                             Instrucciones fáciles
                           </p>
                           <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-300 leading-relaxed">
@@ -1526,7 +1627,7 @@ export default function BigJackMenu() {
                             <Send size={16} className="text-[#ff99bb]" />
                             ¿Fuera de la zona de inDrive?
                           </p>
-                          <p>Si estás lejos de Lince puedes hacer tu pedido por PedidosYa y llegará igual de rápido.</p>
+                          <p>Si estás lejos de Centro de Lima puedes hacer tu pedido por PedidosYa y llegará igual de rápido.</p>
                           <a
                             href={PEDIDOSYA_LINK}
                             target="_blank"
@@ -1543,8 +1644,8 @@ export default function BigJackMenu() {
                       <div>
                         <label className="block text-sm font-semibold text-white mb-3">¿Cuándo lo recoges?</label>
                         {!isOpen && isPreOrder ? (
-                          <div className="bg-[#d99133]/10 border-2 border-[#d99133]/30 rounded-xl p-4 mb-3">
-                            <p className="text-[#d99133] text-sm font-semibold flex items-center gap-2">
+                          <div className="bg-[#FCC900]/10 border-2 border-[#FCC900]/30 rounded-xl p-4 mb-3">
+                            <p className="text-[#FCC900] text-sm font-semibold flex items-center gap-2">
                               <AlertTriangle size={18} />
                               Estamos cerrados. Solo puedes programar tu pedido.
                             </p>
@@ -1559,7 +1660,7 @@ export default function BigJackMenu() {
                                 !isOpen && isPreOrder 
                                   ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed opacity-50'
                                   : pickupTime==='now'
-                                    ? 'bg-[#d99133] text-black border-[#d99133]'
+                                    ? 'bg-[#FCC900] text-black border-[#FCC900]'
                                     : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'
                               }`}
                               >
@@ -1569,7 +1670,7 @@ export default function BigJackMenu() {
                               <button
                                 type="button"
                                 onClick={()=>setPickupTime("schedule")}
-                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='schedule'? 'bg-[#d99133] text-black border-[#d99133]':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='schedule'? 'bg-[#FCC900] text-black border-[#FCC900]':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                               >
                                 <Clock size={20} />
                                 Programar hora
@@ -1617,7 +1718,7 @@ export default function BigJackMenu() {
                                     type="button"
                                     key={slot.value}
                                     onClick={()=>setScheduledTime(slot.value)}
-                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===slot.value ? 'bg-[#d99133] text-black border-[#d99133]' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
+                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===slot.value ? 'bg-[#FCC900] text-black border-[#FCC900]' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
                                   >
                                     {slot.label}
                                   </button>
@@ -1640,7 +1741,7 @@ export default function BigJackMenu() {
                                   return now.toISOString().slice(0, 16);
                                 })()}
                                 onChange={(e)=>setScheduledTime(e.target.value)}
-                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-[#d99133] outline-none text-white"
+                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-[#FCC900] outline-none text-white"
                               />
                             </div>
                             <p className="text-xs text-neutral-400 mt-2 text-center">O elige una fecha y hora personalizada</p>
@@ -1648,7 +1749,7 @@ export default function BigJackMenu() {
                         )}
                         
                         {pickupTime==='now' && (
-                          <div className="bg-[#d99133]/10 border-2 border-[#d99133]/30 rounded-xl p-4 text-sm text-[#d99133] font-semibold flex gap-3 items-center animate-in fade-in">
+                          <div className="bg-[#FCC900]/10 border-2 border-[#FCC900]/30 rounded-xl p-4 text-sm text-[#FCC900] font-semibold flex gap-3 items-center animate-in fade-in">
                             <Clock size={18} /> Prepararemos tu pedido en aprox. 15-20 minutos
                           </div>
                         )}
@@ -1668,7 +1769,7 @@ export default function BigJackMenu() {
                   {/* Paso 3: Pago */}
                   <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#d99133] flex items-center gap-2"><CreditCard size={20} /> Paso 3 · Pago</h3>
+                      <h3 className="text-lg font-bold text-[#FCC900] flex items-center gap-2"><CreditCard size={20} /> Paso 3 · Pago</h3>
                       <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 3</span>
                     </div>
                     <div className="grid gap-5">
@@ -1693,7 +1794,7 @@ export default function BigJackMenu() {
                               onClick={() => { if (!disabled) setPaymentMethod(m.id); }}
                               disabled={disabled}
                               aria-disabled={disabled ? 'true' : 'false'}
-                              className={`min-h-[96px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-4 text-center transition-all ${isActive ? 'bg-[#d99133] text-black border-[#d99133] shadow-lg' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              className={`min-h-[96px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-4 text-center transition-all ${isActive ? 'bg-[#FCC900] text-black border-[#FCC900] shadow-lg' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                               <span className={`w-12 h-12 rounded-full flex items-center justify-center ${isActive ? 'bg-black/10 text-black' : 'bg-neutral-900 text-white border border-neutral-700'}`}>
                                 <m.icon size={22} />
@@ -1711,7 +1812,7 @@ export default function BigJackMenu() {
                           onChange={(e)=>setNotes(e.target.value)}
                           rows={3}
                           placeholder="Ej: Sin cebolla, sin mayonesa, entregar en portería..."
-                          className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl p-4 text-base focus:border-[#d99133] outline-none resize-none text-white placeholder:text-neutral-500"
+                          className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl p-4 text-base focus:border-[#FCC900] outline-none resize-none text-white placeholder:text-neutral-500"
                         />
                       </div>
                     </div>
@@ -1732,7 +1833,7 @@ export default function BigJackMenu() {
               )}
               <div className="flex justify-between items-center mb-5 text-xl font-bold">
                 <span className="text-white">Total</span>
-                <span className="text-[#d99133] text-3xl">S/ {total.toFixed(2)}</span>
+                <span className="text-[#FCC900] text-3xl">S/ {total.toFixed(2)}</span>
               </div>
               <button
                 onClick={submitOrderToSystem}
@@ -1761,7 +1862,7 @@ export default function BigJackMenu() {
       )}
 
       {/* Footer Mejorado */}
-      <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-[#d99133]/30">
+      <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-[#FCC900]/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
           {/* Sección principal */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
@@ -1771,11 +1872,13 @@ export default function BigJackMenu() {
                 <img 
                   src="/images/bigjacklogotipo.webp" 
                   alt={restaurantInfo.name} 
-                  className="h-16 w-auto object-contain mb-4 drop-shadow-[0_0_15px_rgba(217,145,51,0.2)]" 
+                  className="h-16 w-auto object-contain mb-4 drop-shadow-[0_0_15px_rgba(252,201,0,0.24)]" 
                 />
-                <p className="text-neutral-400 text-sm leading-relaxed">
-                  {restaurantInfo.slogan}
-                </p>
+                <p className="text-[#C0C0C0] text-sm leading-relaxed">{restaurantInfo.slogan}</p>
+                <div className="mt-4 rounded-xl border border-[#FCC900]/45 px-4 py-3 bg-[#1E1E1E]">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-[#FCC900] font-black">Central de Potencia</p>
+                  <p className="font-signature text-white text-lg mt-1">Sello de autenticidad</p>
+                </div>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-widest text-neutral-600 font-bold mb-3">Síguenos</p>
@@ -1784,19 +1887,19 @@ export default function BigJackMenu() {
                     href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-11 h-11 bg-green-600/20 border border-green-600/40 hover:bg-green-600 hover:border-green-500 rounded-xl flex items-center justify-center transition-all group"
+                    className="w-11 h-11 bg-[#FCC900]/15 border border-[#FCC900]/40 hover:bg-[#FCC900] hover:border-[#FCC900] rounded-xl flex items-center justify-center transition-all group"
                     title="WhatsApp"
                   >
-                    <MessageCircle size={20} className="text-green-400 group-hover:text-white transition-colors" />
+                    <MessageCircle size={20} className="text-[#FCC900] group-hover:text-black transition-colors" />
                   </a>
                   <a
                     href={`https://instagram.com/${restaurantInfo.contact.instagram.replace('@', '')}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-11 h-11 bg-pink-600/20 border border-pink-600/40 hover:bg-pink-600 hover:border-pink-500 rounded-xl flex items-center justify-center transition-all group"
+                    className="w-11 h-11 bg-[#B22222]/20 border border-[#B22222]/50 hover:bg-[#B22222] hover:border-[#B22222] rounded-xl flex items-center justify-center transition-all group"
                     title="Instagram"
                   >
-                    <Instagram size={20} className="text-pink-400 group-hover:text-white transition-colors" />
+                    <Instagram size={20} className="text-[#ffb4b4] group-hover:text-white transition-colors" />
                   </a>
                   <a
                     href={restaurantInfo.contact.tiktok}
@@ -1828,7 +1931,7 @@ export default function BigJackMenu() {
             <div className="space-y-5">
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <MapPin size={18} className="text-[#d99133]" /> Ubicación
+                  <MapPin size={18} className="text-[#FCC900]" /> Ubicación
                 </h4>
                 <div className="space-y-3 text-sm">
                   <p className="text-neutral-400 leading-relaxed">
@@ -1851,7 +1954,7 @@ export default function BigJackMenu() {
             <div className="space-y-5">
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <Clock size={18} className="text-[#d99133]" /> Horarios
+                  <Clock size={18} className="text-[#FCC900]" /> Horarios
                 </h4>
                 <div className="space-y-3 text-sm">
                   <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-4">
@@ -1862,7 +1965,7 @@ export default function BigJackMenu() {
                       </div>
                       <div className="border-t border-neutral-800 pt-2 flex justify-between items-center">
                         <span className="text-neutral-400">Vie - Dom</span>
-                        <span className="text-[#d99133] font-bold">4:00 PM - 1:00 AM</span>
+                        <span className="text-[#FCC900] font-bold">4:00 PM - 1:00 AM</span>
                       </div>
                     </div>
                   </div>
@@ -1870,7 +1973,7 @@ export default function BigJackMenu() {
                     href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-500 rounded-xl text-white font-bold transition-all active:scale-95"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#FCC900] hover:bg-[#e2b500] rounded-xl text-black font-bold transition-all active:scale-95"
                   >
                     <MessageCircle size={16} />
                     Abrir chat por WhatsApp
@@ -1883,7 +1986,7 @@ export default function BigJackMenu() {
             <div className="space-y-5">
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <Clipboard size={18} className="text-[#d99133]" /> Legal
+                  <Clipboard size={18} className="text-[#FCC900]" /> Legal
                 </h4>
                 <div className="space-y-4">
                   <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-4 space-y-2 text-sm">
@@ -1897,7 +2000,7 @@ export default function BigJackMenu() {
                   </div>
                   <Link
                     href="/libro-de-reclamaciones"
-                    className="inline-flex items-center gap-2 px-5 py-3 bg-[#d99133] hover:bg-[#c07e2b] text-black rounded-xl font-bold transition-all shadow-xl shadow-[#d99133]/20 active:scale-95 w-full justify-center"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-[#FCC900] hover:bg-[#e2b500] text-black rounded-xl font-bold transition-all shadow-xl shadow-[#FCC900]/20 active:scale-95 w-full justify-center"
                   >
                     <Clipboard size={16} />
                     Libro de Reclamaciones
@@ -1910,30 +2013,30 @@ export default function BigJackMenu() {
           {/* Separador */}
           <div className="border-t-2 border-neutral-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-              <p className="text-neutral-500 text-center md:text-left">
-                © {new Date().getFullYear()} <span className="font-bold text-neutral-400">{restaurantInfo.name}</span>. Todos los derechos reservados.
+              <p className="text-[#C0C0C0] text-center md:text-left">
+                © {new Date().getFullYear()} <span className="font-bold text-white">{restaurantInfo.name}</span>. Menos carton. Mas carne. Legal.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
                 <Link
                   href="/links"
-                  className="text-xs text-[#d99133] hover:text-[#c07e2b] transition-colors font-bold underline"
+                  className="text-xs text-[#FCC900] hover:text-[#e2b500] transition-colors font-bold underline"
                 >
-                  🔗 Todos nuestros enlaces
+                  Todos nuestros enlaces
                 </Link>
                 <Link
                   href="/quienes"
-                  className="text-xs text-neutral-400 hover:text-[#d99133] transition-colors font-semibold"
+                  className="text-xs text-neutral-400 hover:text-[#FCC900] transition-colors font-semibold"
                 >
                   Quienes somos
                 </Link>
                 <a
                   href="#menu-section"
-                  className="text-xs text-neutral-400 hover:text-[#d99133] transition-colors font-semibold"
+                  className="text-xs text-neutral-400 hover:text-[#FCC900] transition-colors font-semibold"
                 >
                   Volver al menú
                 </a>
-                <p className="text-xs flex items-center gap-2 text-neutral-500">
-                  Desarrollado con <Sparkles size={14} className="text-[#d99133]" /> en Perú
+                <p className="text-xs flex items-center gap-2 text-[#C0C0C0]">
+                  Hecho en Lima <Sparkles size={14} className="text-[#B22222]" /> con calle
                 </p>
               </div>
             </div>
@@ -1944,7 +2047,7 @@ export default function BigJackMenu() {
       {/* Mini ventana de sugerencia para complementos - CON CANTIDADES */}
       {suggestionVisible && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="max-w-lg w-full bg-gradient-to-b from-neutral-900 to-neutral-950 border-2 border-[#d99133]/30 rounded-3xl shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-4 duration-300 max-h-[85vh] overflow-y-auto">
+          <div className="max-w-lg w-full bg-gradient-to-b from-neutral-900 to-neutral-950 border-2 border-[#FCC900]/30 rounded-3xl shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-4 duration-300 max-h-[85vh] overflow-y-auto">
             {/* Header */}
             <div className="sticky top-0 bg-gradient-to-b from-neutral-900 to-neutral-900/95 backdrop-blur-sm p-5 pb-4 border-b border-neutral-800 rounded-t-3xl">
               <div className="flex items-start justify-between">
@@ -1970,7 +2073,7 @@ export default function BigJackMenu() {
               {suggestedGuarn && (
                 <div className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-5 space-y-3">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#d99133]/10 rounded-xl flex items-center justify-center text-3xl">
+                    <div className="w-12 h-12 bg-[#FCC900]/10 rounded-xl flex items-center justify-center text-3xl">
                       🍟
                     </div>
                     <div className="flex-1">
@@ -1992,14 +2095,14 @@ export default function BigJackMenu() {
                       <button 
                         onClick={() => changeSuggestedQty('papas', 1)}
                         disabled={suggestedPapasQty >= 10}
-                        className="w-8 h-8 flex items-center justify-center bg-[#d99133] hover:bg-[#c07e2b] disabled:opacity-30 disabled:cursor-not-allowed text-black rounded transition-colors"
+                        className="w-8 h-8 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] disabled:opacity-30 disabled:cursor-not-allowed text-black rounded transition-colors"
                       >
                         <Plus size={16} />
                       </button>
                     </div>
                   </div>
                   {suggestedPapasQty > 0 && (
-                    <div className="text-right text-xs text-[#d99133] font-bold">
+                    <div className="text-right text-xs text-[#FCC900] font-bold">
                       Subtotal: S/ {(suggestedGuarn.options?.[0]?.price * suggestedPapasQty).toFixed(2)}
                     </div>
                   )}
@@ -2095,10 +2198,10 @@ export default function BigJackMenu() {
             {/* Footer Actions */}
             <div className="sticky bottom-0 bg-gradient-to-t from-neutral-950 to-neutral-950/95 backdrop-blur-sm p-5 pt-4 border-t border-neutral-800 rounded-b-3xl space-y-3">
               {(suggestedPapasQty > 0 || suggestedInkaQty > 0 || suggestedCocaQty > 0) && (
-                <div className="bg-[#d99133]/10 border border-[#d99133]/30 rounded-xl p-4">
+                <div className="bg-[#FCC900]/10 border border-[#FCC900]/30 rounded-xl p-4">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-neutral-300">Total complementos:</span>
-                    <span className="text-[#d99133] font-black text-xl">
+                    <span className="text-[#FCC900] font-black text-xl">
                       S/ {(
                         (suggestedGuarn?.options?.[0]?.price || 0) * suggestedPapasQty +
                         (suggestedInka?.options?.[0]?.price || 0) * suggestedInkaQty +
@@ -2113,7 +2216,7 @@ export default function BigJackMenu() {
                 disabled={suggestedPapasQty === 0 && suggestedInkaQty === 0 && suggestedCocaQty === 0}
                 className={`w-full min-h-[60px] rounded-2xl font-black text-base transition-all flex items-center justify-center gap-3 shadow-lg ${
                   (suggestedPapasQty > 0 || suggestedInkaQty > 0 || suggestedCocaQty > 0)
-                    ? 'bg-gradient-to-r from-[#d99133] to-[#b07020] hover:from-[#eeb055] hover:to-[#d99133] text-black active:scale-[0.98]'
+                    ? 'bg-gradient-to-r from-[#FCC900] to-[#b07020] hover:from-[#eeb055] hover:to-[#FCC900] text-black active:scale-[0.98]'
                     : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                 }`}
               >
@@ -2139,7 +2242,7 @@ export default function BigJackMenu() {
         <div className="lg:hidden fixed bottom-4 left-4 right-4 z-30">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="w-full rounded-2xl bg-gradient-to-r from-[#d99133] via-[#eeb055] to-[#d99133] text-black font-black px-5 py-4 shadow-2xl shadow-[#d99133]/40 flex items-center justify-between gap-4 active:scale-[0.99]"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#FCC900] via-[#eeb055] to-[#FCC900] text-black font-black px-5 py-4 shadow-2xl shadow-[#FCC900]/40 flex items-center justify-between gap-4 active:scale-[0.99]"
             aria-label="Abrir carrito"
           >
             <div className="text-left">
@@ -2160,7 +2263,7 @@ export default function BigJackMenu() {
       {!suggestionVisible && (cart.length === 0 || isCartOpen) && (
         <button 
           onClick={() => setIsCartOpen(true)}
-          className="lg:hidden fixed bottom-6 right-6 z-40 p-4 bg-[#d99133] text-black rounded-full hover:bg-[#c07e2b] transition-all shadow-2xl shadow-[#d99133]/40 active:scale-95"
+          className="lg:hidden fixed bottom-6 right-6 z-40 p-4 bg-[#FCC900] text-black rounded-full hover:bg-[#e2b500] transition-all shadow-2xl shadow-[#FCC900]/40 active:scale-95"
           style={{
             animation: cart.length > 0 ? 'none' : 'bounce 2s infinite',
           }}

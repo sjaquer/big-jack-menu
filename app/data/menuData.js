@@ -3,7 +3,7 @@
 
 export const restaurantInfo = {
   name: "BIG JACK",
-  slogan: "Hamburguesas brutales — Sabor que prende fuego",
+  slogan: "No vendemos humo. Vendemos carne, fuego y barrio.",
   ruc: "15614908278",
   // Horarios por día (0 = Domingo, 1 = Lunes, ..., 6 = Sábado)
   // Cada día define { open: "HH:MM", close: "HH:MM" } en horario local
@@ -21,7 +21,7 @@ export const restaurantInfo = {
     whatsapp: "51970513912",
     instagram: "@bigjackpe",
     tiktok: "https://www.tiktok.com/@bigjackpe",
-    address: "Jirón Bartolomé Herrera 133, Lince",
+    address: "Centro de Lima",
     googleMapsLink: "https://maps.app.goo.gl/RFkecMjMDjZhQcxG6"
   }
 };
@@ -52,7 +52,7 @@ export const menuItems = [
     sku: "BURG-003",
     slug: "royal-jack",
     category: "LAS INTOCABLES",
-    name: "Royal Jack",
+    name: "La Real con Huevo",
     description: "Medallón de carne a la plancha, queso fundido, jamón inglés sellado y huevo de yema cremosa con nuestra salsa especial.",
     image: "/images/royaljack.webp",
     popular: false,
@@ -66,7 +66,7 @@ export const menuItems = [
     sku: "BURG-005",
     slug: "grill-jack",
     category: "LAS INTOCABLES",
-    name: "Grill Jack",
+    name: "La Parrillera",
     description: "Burger gruesa con chorizo parrillero, cheddar, chimichurri casero y crema especial Big Jack.",
     image: "/images/grilljack.webp",
     popular: false,
@@ -80,7 +80,7 @@ export const menuItems = [
     sku: "BURG-007",
     slug: "jack-a-lo-pobre",
     category: "LAS INTOCABLES",
-    name: "Jack a lo Pobre",
+    name: "La Pobre pero Fina",
     description: "Medallón de carne jugosa, cheddar, huevo frito y plátano maduro caramelizado que combina dulce y salado.",
     image: "/images/jackpobre.webp",
     popular: false,

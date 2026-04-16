@@ -22,7 +22,7 @@ const InstagramIcon = () => (
 );
 
 const TikTokIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor">
+          subtitle: "Centro de Lima",
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
   </svg>
 );
@@ -203,14 +203,14 @@ export default function LinksPage() {
             <span className="text-neutral-300">Abierto</span>
             <span className="text-neutral-600">|</span>
             <MapPin size={14} className="text-[#d99133]" />
-            <span className="text-neutral-400">Lince, Lima</span>
+            <span className="text-neutral-400">Centro de Lima</span>
           </div>
         </header>
 
         {/* Intro SEO/Misión */}
         <section className="mb-8 text-center space-y-3">
           <h1 className="text-xl font-black text-white leading-tight">
-            Burger spot de barrio en pleno Lince, Lima
+            Burger spot de barrio en pleno Centro de Lima
           </h1>
           <p className="text-neutral-400 text-sm leading-relaxed">
             Nacimos en una esquina céntrica para servir hamburguesas gruesas con alma peruana. Atención directa, delivery cercano y la misión de llevar nuestro sabor a más barrios del país.
@@ -228,7 +228,7 @@ export default function LinksPage() {
               rel="noreferrer"
               className="px-4 py-2.5 rounded-xl border border-neutral-700 text-white font-semibold hover:border-[#d99133]/60 hover:text-[#d99133] transition-all"
             >
-              Estamos en Jr. Bartolomé Herrera 133
+              Estamos en Centro de Lima
             </a>
           </div>
         </section>

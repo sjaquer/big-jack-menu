@@ -1,0 +1,26 @@
+{
+  "name": "BIG JACK | Hamburguesas Brutales",
+  "short_name": "BIG JACK",
+  "description": "Potencia Honesta. Hamburguesas de alta técnica sin pretensiones. Centro de Lima.",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#FCC900",
+  "background_color": "#1E1E1E",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "categories": ["food", "shopping"]
+}
