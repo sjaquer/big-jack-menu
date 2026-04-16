@@ -66,6 +66,8 @@ export default function BigJackMenu() {
   const [pickupTime, setPickupTime] = useState("now"); // 'now' | 'schedule'
   const [scheduledTime, setScheduledTime] = useState("");
   const [locationLink, setLocationLink] = useState(""); // Link de Google Maps del usuario
+  const [isLocating, setIsLocating] = useState(false);
+  const [autoLocationAttempted, setAutoLocationAttempted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("efectivo"); // efectivo | yape | plin | tarjeta (tarjeta deshabilitada)
   const [notes, setNotes] = useState(""); // notas adicionales
   const [recentlyAdded, setRecentlyAdded] = useState(null); // resaltar última acción
@@ -213,6 +215,30 @@ export default function BigJackMenu() {
   const suggestedGuarn = menuItems.find((it) => it.category === "GUARNICION");
   const suggestedInka = menuItems.find((it) => it.slug === "inka-cola");
   const suggestedCoca = menuItems.find((it) => it.slug === "coca-cola");
+  const suggestionCards = useMemo(
+    () =>
+      [
+        {
+          type: "papas",
+          item: suggestedGuarn,
+          badge: "Guarnicion",
+          accent: "text-[#FCC900]",
+        },
+        {
+          type: "inka",
+          item: suggestedInka,
+          badge: "Bebida",
+          accent: "text-yellow-400",
+        },
+        {
+          type: "coca",
+          item: suggestedCoca,
+          badge: "Bebida",
+          accent: "text-red-400",
+        },
+      ].filter((entry) => Boolean(entry.item)),
+    [suggestedGuarn, suggestedInka, suggestedCoca]
+  );
 
   const scrollToMenu = () => {
     if (typeof document === "undefined") return;
@@ -375,6 +401,13 @@ export default function BigJackMenu() {
     }
   };
 
+  const getSuggestedQty = (type) => {
+    if (type === "papas") return suggestedPapasQty;
+    if (type === "inka") return suggestedInkaQty;
+    if (type === "coca") return suggestedCocaQty;
+    return 0;
+  };
+
   const handleConfirmSuggestions = () => {
     // Agregar papas según cantidad
     if (suggestedPapasQty > 0 && suggestedGuarn) {
@@ -430,20 +463,35 @@ export default function BigJackMenu() {
   };
 
 
-  const getUserLocation = () => {
+  const getUserLocation = ({ silent = false } = {}) => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      alert("Tu navegador no soporta geolocalización.");
+      if (!silent) alert("Tu navegador no soporta geolocalización.");
       return;
     }
+    setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         const link = `https://www.google.com/maps?q=${latitude},${longitude}`;
         setLocationLink(link);
-        alert("¡Ubicación lista! La usaremos para coordinar tu delivery por inDrive.");
+        if (!silent) {
+          alert("¡Ubicación lista! La usaremos para coordinar tu delivery por inDrive.");
+        }
+        if (!deliveryReference.trim()) {
+          setDeliveryReference("Ubicación compartida por GPS");
+        }
+        setIsLocating(false);
       },
       () => {
-        alert("No pudimos obtener tu ubicación automáticamente. Escribe tu dirección o pega un enlace de Google Maps.");
+        if (!silent) {
+          alert("No pudimos obtener tu ubicación automáticamente. Escribe tu dirección o pega un enlace de Google Maps.");
+        }
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0,
       }
     );
   };
@@ -461,7 +509,17 @@ export default function BigJackMenu() {
     if (type === 'delivery' && paymentMethod === 'efectivo') {
       setPaymentMethod('yape');
     }
+    if (type !== "delivery") {
+      setAutoLocationAttempted(false);
+    }
   };
+
+  useEffect(() => {
+    if (orderType !== "delivery") return;
+    if (locationLink || autoLocationAttempted || isLocating) return;
+    setAutoLocationAttempted(true);
+    getUserLocation({ silent: true });
+  }, [orderType, locationLink, autoLocationAttempted, isLocating]);
 
   const submitOrderToSystem = async () => {
     if (cart.length === 0) return;
@@ -1222,12 +1280,12 @@ export default function BigJackMenu() {
                             </span>
                             <span className="text-lg font-black">Delivery por inDrive</span>
                             <span className={`text-xs font-semibold ${deliveryAvailable && orderType==='delivery' ? 'text-black/70' : 'text-neutral-400'}`}>Coordinamos el viaje y te mandamos el link</span>
-                            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Sin recargo en zonas cercanas</span>
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Costo variable por zona y horario</span>
                           </button>
                         </div>
                         <p className="text-[11px] text-neutral-400 mt-3 flex items-start gap-2">
                           <Truck size={14} className="text-[#FCC900] flex-shrink-0 mt-0.5" />
-                          <span>Si estás a unas cuadras del local te lo llevamos sin costo usando inDrive. Si estás lejos te guiamos a PedidosYa para que llegue igual.</span>
+                          <span>El delivery se coordina con inDrive. La tarifa la define la app según distancia, tráfico y hora. Si estás fuera de cobertura, te guiamos a PedidosYa.</span>
                         </p>
                       </div>
                     </div>
@@ -1247,7 +1305,7 @@ export default function BigJackMenu() {
                       <div className="space-y-4">
                         <div className="bg-green-500/10 border-2 border-green-500/30 rounded-xl p-4 text-sm text-green-200 font-semibold flex items-start gap-2">
                           <Truck size={18} className="flex-shrink-0" />
-                          <span>Delivery gratis cerca de Centro de Lima. Coordinamos por inDrive y te enviamos el enlace por WhatsApp.</span>
+                          <span>Tu delivery se coordina en inDrive. El costo es variable según ubicación y horario, y te enviamos el enlace por WhatsApp.</span>
                         </div>
                         <div>
                           <label className="block text-sm font-semibold text-white mb-2">Dirección</label>
@@ -1276,23 +1334,23 @@ export default function BigJackMenu() {
                         <div className="space-y-4">
                           <div className="bg-blue-600/10 border-2 border-blue-500/30 rounded-xl p-4 text-sm text-blue-200 font-semibold flex items-start gap-2">
                             <MapPin size={18} className="flex-shrink-0" />
-                            <span>Comparte tu ubicación (Google Maps) y coordinamos tu delivery por inDrive.</span>
+                            <span>Comparte tu ubicación (Google Maps). Si eliges delivery, intentamos detectarla automáticamente para coordinar más rápido por inDrive.</span>
                           </div>
 
                           <button 
                             type="button"
-                            onClick={getUserLocation} 
+                            onClick={() => getUserLocation()} 
                             className={`w-full min-h-[140px] rounded-2xl border-3 flex flex-col items-center justify-center gap-4 px-8 text-center transition-all shadow-xl ${locationLink ? 'bg-green-600/20 border-green-500 text-white' : 'bg-[#4285F4] border-[#4285F4] text-white hover:bg-[#3367D6] active:scale-[0.98]'}`}
                           >
                             <span className={`w-16 h-16 rounded-full flex items-center justify-center ${locationLink ? 'bg-green-500 text-white' : 'bg-white/20 backdrop-blur-sm'}`}>
-                              <MapPin size={32} strokeWidth={2.5} />
+                              {isLocating ? <Loader2 size={32} className="animate-spin" /> : <MapPin size={32} strokeWidth={2.5} />}
                             </span>
                             <div className="space-y-1">
                               <span className="text-xl font-black leading-tight block">
-                                {locationLink ? '✓ Ubicación enviada' : 'Compartir mi ubicación'}
+                                {locationLink ? '✓ Ubicación lista' : isLocating ? 'Detectando ubicación...' : 'Compartir mi ubicación'}
                               </span>
                               <span className="text-sm opacity-90 font-semibold block">
-                                {locationLink ? 'Se enviará por WhatsApp' : 'Presiona para activar GPS'}
+                                {locationLink ? 'Se enviará para coordinar inDrive' : isLocating ? 'Acepta permisos del navegador' : 'Presiona para activar GPS'}
                               </span>
                             </div>
                           </button>
@@ -1320,16 +1378,16 @@ export default function BigJackMenu() {
                         <div className="bg-neutral-900/80 border border-neutral-700 rounded-xl p-5 space-y-3">
                           <p className="text-base font-bold text-white flex items-center gap-2">
                             <Sparkles size={18} className="text-[#FCC900]" />
-                            Instrucciones fáciles
+                            Sobre el delivery por inDrive
                           </p>
                           <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-300 leading-relaxed">
-                            <li className="pl-2">Presiona el botón azul grande que dice <span className="font-bold text-white">&quot;Compartir mi ubicación&quot;</span></li>
-                            <li className="pl-2">Tu navegador te pedirá permiso para usar tu ubicación. Dale <span className="font-bold text-white">&quot;Permitir&quot;</span> o <span className="font-bold text-white">&quot;Aceptar&quot;</span></li>
-                            <li className="pl-2">Listo! El enlace de Google Maps se guardará automáticamente y se enviará por WhatsApp</li>
+                            <li className="pl-2">Elegimos al conductor mediante <span className="font-bold text-white">inDrive</span> cuando confirmes el pedido.</li>
+                            <li className="pl-2">La tarifa de envío es <span className="font-bold text-white">variable</span> y depende de zona, tráfico y hora.</li>
+                            <li className="pl-2">Si compartes ubicación GPS, coordinamos más rápido y con menos errores de ruta.</li>
                           </ol>
                           <div className="bg-neutral-800/60 rounded-lg p-3 mt-3">
                             <p className="text-xs text-neutral-400 leading-relaxed">
-                              <span className="font-semibold text-neutral-300">¿Necesitas ayuda?</span> Pide a alguien de confianza que presione el botón azul por ti. El sistema hará todo automáticamente.
+                              <span className="font-semibold text-neutral-300">Tip:</span> Si no quieres activar GPS, también puedes escribir dirección y referencia manualmente.
                             </p>
                           </div>
                         </div>
@@ -1546,6 +1604,11 @@ export default function BigJackMenu() {
                 <span className="text-white">Total</span>
                 <span className="text-[#FCC900] text-3xl">S/ {total.toFixed(2)}</span>
               </div>
+              {orderType === "delivery" && (
+                <div className="mb-4 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 text-xs text-blue-100">
+                  El costo de delivery se coordina con inDrive y puede variar según ubicación, tráfico y hora. Este total no incluye ese envío.
+                </div>
+              )}
               <button
                 onClick={submitOrderToSystem}
                 disabled={cart.length === 0 || isSubmittingOrder}
@@ -1780,129 +1843,67 @@ export default function BigJackMenu() {
 
             {/* Content */}
             <div className="p-5 space-y-4">
-              {/* Papas con cantidad */}
-              {suggestedGuarn && (
-                <div className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-5 space-y-3">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#FCC900]/10 rounded-xl flex items-center justify-center text-3xl">
-                      🍟
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-white font-bold text-base">Papas Fritas</p>
-                      <p className="text-neutral-400 text-xs mt-0.5">Crujientes y doradas · S/ {suggestedGuarn.options?.[0]?.price?.toFixed(2)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-sm text-neutral-400">Cantidad:</span>
-                    <div className="flex items-center gap-3 bg-neutral-900 rounded-xl p-1.5 border border-neutral-700">
-                      <button 
-                        onClick={() => changeSuggestedQty('papas', -1)}
-                        disabled={suggestedPapasQty === 0}
-                        className="w-8 h-8 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white transition-colors"
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className="text-lg font-bold w-8 text-center">{suggestedPapasQty}</span>
-                      <button 
-                        onClick={() => changeSuggestedQty('papas', 1)}
-                        disabled={suggestedPapasQty >= 10}
-                        className="w-8 h-8 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] disabled:opacity-30 disabled:cursor-not-allowed text-black rounded transition-colors"
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  {suggestedPapasQty > 0 && (
-                    <div className="text-right text-xs text-[#FCC900] font-bold">
-                      Subtotal: S/ {(suggestedGuarn.options?.[0]?.price * suggestedPapasQty).toFixed(2)}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Bebidas con cantidades separadas */}
+              <p className="text-sm text-neutral-300 font-semibold">Recomendaciones para completar tu pedido:</p>
               <div className="space-y-3">
-                <p className="text-sm text-neutral-300 font-semibold">Bebidas:</p>
-                
-                {/* Inka Cola */}
-                {suggestedInka && (
-                  <div className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-5 space-y-3">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-3xl">
-                        🟡
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-bold text-base">Inka Cola</p>
-                        <p className="text-neutral-400 text-xs mt-0.5">500ml helada · S/ {suggestedInka.options?.[0]?.price?.toFixed(2)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-neutral-400">Cantidad:</span>
-                      <div className="flex items-center gap-3 bg-neutral-900 rounded-xl p-1.5 border border-neutral-700">
-                        <button 
-                          onClick={() => changeSuggestedQty('inka', -1)}
-                          disabled={suggestedInkaQty === 0}
-                          className="w-8 h-8 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white transition-colors"
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <span className="text-lg font-bold w-8 text-center">{suggestedInkaQty}</span>
-                        <button 
-                          onClick={() => changeSuggestedQty('inka', 1)}
-                          disabled={suggestedInkaQty >= 10}
-                          className="w-8 h-8 flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-black rounded transition-colors"
-                        >
-                          <Plus size={16} />
-                        </button>
-                      </div>
-                    </div>
-                    {suggestedInkaQty > 0 && (
-                      <div className="text-right text-xs text-yellow-500 font-bold">
-                        Subtotal: S/ {(suggestedInka.options?.[0]?.price * suggestedInkaQty).toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                )}
+                {suggestionCards.map(({ type, item, badge, accent }) => {
+                  const qty = getSuggestedQty(type);
+                  const price = item?.options?.[0]?.price || 0;
+                  const subtotal = price * qty;
 
-                {/* Coca Cola */}
-                {suggestedCoca && (
-                  <div className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-5 space-y-3">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-3xl">
-                        🔴
+                  return (
+                    <div key={type} className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-4 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-900 border border-neutral-700 flex-shrink-0">
+                          {item?.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = "https://placehold.co/100x100/222/fcc900?text=BIG+JACK";
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full grid place-content-center text-xs text-neutral-400">Sin foto</div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`text-[10px] uppercase tracking-[0.2em] font-black ${accent}`}>{badge}</p>
+                          <p className="text-white font-bold text-base leading-tight truncate">{item?.name}</p>
+                          <p className="text-neutral-400 text-xs mt-0.5 line-clamp-2">{item?.options?.[0]?.label}</p>
+                          <p className="text-[#FCC900] text-xs font-black mt-1">S/ {price.toFixed(2)}</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-white font-bold text-base">Coca Cola</p>
-                        <p className="text-neutral-400 text-xs mt-0.5">500ml helada · S/ {suggestedCoca.options?.[0]?.price?.toFixed(2)}</p>
+
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-sm text-neutral-400">Cantidad:</span>
+                        <div className="flex items-center gap-3 bg-neutral-900 rounded-xl p-1.5 border border-neutral-700">
+                          <button
+                            onClick={() => changeSuggestedQty(type, -1)}
+                            disabled={qty === 0}
+                            className="w-8 h-8 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white transition-colors"
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <span className="text-lg font-bold w-8 text-center">{qty}</span>
+                          <button
+                            onClick={() => changeSuggestedQty(type, 1)}
+                            disabled={qty >= 10}
+                            className="w-8 h-8 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] disabled:opacity-30 disabled:cursor-not-allowed text-black rounded transition-colors"
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
                       </div>
+
+                      {qty > 0 && (
+                        <div className="text-right text-xs text-[#FCC900] font-bold">
+                          Subtotal: S/ {subtotal.toFixed(2)}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-neutral-400">Cantidad:</span>
-                      <div className="flex items-center gap-3 bg-neutral-900 rounded-xl p-1.5 border border-neutral-700">
-                        <button 
-                          onClick={() => changeSuggestedQty('coca', -1)}
-                          disabled={suggestedCocaQty === 0}
-                          className="w-8 h-8 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white transition-colors"
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <span className="text-lg font-bold w-8 text-center">{suggestedCocaQty}</span>
-                        <button 
-                          onClick={() => changeSuggestedQty('coca', 1)}
-                          disabled={suggestedCocaQty >= 10}
-                          className="w-8 h-8 flex items-center justify-center bg-red-500 hover:bg-red-400 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded transition-colors"
-                        >
-                          <Plus size={16} />
-                        </button>
-                      </div>
-                    </div>
-                    {suggestedCocaQty > 0 && (
-                      <div className="text-right text-xs text-red-500 font-bold">
-                        Subtotal: S/ {(suggestedCoca.options?.[0]?.price * suggestedCocaQty).toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                )}
+                  );
+                })}
               </div>
             </div>
 
