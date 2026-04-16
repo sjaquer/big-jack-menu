@@ -8,17 +8,17 @@ export const restaurantInfo = {
   // Horarios por día (0 = Domingo, 1 = Lunes, ..., 6 = Sábado)
   // Cada día define { open: "HH:MM", close: "HH:MM" } en horario local
   hours: {
-    0: { open: "17:00", close: "01:00" }, // Domingo
-    1: { open: "16:30", close: "23:00" }, // Lunes
-    2: { open: "16:30", close: "23:00" }, // Martes
-    3: { open: "16:30", close: "23:00" }, // Miércoles
-    4: { open: "16:30", close: "23:00" }, // Jueves
-    5: { open: "17:00", close: "01:00" }, // Viernes
-    6: { open: "17:00", close: "01:00" }, // Sábado
+    0: { open: "18:00", close: "01:00" }, // Domingo
+    1: { open: "18:00", close: "01:00" }, // Lunes
+    2: { open: "18:00", close: "01:00" }, // Martes
+    3: { open: "18:00", close: "01:00" }, // Miércoles
+    4: { open: "18:00", close: "01:00" }, // Jueves
+    5: { open: "18:00", close: "01:00" }, // Viernes
+    6: { open: "18:00", close: "01:00" }, // Sábado
   },
   logo: "/images/big-jack-logo.png", // opcional: coloca tu logo en public/images
   contact: {
-    whatsapp: "51970513912",
+    whatsapp: "51997722704",
     instagram: "@bigjackpe",
     tiktok: "https://www.tiktok.com/@bigjackpe",
     address: "Centro de Lima",
@@ -43,8 +43,8 @@ export const menuItems = [
     image: "/images/baconjack.webp",
     popular: true,
     options: [
-      { id: "simple", sku: "PRD-BIG-A0R4", label: "Clásica (1 carne) - la de siempre", price: 14.0 },
-      { id: "doble", sku: "PRD-BIG-BE7B", label: "Doble (2 carnes) - para llenarse", price: 22.0 }
+      { id: "simple", sku: "PRD-BIG-A0R4", label: "Clásica (1 carne) - la de siempre", price: 17.90 },
+      { id: "doble", sku: "PRD-BIG-BE7B", label: "Doble (2 carnes) - para llenarse", price: 22.90 }
     ]
   },
   {
@@ -57,8 +57,8 @@ export const menuItems = [
     image: "/images/royaljack.webp",
     popular: false,
     options: [
-      { id: "simple", sku: "BURG-003", label: "Clásica (1 carne) - para el antojo", price: 14.0 },
-      { id: "doble", sku: "BURG-004", label: "Doble (2 carnes) - full power", price: 22.0 }
+      { id: "simple", sku: "BURG-003", label: "Clásica (1 carne) - para el antojo", price: 15.90 },
+      { id: "doble", sku: "BURG-004", label: "Doble (2 carnes) - full power", price: 22.90 }
     ]
   },
   {
@@ -71,8 +71,8 @@ export const menuItems = [
     image: "/images/grilljack.webp",
     popular: false,
     options: [
-      { id: "simple", sku: "BURG-005", label: "Clásica (1 carne) - intensa", price: 16.0 },
-      { id: "doble", sku: "BURG-006", label: "Doble (2 carnes) - bestial", price: 24.0 }
+      { id: "simple", sku: "BURG-005", label: "Clásica (1 carne) - intensa", price: 17.90 },
+      { id: "doble", sku: "BURG-006", label: "Doble (2 carnes) - bestial", price: 22.90 }
     ]
   },
   {
@@ -85,8 +85,8 @@ export const menuItems = [
     image: "/images/jackpobre.webp",
     popular: false,
     options: [
-      { id: "simple", sku: "BURG-007", label: "Clásica (1 carne) - comfort", price: 14.0 },
-      { id: "doble", sku: "BURG-008", label: "Doble (2 carnes) - contundente", price: 22.0 }
+      { id: "simple", sku: "BURG-007", label: "Clásica (1 carne) - comfort", price: 16.90 },
+      { id: "doble", sku: "BURG-008", label: "Doble (2 carnes) - contundente", price: 22.90 }
     ]
   },
   {

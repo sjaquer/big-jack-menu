@@ -1,8 +1,6 @@
 "use client";
 import Head from "next/head";
 import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
 import {
@@ -23,7 +21,6 @@ import {
   Sparkles,
   Flame,
   Instagram,
-  Music2,
   MessageCircle,
   Clipboard,
   Check,
@@ -35,20 +32,31 @@ import { Suspense } from "react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
 import { buildCartItem, migrateLegacyCartItems, hasMissingSku } from "./lib/cartModel";
 import { buildOnlineOrderPayload, createOnlineOrder } from "./lib/onlineOrders";
-import ClientSearchParams from "./components/ClientSearchParams";
-import SecureMap from "./components/SecureMap";
-
-const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
-const COMPLEMENT_CATEGORIES = ["GUARNICION", "BEBIDAS"];
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://bigjack.vercel.app";
-const areaServed = "Centro de Lima, Peru";
+import ClientSearchParams from "./features/home/components/ClientSearchParams";
+import SecureMap from "./features/home/components/SecureMap";
+import {
+  AREA_SERVED,
+  COMPLEMENT_CATEGORIES,
+  DEFAULT_SITE_URL,
+  MARKETING_DESCRIPTION,
+  PEDIDOSYA_LINK,
+  PRIMARY_CATEGORIES,
+} from "./features/home/constants";
+import { enforceComplementRules } from "./features/home/cartRules";
+import {
+  buildFaqSchema,
+  buildMenuSections,
+  buildOpeningHoursSpecification,
+  buildRestaurantSchema,
+  getComputedPriceRange,
+  getHeroPriceRange,
+} from "./features/home/seo";
 
 export default function BigJackMenu() {
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("TODOS");
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const router = useRouter();
+  const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || DEFAULT_SITE_URL;
   
   // Estados para el Checkout
   const [orderType, setOrderType] = useState("pickup"); // 'pickup' | 'delivery'
@@ -98,7 +106,13 @@ export default function BigJackMenu() {
     try {
       const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
       if (Array.isArray(savedCart) && savedCart.length > 0) {
-        setCart(enforceComplementRules(migrateLegacyCartItems(savedCart, menuItems)));
+        setCart(
+          enforceComplementRules(
+            migrateLegacyCartItems(savedCart, menuItems),
+            PRIMARY_CATEGORIES,
+            COMPLEMENT_CATEGORIES
+          )
+        );
       }
       const pj = JSON.parse(localStorage.getItem("bj_preorder") || "false");
       if (pj) setIsPreOrder(true);
@@ -108,7 +122,7 @@ export default function BigJackMenu() {
       try {
         const latest = JSON.parse(localStorage.getItem("cart") || "[]");
         const migrated = migrateLegacyCartItems(Array.isArray(latest) ? latest : [], menuItems);
-        setCart(enforceComplementRules(migrated));
+        setCart(enforceComplementRules(migrated, PRIMARY_CATEGORIES, COMPLEMENT_CATEGORIES));
       } catch (e) {}
     };
 
@@ -164,224 +178,36 @@ export default function BigJackMenu() {
   }, [selectedCategory]);
 
   const heroHighlight = menuItems[0];
-  const heroPriceRangeRaw = heroHighlight?.options?.length
-    ? heroHighlight.options.reduce(
-        (acc, opt) => {
-          return [Math.min(acc[0], opt.price), Math.max(acc[1], opt.price)];
-        },
-        [Infinity, -Infinity]
-      )
-    : [0, 0];
-  const heroPriceRange = [
-    heroPriceRangeRaw[0] === Infinity ? 0 : heroPriceRangeRaw[0],
-    heroPriceRangeRaw[1] === -Infinity ? heroPriceRangeRaw[0] || 0 : heroPriceRangeRaw[1],
-  ];
+  const heroPriceRange = useMemo(() => getHeroPriceRange(menuItems), []);
 
-  const marketingDescription = "Potencia Honesta en Centro de Lima: carne, fuego y barrio. Cocina directa, tecnica y sin humo, con recojo rapido y delivery cercano.";
+  const marketingDescription = MARKETING_DESCRIPTION;
   const openingHoursSpecification = useMemo(
-    () =>
-      Object.entries(restaurantInfo.hours || {}).map(([day, hours]) => ({
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: DAY_NAMES[Number(day)] || "Monday",
-        opens: hours.open,
-        closes: hours.close,
-      })),
+    () => buildOpeningHoursSpecification(restaurantInfo.hours),
     []
   );
-
-  const priceValues = useMemo(
-    () =>
-      menuItems.flatMap((item) => {
-        if (item.options?.length) return item.options.map((opt) => opt.price);
-        if (item.price) return [item.price];
-        return [];
-      }),
-    []
-  );
-
-  const computedPriceRange = useMemo(() => {
-    if (!priceValues.length) return "S/ 0";
-    const min = Math.min(...priceValues);
-    const max = Math.max(...priceValues);
-    return `S/ ${min.toFixed(2)} - S/ ${max.toFixed(2)}`;
-  }, [priceValues]);
+  const computedPriceRange = useMemo(() => getComputedPriceRange(menuItems), []);
 
   const menuSections = useMemo(
-    () =>
-      categories
-        .map((cat) => ({
-          "@type": "MenuSection",
-          name: cat,
-          hasMenuItem: menuItems
-            .filter((item) => item.category === cat)
-            .map((item) => ({
-              "@type": "MenuItem",
-              name: item.name,
-              description: item.description,
-              image: item.image,
-              offers: (item.options || []).map((opt) => ({
-                "@type": "Offer",
-                name: opt.label,
-                price: opt.price,
-                priceCurrency: "PEN",
-                availability: "https://schema.org/InStock",
-              })),
-            })),
-        }))
-        .filter((section) => section.hasMenuItem.length > 0),
+    () => buildMenuSections(menuItems, categories),
     []
   );
 
   const restaurantSchema = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "Restaurant",
-      "@id": siteUrl,
-      name: restaurantInfo.name,
-      description: marketingDescription,
-      image: [
-        "/images/baconjack.webp",
-        "/images/royaljack.webp",
-        "/images/grilljack.webp",
-      ],
-      logo: restaurantInfo.logo,
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Centro de Lima",
-        addressLocality: "Centro de Lima",
-        addressRegion: "Lima",
-        addressCountry: "PE",
-        postalCode: "15046",
-      },
-      geo: {
-        "@type": "GeoCoordinates",
-        latitude: "-12.081387",
-        longitude: "-77.038263",
-      },
-      telephone: `+${restaurantInfo.contact.whatsapp}`,
-      url: siteUrl,
-      sameAs: [
-        `https://instagram.com/${restaurantInfo.contact.instagram.replace("@", "")}`,
-        restaurantInfo.contact.tiktok,
-        `https://wa.me/${restaurantInfo.contact.whatsapp}`,
-        restaurantInfo.contact.googleMapsLink,
-      ],
-      priceRange: computedPriceRange,
-      servesCuisine: ["Hamburguesas", "Fast Food", "Comida peruana casual"],
-      areaServed,
-      openingHoursSpecification,
-      hasMenu: {
-        "@type": "Menu",
-        hasMenuSection: menuSections,
-      },
-      paymentAccepted: ["Efectivo", "Yape", "Plin"],
-      acceptsReservations: false,
-      delivery: true,
-      takeaway: true,
-    }),
-    [openingHoursSpecification, menuSections, computedPriceRange]
+    () =>
+      buildRestaurantSchema({
+        restaurantInfo,
+        siteUrl,
+        marketingDescription,
+        computedPriceRange,
+        openingHoursSpecification,
+        menuSections,
+        areaServed: AREA_SERVED,
+      }),
+    [siteUrl, marketingDescription, computedPriceRange, openingHoursSpecification, menuSections]
   );
 
-  const faqSchema = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "¿Hacen smash burger?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "No hacemos smash. Usamos medallones gruesos estilo fast food de barrio con salsas propias.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "¿Tienen delivery en Centro de Lima?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Sí. Delivery rápido en zonas cercanas a Centro de Lima y recojo en tienda en 15-20 minutos.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "¿Qué medios de pago aceptan?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Aceptamos efectivo, Yape y Plin para pedidos directos.",
-          },
-        },
-      ],
-    }),
-    []
-  );
-
-  const socialLinks = [
-    {
-      id: "whatsapp",
-      label: "WhatsApp",
-      description: "Pide directo",
-      href: `https://wa.me/${restaurantInfo.contact.whatsapp}`,
-      icon: MessageCircle,
-      accent: "bg-green-500/20 border-green-500/40 text-green-300",
-    },
-    {
-      id: "instagram",
-      label: "Instagram",
-      description: "Historias y reels",
-      href: `https://instagram.com/${restaurantInfo.contact.instagram?.replace("@", "")}`,
-      icon: Instagram,
-      accent: "bg-pink-500/20 border-pink-500/40 text-pink-200",
-    },
-    {
-      id: "tiktok",
-      label: "TikTok",
-      description: "Clips diarios",
-      href: restaurantInfo.contact.tiktok,
-      icon: Music2,
-      accent: "bg-white/10 border-white/30 text-white",
-    },
-  ];
+  const faqSchema = useMemo(() => buildFaqSchema(), []);
   const deliveryAvailable = true;
-  const PEDIDOSYA_LINK = "https://www.pedidosya.com.pe/restaurantes/lima/big-jack-0c79d59d-90de-48bd-aa0d-3a5277f7da49-menu?origin=shop_list";
-  const fastTrackHighlights = [
-    {
-      title: "Sabor de barrio peruano",
-      desc: "Recetas propias con carne gruesa y salsas caseras para que se sienta el sabor criollo en cada bocado.",
-    },
-    {
-      title: "Ubicación céntrica en Centro de Lima",
-      desc: "A pasos de avenidas principales. Delivery cercano o recojo rápido en tienda.",
-    },
-    {
-      title: "Servicio cercano y honesto",
-      desc: "Somos un equipo chico con mirada grande: atención directa, tiempos claros y ganas de llevar nuestra propuesta a más barrios del Perú.",
-    },
-  ];
-
-  const heroInfoCards = [
-    {
-      id: "hours",
-      title: "Horario",
-      subtitle: "4:00 PM - 1:00 AM",
-      description: "Último pedido directo por WhatsApp.",
-      icon: Clock,
-    },
-    {
-      id: "pickup",
-      title: "Recojo express",
-      subtitle: "Centro de Lima",
-      description: "Listo en 15-20 min, llegas y lo entregamos caliente.",
-      icon: MapPin,
-    },
-    {
-      id: "delivery",
-      title: "Delivery cercano gratis",
-      subtitle: "Solo zonas cercanas a Centro de Lima",
-      description: "Te confirmamos por chat y lo llevamos sin recargo.",
-      icon: Truck,
-    },
-  ];
 
   // Sugerencias (primer complemento disponible por categoría)
   const suggestedGuarn = menuItems.find((it) => it.category === "GUARNICION");
@@ -405,13 +231,8 @@ export default function BigJackMenu() {
     return modalProduct.options?.find((opt) => opt.id === modalOptionId) || null;
   }, [modalProduct, modalOptionId]);
 
-  const enforceComplementRules = (items) => {
-    const containsPrimary = items.some((entry) =>
-      PRIMARY_CATEGORIES.includes(entry.category)
-    );
-    if (containsPrimary) return items;
-    return items.filter((entry) => !COMPLEMENT_CATEGORIES.includes(entry.category));
-  };
+  const applyComplementRules = (items) =>
+    enforceComplementRules(items, PRIMARY_CATEGORIES, COMPLEMENT_CATEGORIES);
 
   // Persistir carrito en localStorage cuando cambia
   useEffect(() => {
@@ -460,7 +281,7 @@ export default function BigJackMenu() {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === uniqueId);
       if (existing) {
-        return enforceComplementRules(
+        return applyComplementRules(
           prev.map((item) =>
           item.id === uniqueId
             ? {
@@ -472,7 +293,7 @@ export default function BigJackMenu() {
           )
         );
       }
-      return enforceComplementRules([
+      return applyComplementRules([
         ...prev,
         newItem,
       ]);
@@ -530,7 +351,7 @@ export default function BigJackMenu() {
 
   const updateQuantity = (id, delta) => {
     setCart((prev) =>
-      enforceComplementRules(
+      applyComplementRules(
         prev.map((item) => {
           if (item.id === id) {
             const newQuantity = Math.max(1, item.quantity + delta);
