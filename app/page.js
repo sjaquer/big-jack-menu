@@ -774,7 +774,7 @@ export default function BigJackMenu() {
             <div className="flex-1">
               <Link href="/" className="block">
                 <img 
-                  src="/images/bigjacktitle.webp" 
+                  src="/images/bigjacktitle.svg" 
                   alt={restaurantInfo.name} 
                   className="h-10 sm:h-12 w-auto object-contain hover:scale-105 transition-transform drop-shadow-[0_0_15px_rgba(252,201,0,0.35)]" 
                 />
@@ -870,174 +870,80 @@ export default function BigJackMenu() {
             </div>
           )}
 
-      {/* HERO EXPERIENCE - POTENCIA HONESTA */}
-      <section className="relative overflow-hidden border-b border-[#C0C0C0]/35 bg-[#1E1E1E]">
-        {/* Background Effects - Fuego y Potencia */}
-        {/* Radial gradient inferior derecho: amarillo potencia */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(252,201,0,0.22),_transparent_58%)]" />
-        {/* Radial gradient superior izquierdo: rojo fuego sutil */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(178,34,34,0.14),_transparent_55%)]" />
-        {/* Textura diagonal metallic/duro (vecino confiable) */}
-        <div className="absolute inset-0 opacity-[0.12]" style={{backgroundImage: "repeating-linear-gradient(45deg, rgba(192,192,192,0.15) 0px, rgba(192,192,192,0.15) 2px, transparent 2px, transparent 6px)"}} />
-        {/* Fade overlay fondo oscuro profundo */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/65 via-black/25 to-transparent" />
+      {/* HERO EXPERIENCE - REDISEÑADO PARA PEDIDOS RÁPIDOS */}
+      <section className="relative overflow-hidden bg-[#1E1E1E]">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(252,201,0,0.15),_transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(178,34,34,0.15),_transparent_50%)]" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
         
-        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-10 pb-12 md:py-20 grid gap-10 md:grid-cols-2 items-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 py-12 md:py-16 grid gap-8 md:grid-cols-2 items-center">
+          
           {/* Brand & Content */}
-          <div className="space-y-8 text-center md:text-left order-2 md:order-1">
+          <div className="space-y-6 text-center md:text-left order-2 md:order-1">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FCC900]/10 border border-[#FCC900]/25 text-[#FCC900] text-xs font-black uppercase tracking-widest mx-auto md:mx-0">
+              <Flame size={14} className="text-[#B22222]" />
+              Tu Vecino Confiable
+            </div>
             
-            {/* Logo Brand */}
-            <div className="relative w-64 h-32 mx-auto md:mx-0">
-              <div className="absolute inset-0 bg-[#FCC900] blur-[80px] opacity-20 rounded-full pointer-events-none"></div>
-               <Image 
-                 src="/images/bigjacklogotipo.webp" 
-                 alt="Big Jack Logo"
-                 fill
-                 className="object-contain drop-shadow-2xl"
-                 priority
-               />
-            </div>
+            <h1 className="font-anton text-6xl md:text-7xl lg:text-8xl leading-[0.85] text-white tracking-[-0.04em] uppercase drop-shadow-lg">
+              POTENCIA <br/>
+              <span className="text-[#FCC900]">HONESTA</span>
+            </h1>
+            
+            <p className="text-[#C0C0C0] text-base md:text-lg font-semibold max-w-md mx-auto md:mx-0 leading-snug">
+              Sin relleno corporativo. Solo carne gruesa, fuego y técnica. Hamburguesas reales que calman tu hambre, al toque.
+            </p>
 
-            <div className="space-y-4">
-              <h1 className="font-anton text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-white tracking-[-0.04em]">
-                POTENCIA <br/>
-                <span className="text-[#FCC900]">HONESTA</span>
-              </h1>
-              <p className="text-[#C0C0C0] text-sm sm:text-base font-semibold uppercase tracking-[0.12em]">
-                No vendemos humo. Vendemos carne, fuego y barrio.
-              </p>
-              <p className="text-neutral-200 text-lg font-semibold max-w-xl mx-auto md:mx-0 leading-snug">
-                Hamburguesa de barrio, directa y tecnica. Sin cuentos, sin poses: producto real, punto preciso y entrega rapida.
-              </p>
-              
-              {/* Status Pills */}
-              <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCC900]/10 border border-[#FCC900]/25 text-[#FCC900] text-xs font-bold uppercase tracking-wide">
-                  <Truck size={12} /> Delivery serio (zonas cercanas)
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B22222]/12 border border-[#B22222]/35 text-[#ffb4b4] text-xs font-bold uppercase tracking-wide">
-                  <Clock size={12} /> Recojo 15 min
-                </span>
-              </div>
-
-              <p className="text-[#C0C0C0] text-sm max-w-xl mx-auto md:mx-0">
-                Esta brava. Hacemos cocina de plancha para la calle: clara, potente y al grano.
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
+            {/* Quick Actions for UX */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
+              <button
+                onClick={scrollToMenu}
+                className="h-16 px-8 rounded-2xl bg-[#FCC900] hover:bg-[#e2b500] text-black font-black text-lg flex items-center justify-center gap-3 shadow-lg shadow-[#FCC900]/20 transition-all active:scale-95 hover:-translate-y-1"
+              >
+                <ShoppingCart size={24} /> 
+                HACER PEDIDO
+              </button>
               <a
                 href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
-                className="h-14 px-8 rounded-2xl bg-[#FCC900] hover:bg-[#e2b500] text-black font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-[#FCC900]/20 transition-all active:scale-95 hover:-translate-y-0.5"
+                className="h-16 px-8 rounded-2xl bg-[#2A2A2A] hover:bg-[#353535] text-white font-bold text-lg flex items-center justify-center gap-3 border border-[#C0C0C0]/35 transition-all active:scale-95 hover:-translate-y-1"
               >
-                <MessageCircle size={22} /> 
-                Pedir ahora
+                <MessageCircle size={22} className="text-green-500" /> 
+                Hablar por WhatsApp
               </a>
-              <button
-                onClick={scrollToMenu}
-                className="h-14 px-8 rounded-2xl bg-[#2A2A2A] hover:bg-[#353535] text-white font-bold text-lg flex items-center justify-center gap-2 border border-[#C0C0C0]/35 transition-all active:scale-95 hover:-translate-y-0.5"
-              >
-                <Flame size={22} className="text-[#B22222]" /> 
-                Ver carta
-              </button>
+            </div>
+
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-bold text-neutral-400 mt-6">
+              <span className="flex items-center gap-1.5 bg-neutral-800/50 px-3 py-1.5 rounded-full"><Truck size={14} className="text-[#FCC900]" /> Delivery local</span>
+              <span className="flex items-center gap-1.5 bg-neutral-800/50 px-3 py-1.5 rounded-full"><Clock size={14} className="text-[#FCC900]" /> Recojo en 15-20 min</span>
             </div>
           </div>
 
           {/* Hero Image */}
           <div className="relative order-1 md:order-2">
-            <div className="relative aspect-square md:aspect-[4/3] rounded-[1.8rem] overflow-hidden border-4 border-[#FCC900]/35 shadow-2xl shadow-black/40 group -rotate-1 hover:rotate-0 transition-all duration-500">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
+            <div className="relative aspect-square md:aspect-[4/3] rounded-[2rem] overflow-hidden border-4 border-[#FCC900]/30 shadow-2xl shadow-black/60 group">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 pointer-events-none" />
               {heroHighlight ? (
                 <img
                   src={heroHighlight.image}
                   alt="Hamburguesa real Big Jack"
-                  className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
                   onError={(e) => {
                     e.currentTarget.src = "https://placehold.co/600x600/222/yellow?text=BIG+JACK";
                   }}
                 />
               ) : (
                 <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
-                  <Flame size={48} className="text-neutral-700" />
+                  <Flame size={48} className="text-[#B22222]" />
                 </div>
               )}
 
-              <div className="absolute top-6 left-6 z-20 bg-black/65 border border-[#FCC900]/40 px-4 py-2 rounded-xl">
-                <p className="text-[11px] tracking-[0.2em] uppercase text-[#FCC900] font-black">Mostramos la grasa</p>
-              </div>
-              
-              {/* Floating Price Tag */}
-              <div className="absolute bottom-6 right-6 z-20 bg-[#FCC900] text-black px-6 py-3 rounded-2xl shadow-xl transform group-hover:scale-110 transition-transform border-2 border-black/25">
-                <p className="text-xs font-bold uppercase opacity-90 mb-0.5">Desde</p>
-                <p className="text-3xl font-black">S/ {heroPriceRange[0].toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden border-y border-[#C0C0C0]/25 bg-gradient-to-b from-[#191919] via-[#1E1E1E] to-[#1a1a1a]">
-        {/* Subtle fire accent lines */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#B22222]/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#FCC900]/20 to-transparent" />
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-10 md:py-16 grid md:grid-cols-[1.3fr_1.1fr] gap-8 items-start">
-          {/* Left Column: Identidad y Mision */}
-          <div className="space-y-6">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[#FCC900] font-black mb-3 flex items-center gap-2">
-                <Flame size={14} className="text-[#B22222]" /> Potencia Honesta
-              </p>
-              <h2 className="font-anton text-4xl sm:text-5xl tracking-[-0.03em] text-white leading-[0.95] mb-4">
-                Especialista audaz y confiable
-              </h2>
-              <p className="text-[#C0C0C0] text-base leading-relaxed">
-                Somos el vecino confiable que vos buscas. Autoridad fuerte y cercana que prioriza tu saciedad total por encima de exclusividades superficiales. Sin relleno corporativo, sin humo: solo carne, técnica y barrio.
-              </p>
-            </div>
-
-            <div className="space-y-3 pt-4 border-t border-[#C0C0C0]/15">
-              <div className="flex gap-3 items-start">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#B22222]/20 border border-[#B22222]/40 flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-[#B22222]" />
-                </div>
-                <div>
-                  <p className="text-white font-bold text-sm mb-1">Imágenes de alto impacto</p>
-                  <p className="text-[#999] text-xs">Texturas reales que generan antojo inmediato. Pulidas para marketing, comprometidas con la realidad técnica del producto.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 items-start">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FCC900]/20 border border-[#FCC900]/40 flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-[#FCC900]" />
-                </div>
-                <div>
-                  <p className="text-white font-bold text-sm mb-1">Lenguaje directo y casero</p>
-                  <p className="text-[#999] text-xs">Conectamos con jóvenes y adultos rechazando el relleno corporativo. Experiencia audaz, transparente y genuinamente satisfactoria.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Principios clave */}
-          <div className="rounded-2xl border border-[#C0C0C0]/20 bg-gradient-to-br from-[#242424] to-[#1a1a1a] p-6 md:p-8 backdrop-blur-sm space-y-5">
-            <p className="text-xs text-[#FCC900] uppercase tracking-[0.18em] font-black">Nuestras verdades</p>
-            
-            <div className="space-y-4">
-              <div className="pb-4 border-b border-[#C0C0C0]/10">
-                <p className="text-white font-black text-sm mb-1">🔥 Fuego y contundencia</p>
-                <p className="text-[#BBB] text-xs leading-snug">Hamburguesa que no deja duda. Técnica de plancha directa, clara y potente.</p>
-              </div>
-              <div className="pb-4 border-b border-[#C0C0C0]/10">
-                <p className="text-white font-black text-sm mb-1">⚡ Velocidad real</p>
-                <p className="text-[#BBB] text-xs leading-snug">Recojo en 15 min. Delivery serio en zonas cercanas. Sin esperas fantasma.</p>
-              </div>
-              <div>
-                <p className="text-white font-black text-sm mb-1">💪 Integridad total</p>
-                <p className="text-[#BBB] text-xs leading-snug">Cada producto es real. Especificaciones técnicas que no mentimos. Punto preciso.</p>
+              {/* Price Tag */}
+              <div className="absolute bottom-6 right-6 z-20 bg-[#FCC900] text-black px-6 py-3 rounded-2xl shadow-xl border-2 border-black/20">
+                <p className="text-xs font-black uppercase opacity-80 mb-0.5">Desde</p>
+                <p className="text-3xl font-black tracking-tighter">S/ {heroPriceRange[0].toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -1216,49 +1122,33 @@ export default function BigJackMenu() {
         </div>
       </main>
 
-      {/* FAST TRACK & MAPA (Moved to bottom) */}
-      <div className="bg-neutral-900 border-t border-neutral-800">
-        <section className="max-w-6xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            {/* Fast Track Info */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-black text-white flex items-center gap-2">
-                <Sparkles className="text-[#FCC900]" /> Experiencia Big Jack
+      {/* MAPA Y UBICACIÓN RÁPIDA */}
+      <div className="bg-[#1E1E1E] border-t-2 border-[#FCC900]/30 relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#FCC900]/50 to-transparent" />
+        <section className="max-w-6xl mx-auto px-4 py-12 md:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 items-center">
+            {/* Fast Info */}
+            <div className="space-y-6 text-center lg:text-left">
+              <h3 className="font-anton text-4xl sm:text-5xl text-white leading-tight uppercase tracking-tight">
+                ESTAMOS EN EL <span className="text-[#FCC900]">CENTRO</span>
               </h3>
-              <div className="grid gap-4">
-                {fastTrackHighlights.map((feature) => (
-                  <div
-                    key={feature.title}
-                    className="flex gap-4 p-4 rounded-2xl bg-neutral-800/50 border border-neutral-800"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#FCC900]/10 flex items-center justify-center text-[#FCC900] flex-shrink-0">
-                      <Check size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white">{feature.title}</h4>
-                      <p className="text-sm text-neutral-400 leading-relaxed">{feature.desc}</p>
-                    </div>
-                  </div>
-                ))}
+              <p className="text-[#C0C0C0] text-lg font-semibold max-w-md mx-auto lg:mx-0">
+                Recojo en tienda al toque o delivery rápido en zonas cercanas. 
+              </p>
+              <div className="flex flex-col gap-3 max-w-xs mx-auto lg:mx-0">
+                <a href={restaurantInfo.contact.googleMapsLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-[#FCC900] hover:bg-[#e2b500] text-black font-black px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95">
+                  <Navigation size={20} /> Ir con Google Maps
+                </a>
+                <a href={PEDIDOSYA_LINK} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-[#ea004b] hover:bg-[#d60044] text-white font-bold px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95">
+                  <span className="font-black text-xl leading-none">Pe</span> PedidosYa
+                </a>
               </div>
             </div>
 
             {/* Mapa */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-black text-white flex items-center gap-2">
-                <MapPin className="text-[#FCC900]" /> Encuéntranos
-              </h3>
-              <div className="rounded-2xl overflow-hidden border border-neutral-800 h-64 shadow-2xl">
-                <SecureMap />
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <a href={restaurantInfo.contact.googleMapsLink} target="_blank" rel="noreferrer" className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 bg-neutral-800 hover:bg-neutral-700 text-white font-bold px-4 py-3 rounded-xl transition-all border border-neutral-700">
-                  <Navigation size={18} /> Ir con Google Maps
-                </a>
-                <a href={PEDIDOSYA_LINK} target="_blank" rel="noreferrer" className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 bg-[#ea004b] hover:bg-[#d60044] text-white font-bold px-4 py-3 rounded-xl transition-all shadow-lg shadow-red-900/20">
-                  <span className="font-black">Pe</span> PedidosYa
-                </a>
-              </div>
+            <div className="rounded-[2rem] overflow-hidden border-4 border-neutral-800 h-[300px] lg:h-[400px] shadow-2xl relative group">
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
+              <SecureMap />
             </div>
           </div>
         </section>
@@ -1870,7 +1760,7 @@ export default function BigJackMenu() {
             <div className="space-y-5 lg:col-span-1">
               <div>
                 <img 
-                  src="/images/bigjacklogotipo.webp" 
+                  src="/images/bigjacklogotipo.svg" 
                   alt={restaurantInfo.name} 
                   className="h-16 w-auto object-contain mb-4 drop-shadow-[0_0_15px_rgba(252,201,0,0.24)]" 
                 />
