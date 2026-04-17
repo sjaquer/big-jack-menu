@@ -63,6 +63,23 @@ export async function POST(request) {
       body = { success: upstream.ok, message: rawText || "Respuesta sin JSON" };
     }
 
+    const isGenericUpstreamError =
+      upstream.status >= 500 &&
+      typeof body?.error === "string" &&
+      body.error.trim().toLowerCase() === "no se pudo registrar el pedido.";
+
+    if (isGenericUpstreamError) {
+      return NextResponse.json(
+        {
+          ...body,
+          error: "El ERP devolvio un error interno al registrar el pedido.",
+          upstreamStatus: upstream.status,
+          hint: "Revisa logs del ERP (modulo online-orders, creacion de venta, stock e inventario).",
+        },
+        { status: upstream.status }
+      );
+    }
+
     return NextResponse.json(body, { status: upstream.status });
   } catch (error) {
     if (error?.name === "AbortError") {
