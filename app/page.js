@@ -205,10 +205,10 @@ export default function BigJackMenu() {
   const faqSchema = useMemo(() => buildFaqSchema(), []);
   const deliveryAvailable = true;
 
-  // Sugerencias (primer complemento disponible por categoría)
-  const suggestedGuarn = menuItems.find((it) => it.category === "GUARNICION");
-  const suggestedInka = menuItems.find((it) => it.slug === "inka-cola");
-  const suggestedCoca = menuItems.find((it) => it.slug === "coca-cola");
+  // Sugerencias: solo productos activos para evitar agregar items no vendibles.
+  const suggestedGuarn = menuItems.find((it) => it.category === "GUARNICION" && it.available !== false);
+  const suggestedInka = menuItems.find((it) => it.slug === "inka-cola" && it.available !== false);
+  const suggestedCoca = menuItems.find((it) => it.slug === "coca-cola" && it.available !== false);
   const suggestionCards = useMemo(
     () =>
       [
@@ -254,6 +254,15 @@ export default function BigJackMenu() {
   const applyComplementRules = (items) =>
     enforceComplementRules(items, PRIMARY_CATEGORIES, COMPLEMENT_CATEGORIES);
 
+  const isProductAvailable = (product) => {
+    if (!product) return false;
+    const canonicalProduct = menuItems.find((entry) => entry.id === product.id);
+    if (!canonicalProduct) return false;
+    if (canonicalProduct.available === false) return false;
+    if (product.available === false) return false;
+    return true;
+  };
+
   // Persistir carrito en localStorage cuando cambia
   useEffect(() => {
     try {
@@ -267,6 +276,10 @@ export default function BigJackMenu() {
   }, [cart]);
 
   const openProductModal = (product, optionId) => {
+    if (!isProductAvailable(product)) {
+      alert("Este producto no esta disponible en este momento.");
+      return;
+    }
     const preferredOption =
       product.options?.find((opt) => opt.id === optionId) || product.options?.[0];
     setModalProduct(product);
@@ -290,9 +303,17 @@ export default function BigJackMenu() {
   const addToCart = (product, option, showSuggestion = true) => {
     // Si estamos fuera de horario, permitir agregar como pre-orden (solo para recojo)
     const addingAsPreorder = !isOpen;
-    if (!option) return;
-    if (product.available === false) {
-      alert("Este producto no está disponible en este momento.");
+    if (!option) {
+      alert("No encontramos una presentacion valida para este producto.");
+      return;
+    }
+    if (!isProductAvailable(product)) {
+      alert("Este producto no esta disponible en este momento.");
+      return;
+    }
+    const validOption = product.options?.find((opt) => opt.id === option.id) || product.options?.[0];
+    if (!validOption) {
+      alert("No encontramos una presentacion valida para este producto.");
       return;
     }
     const isComplementProduct = COMPLEMENT_CATEGORIES.includes(product.category);
@@ -300,8 +321,8 @@ export default function BigJackMenu() {
       alert("Para añadir acompañamientos primero agrega una hamburguesa.");
       return;
     }
-    const uniqueId = `${product.id}-${option.id || "default"}`;
-    const newItem = buildCartItem(product, option, 1);
+    const uniqueId = `${product.id}-${validOption.id || "default"}`;
+    const newItem = buildCartItem(product, validOption, 1);
     setCart((prev) => {
       const existing = prev.find((item) => item.id === uniqueId);
       if (existing) {
@@ -351,6 +372,10 @@ export default function BigJackMenu() {
   };
 
   const handleAddProduct = (product, optionId) => {
+    if (!isProductAvailable(product)) {
+      alert("Este producto no esta disponible en este momento.");
+      return;
+    }
     const option = product.options?.find((opt) => opt.id === optionId) || product.options?.[0];
     addToCart(product, option);
   };
