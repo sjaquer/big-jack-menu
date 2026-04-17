@@ -13,5 +13,6 @@ export const DAY_NAMES = [
 
 export const AREA_SERVED = "Centro de Lima, Peru";
 export const DEFAULT_SITE_URL = "https://bigjack.vercel.app";
-export const PEDIDOSYA_LINK = "https://www.pedidosya.com.pe/restaurantes/lima/big-jack-0c79d59d-90de-48bd-aa0d-3a5277f7da49-menu?origin=shop_list";
+export const PEDIDOSYA_LINK = "https://www.pedidosya.com.pe/restaurantes/lima/hamburguesas-bigjack-1256afaf-58b6-47bf-8798-54e46d82dc82-menu";
+export const RAPPI_LINK = "https://www.rappi.com.pe/restaurantes/delivery/72151-hamburguesas-big-jack?utm_source=app&utm_medium=deeplink&utm_campaign=share";
 export const MARKETING_DESCRIPTION = "Potencia Honesta en Centro de Lima: carne, fuego y barrio. Cocina directa, tecnica y sin humo, con recojo rapido y delivery cercano.";

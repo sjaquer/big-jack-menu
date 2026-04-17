@@ -5,19 +5,13 @@ import { useState, useMemo, useEffect } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
 import {
   ShoppingCart,
-  Trash2,
   Plus,
   Minus,
-  Send,
   X,
   MapPin,
   Clock,
-  AlertTriangle,
   Navigation,
   User,
-  CreditCard,
-  Banknote,
-  Smartphone,
   Sparkles,
   Flame,
   Instagram,
@@ -27,19 +21,22 @@ import {
   Truck,
   ArrowUpRight,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { Suspense } from "react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
-import { buildCartItem, migrateLegacyCartItems, hasMissingSku } from "./lib/cartModel";
-import { buildOnlineOrderPayload, createOnlineOrder } from "./lib/onlineOrders";
+import { buildCartItem, migrateLegacyCartItems } from "./lib/cartModel";
 import ClientSearchParams from "./features/home/components/ClientSearchParams";
 import SecureMap from "./features/home/components/SecureMap";
+import CartDrawer from "./features/home/components/CartDrawer";
+import { submitOnlineOrder } from "./features/home/checkout/submitOrder";
 import {
   AREA_SERVED,
   COMPLEMENT_CATEGORIES,
   DEFAULT_SITE_URL,
   MARKETING_DESCRIPTION,
   PEDIDOSYA_LINK,
+  RAPPI_LINK,
   PRIMARY_CATEGORIES,
 } from "./features/home/constants";
 import { enforceComplementRules } from "./features/home/cartRules";
@@ -63,8 +60,7 @@ export default function BigJackMenu() {
   const [customerName, setCustomerName] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryReference, setDeliveryReference] = useState("");
-  const [pickupTime, setPickupTime] = useState("now"); // 'now' | 'schedule'
-  const [scheduledTime, setScheduledTime] = useState("");
+  const [deliveryDetails, setDeliveryDetails] = useState("");
   const [locationLink, setLocationLink] = useState(""); // Link de Google Maps del usuario
   const [isLocating, setIsLocating] = useState(false);
   const [autoLocationAttempted, setAutoLocationAttempted] = useState(false);
@@ -96,8 +92,7 @@ export default function BigJackMenu() {
         setOrderType(persistedOrderType);
         setDeliveryAddress(saved.deliveryAddress || "");
         setDeliveryReference(saved.deliveryReference || "");
-        setPickupTime(saved.pickupTime || "now");
-        setScheduledTime(saved.scheduledTime || "");
+        setDeliveryDetails(saved.deliveryDetails || "");
         setPaymentMethod(saved.paymentMethod || "efectivo");
         setNotes(saved.notes || "");
       }
@@ -162,15 +157,14 @@ export default function BigJackMenu() {
         orderType,
         deliveryAddress,
         deliveryReference,
-        pickupTime,
-        scheduledTime,
+        deliveryDetails,
         paymentMethod,
         notes,
       };
       localStorage.setItem("bj_checkout", JSON.stringify(data));
     }, 400);
     return () => clearTimeout(timeout);
-  }, [customerName, orderType, deliveryAddress, deliveryReference, pickupTime, scheduledTime, paymentMethod, notes]);
+  }, [customerName, orderType, deliveryAddress, deliveryReference, deliveryDetails, paymentMethod, notes]);
 
 
   // Filtrar productos por categoría
@@ -297,6 +291,10 @@ export default function BigJackMenu() {
     // Si estamos fuera de horario, permitir agregar como pre-orden (solo para recojo)
     const addingAsPreorder = !isOpen;
     if (!option) return;
+    if (product.available === false) {
+      alert("Este producto no está disponible en este momento.");
+      return;
+    }
     const isComplementProduct = COMPLEMENT_CATEGORIES.includes(product.category);
     if (isComplementProduct && !hasPrimaryProduct) {
       alert("Para añadir acompañamientos primero agrega una hamburguesa.");
@@ -343,7 +341,6 @@ export default function BigJackMenu() {
     // Si estamos cerrados, marcar pre-orden y persistir
     if (addingAsPreorder) {
       setIsPreOrder(true);
-      setPickupTime("schedule"); // Forzar programación cuando está cerrado
       try { localStorage.setItem("bj_preorder", JSON.stringify(true)); } catch(e){}
       // also show the closed notice bar so user knows
       setClosedNoticeHidden(true);
@@ -522,79 +519,55 @@ export default function BigJackMenu() {
   }, [orderType, locationLink, autoLocationAttempted, isLocating]);
 
   const submitOrderToSystem = async () => {
-    if (cart.length === 0) return;
-
-    // Si es una pre-orden, solo permitir recojo en tienda
-    if (isPreOrder) {
-      if (orderType === "delivery") {
-        alert("Las pre-ordenes solo están disponibles para recojo en tienda. Cambia a 'Recojo' para continuar.");
-        return;
-      }
-    } else {
-      // Flujo normal: no permitir enviar si estamos cerrados.
-      if (!isOpen) {
-        alert("Estamos cerrados ahora. El envío de pedidos está deshabilitado hasta la próxima apertura.");
-        return;
-      }
-    }
-
-    if (!customerName.trim()) {
-      alert("Por favor ingresa tu nombre.");
-      return;
-    }
-    if (orderType === 'delivery' && paymentMethod === 'efectivo') {
-      alert('Para delivery solo aceptamos Yape o Plin. Por favor elige uno de esos métodos.');
-      return;
-    }
-    if (orderType === "delivery" && !deliveryAddress.trim() && !locationLink) {
-      alert("Por favor ingresa tu dirección o comparte tu ubicación.");
-      return;
-    }
-
-    const migratedCart = migrateLegacyCartItems(cart, menuItems);
-    if (hasMissingSku(migratedCart) || migratedCart.length !== cart.length) {
-      alert("Hay productos sin SKU válido. Actualiza el carrito para poder enviar el pedido.");
-      return;
-    }
-
-    // Validar hora programada de recojo (debe ser >= hora de apertura si está programado)
-    if (orderType === "pickup" && pickupTime === "schedule" && scheduledTime) {
-      const now = new Date();
-      const nextOpen = getNextOpenDate(now);
-      const scheduledDate = new Date(scheduledTime);
-      
-      if (nextOpen && scheduledDate < nextOpen) {
-        const openTimeStr = nextOpen.toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
-        alert(`La hora programada debe ser a partir de nuestra apertura (${openTimeStr}). Por favor ajusta la hora.`);
-        return;
-      }
-      
-      // Si estamos abiertos, validar que la hora programada sea futura
-      if (isOpen && scheduledDate <= now) {
-        alert("La hora programada debe ser en el futuro. Por favor selecciona una hora más tarde.");
-        return;
-      }
-    }
-
     try {
       setIsSubmittingOrder(true);
       setSubmitResult(null);
 
-      const payload = buildOnlineOrderPayload({
-        cart: migratedCart,
+      const { response, migratedCart } = await submitOnlineOrder({
+        cart,
+        orderType,
+        isPreOrder,
+        isOpen,
         customerName,
         paymentMethod,
-        notes,
-        orderType,
         deliveryAddress,
         deliveryReference,
-        pickupTime,
-        scheduledTime: pickupTime === "schedule" ? scheduledTime : "",
+        deliveryDetails,
         locationLink,
-        isPreOrder,
+        notes,
+        menuItems,
       });
 
-      const response = await createOnlineOrder(payload);
+      if (typeof window !== "undefined") {
+        const cartLines = migratedCart
+          .map((item) => `- ${item.quantity}x ${item.name} (${item.optionLabel})`)
+          .join("\n");
+        const orderMode = orderType === "delivery" ? "Delivery" : "Recojo";
+        const referenceText = [deliveryReference, deliveryDetails].filter(Boolean).join(" | ");
+        const addressBlock =
+          orderType === "delivery"
+            ? `\nDireccion: ${deliveryAddress || "No especificada"}\nReferencia: ${referenceText || "No especificada"}\nUbicacion GPS: ${locationLink || "No compartida"}`
+            : "";
+        const notesBlock = notes?.trim() ? `\nNota: ${notes.trim()}` : "";
+        const message = [
+          "Hola Big Jack, quiero confirmar este pedido:",
+          "",
+          cartLines,
+          "",
+          `Cliente: ${customerName}`,
+          `Tipo: ${orderMode}`,
+          `Pago: ${paymentMethod}`,
+          `Total web: S/ ${total.toFixed(2)}${orderType === "delivery" ? " (sin costo de envio)" : ""}`,
+          addressBlock,
+          notesBlock,
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+        const whatsappUrl = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      }
+
       setSubmitResult({
         type: "success",
         message: response?.duplicated
@@ -608,9 +581,11 @@ export default function BigJackMenu() {
       setIsPreOrder(false);
       setNotes("");
       setLocationLink("");
+      setDeliveryDetails("");
       localStorage.removeItem("cart");
       localStorage.removeItem("bj_preorder");
     } catch (error) {
+      alert(error?.message || "No se pudo enviar el pedido. Intenta nuevamente.");
       setSubmitResult({
         type: "error",
         message: error?.message || "No se pudo enviar el pedido. Intenta nuevamente.",
@@ -892,6 +867,8 @@ export default function BigJackMenu() {
             const isComplement = COMPLEMENT_CATEGORIES.includes(item.category);
             const isPrimary = PRIMARY_CATEGORIES.includes(item.category);
             const complementBlocked = isComplement && !hasPrimaryProduct;
+            const isUnavailable = item.available === false;
+            const isDisabled = complementBlocked || isUnavailable;
             const optionsToRender = item.options?.length
               ? item.options
               : [{ id: "regular", label: "Regular", price: item.price || 0 }];
@@ -902,6 +879,14 @@ export default function BigJackMenu() {
 
             return (
               <div key={item.id} className="group relative bg-[#1E1E1E] border-2 border-[#C0C0C0]/20 rounded-[2.5rem] overflow-hidden hover:border-[#FCC900]/50 transition-all duration-300 flex flex-col shadow-lg hover:shadow-2xl hover:shadow-[#FCC900]/10">
+                {/* No disponible badge */}
+                {isUnavailable && (
+                  <div className="absolute top-3 right-3 z-30 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 drop-shadow-lg">
+                    <AlertTriangle size={14} />
+                    No disponible
+                  </div>
+                )}
+
                 {/* Image Section - BIG & IMMERSIVE */}
                 <div className="relative block overflow-hidden bg-black flex-shrink-0 aspect-square sm:aspect-[4/3] w-full">
                   {item.image ? (
@@ -955,7 +940,12 @@ export default function BigJackMenu() {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => openProductModal(item)}
-                          className="flex-1 py-4 px-6 rounded-2xl bg-[#FCC900] text-black text-base font-black hover:bg-[#e2b500] transition-all active:scale-95 flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(252,201,0,0.15)] group-hover:shadow-[0_8px_20px_rgba(252,201,0,0.3)]"
+                          disabled={isUnavailable}
+                          className={`flex-1 py-4 px-6 rounded-2xl text-black text-base font-black flex items-center justify-center gap-2 transition-all active:scale-95 shadow-[0_5px_15px_rgba(252,201,0,0.15)] group-hover:shadow-[0_8px_20px_rgba(252,201,0,0.3)] ${
+                            isUnavailable
+                              ? "bg-neutral-500 text-neutral-700 cursor-not-allowed opacity-60"
+                              : "bg-[#FCC900] hover:bg-[#e2b500]"
+                          }`}
                         >
                           <Plus size={20} className="transition-transform group-hover:rotate-90" />
                           <span className="hidden sm:inline">Armar combo / Agregar</span>
@@ -977,16 +967,24 @@ export default function BigJackMenu() {
                             <button
                               key={option.id}
                               onClick={() => handleAddProduct(item, option.id)}
-                              disabled={complementBlocked}
+                              disabled={isDisabled}
                               className={`w-full py-4 px-5 rounded-2xl border-2 text-left transition-all flex items-center justify-between active:scale-95 shadow-sm hover:shadow-md ${
-                                isRecent
+                                isUnavailable
+                                  ? "border-red-500/30 bg-red-500/5 text-neutral-400 cursor-not-allowed opacity-50"
+                                  : isRecent
                                   ? "border-green-500 bg-green-500/10 text-green-400"
                                   : "border-[#C0C0C0]/15 bg-[#2A2A2A] text-white hover:border-[#FCC900]/50"
-                              } ${complementBlocked ? "opacity-50 cursor-not-allowed" : ""}`}
+                              } ${complementBlocked && !isUnavailable ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                               <span className="text-sm font-bold truncate mr-2">{option.label}</span>
-                              <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isRecent ? 'bg-green-500 text-white' : 'bg-black/40 text-white group-hover:bg-[#FCC900] group-hover:text-black'}`}>
-                                {isRecent ? <Check size={16} /> : <Plus size={16} />}
+                              <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+                                isUnavailable
+                                  ? "bg-red-500/20 text-red-400"
+                                  : isRecent
+                                  ? "bg-green-500 text-white"
+                                  : "bg-black/40 text-white group-hover:bg-[#FCC900] group-hover:text-black"
+                              }`}>
+                                {isUnavailable ? <AlertTriangle size={16} /> : isRecent ? <Check size={16} /> : <Plus size={16} />}
                               </div>
                             </button>
                           );
@@ -1020,6 +1018,9 @@ export default function BigJackMenu() {
                 </a>
                 <a href={PEDIDOSYA_LINK} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-[#ea004b] hover:bg-[#d60044] text-white font-bold px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95">
                   <span className="font-black text-xl leading-none">Pe</span> PedidosYa
+                </a>
+                <a href={RAPPI_LINK} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-[#ff441f] hover:bg-[#e13c1b] text-white font-bold px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95">
+                  <span className="font-black text-xl leading-none">R</span> Rappi
                 </a>
               </div>
             </div>
@@ -1123,517 +1124,44 @@ export default function BigJackMenu() {
         </div>
       )}
 
-      {/* MODAL CARRITO (Móvil y Desktop) */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Overlay */}
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
-            onClick={() => setIsCartOpen(false)}
-            aria-label="Cerrar carrito"
-          ></div>
-          
-          {/* Panel Lateral */}
-          <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl rounded-l-[32px] flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300 z-10">
-            <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
-              <h2 className="text-xl font-black flex items-center gap-2 text-white">
-                <ShoppingCart className="text-[#FCC900]" />
-                TU PEDIDO
-              </h2>
-              <button 
-                onClick={() => setIsCartOpen(false)}
-                className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent p-5 space-y-6">
-              {/* LISTA DE ITEMS */}
-              {cart.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-center space-y-6">
-                  <div className="space-y-2">
-                    <div className="w-20 h-20 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <ShoppingCart size={40} className="text-neutral-600" />
-                    </div>
-                    <p className="text-xl font-black text-white">Tu carrito está vacío</p>
-                    <p className="text-sm text-neutral-400 max-w-[200px] mx-auto">
-                      ¿No sabes qué pedir? Aquí tienes nuestros favoritos:
-                    </p>
-                  </div>
-                  
-                  <div className="w-full space-y-3">
-                    {menuItems.filter(i => i.popular).slice(0, 2).map(item => (
-                      <button
-                        key={item.id}
-                        onClick={() => openProductModal(item)}
-                        className="w-full flex items-center gap-4 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 hover:border-[#FCC900]/50 p-3 rounded-2xl transition-all group text-left"
-                      >
-                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-700 flex-shrink-0 border border-neutral-600">
-                          <img 
-                            src={item.image} 
-                            alt={item.name} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {e.target.src = "https://placehold.co/100x100/222/d99133?text=BJ"}}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-white group-hover:text-[#FCC900] transition-colors truncate">{item.name}</p>
-                          <p className="text-xs text-neutral-400 line-clamp-1">{item.description}</p>
-                          <p className="text-[#FCC900] font-black text-sm mt-1">S/ {item.options?.[0]?.price.toFixed(2)}</p>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-[#FCC900] text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 shadow-lg shadow-[#FCC900]/20">
-                          <Plus size={18} />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex gap-4 bg-neutral-800/50 p-3 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-colors">
-                      <div className="w-16 h-16 bg-neutral-700 rounded-xl overflow-hidden flex-shrink-0 border border-neutral-700">
-                         <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {e.target.src = "https://placehold.co/100x100/222/d99133?text=BJ"}}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm mb-1 text-white truncate">{item.name}</h4>
-                        <p className="text-xs text-neutral-400 mb-2">{item.optionLabel}</p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-[#FCC900] font-black text-sm">S/ {(item.price * item.quantity).toFixed(2)}</p>
-                          <div className="flex items-center gap-3 bg-neutral-900 rounded-lg p-1 border border-neutral-800">
-                            <button 
-                              onClick={() => updateQuantity(item.id, -1)}
-                              className="w-6 h-6 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 rounded text-white transition-colors"
-                            >
-                              <Minus size={14} />
-                            </button>
-                            <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
-                            <button 
-                              onClick={() => updateQuantity(item.id, 1)}
-                              className="w-6 h-6 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] text-black rounded transition-colors"
-                            >
-                              <Plus size={14} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-neutral-500 hover:text-red-500 self-start p-1 transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* FORMULARIO DE CHECKOUT RE-DISEÑADO */}
-              {cart.length > 0 && (
-                <div className="space-y-6">
-                  {/* Paso 1: Datos Básicos */}
-                  <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#FCC900] flex items-center gap-2"><User size={20} /> Paso 1 · Tu nombre</h3>
-                      <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 1</span>
-                    </div>
-                    <div className="grid gap-5">
-                      <div>
-                        <label className="block text-sm font-semibold text-white mb-2">Tu nombre completo</label>
-                        <div className="relative">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
-                          <input
-                            value={customerName}
-                            onChange={(e)=>setCustomerName(e.target.value)}
-                            placeholder="Ej: Juan Pérez García"
-                            className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-2xl py-4 pl-12 pr-4 text-base focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-white mb-3">¿Cómo recibes tu pedido?</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <button
-                            type="button"
-                            onClick={()=>handleSelectOrderType("pickup")}
-                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${orderType==='pickup'? 'bg-[#FCC900] text-black border-[#FCC900] shadow-lg':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
-                          >
-                            <span className={`w-14 h-14 rounded-full border-2 flex items-center justify-center ${orderType==='pickup' ? 'border-black/20 bg-black/10 text-black' : 'border-neutral-700 bg-neutral-900 text-white'}`}>
-                              <Clock size={26} />
-                            </span>
-                            <span className="text-lg font-black">Recojo en local</span>
-                            <span className={`text-xs font-semibold ${orderType==='pickup' ? 'text-black/70' : 'text-neutral-300'}`}>Listo en 15-20 minutos</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={()=>handleSelectOrderType("delivery")}
-                            className={`min-h-[120px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-6 text-center transition-all ${deliveryAvailable && orderType==='delivery'? 'bg-[#FCC900] text-black border-[#FCC900] shadow-lg':'bg-neutral-950 border-neutral-800 text-neutral-200 hover:border-neutral-500'}`}
-                          >
-                            <span className={`w-14 h-14 rounded-full border-2 flex items-center justify-center ${deliveryAvailable && orderType==='delivery' ? 'border-black/20 bg-black/10 text-black' : 'border-neutral-700 bg-neutral-900 text-white'}`}>
-                              <Truck size={26} />
-                            </span>
-                            <span className="text-lg font-black">Delivery por inDrive</span>
-                            <span className={`text-xs font-semibold ${deliveryAvailable && orderType==='delivery' ? 'text-black/70' : 'text-neutral-400'}`}>Coordinamos el viaje y te mandamos el link</span>
-                            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Costo variable por zona y horario</span>
-                          </button>
-                        </div>
-                        <p className="text-[11px] text-neutral-400 mt-3 flex items-start gap-2">
-                          <Truck size={14} className="text-[#FCC900] flex-shrink-0 mt-0.5" />
-                          <span>El delivery se coordina con inDrive. La tarifa la define la app según distancia, tráfico y hora. Si estás fuera de cobertura, te guiamos a PedidosYa.</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Paso 2: Condicional según tipo */}
-                  <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#FCC900] flex items-center gap-2">
-                        {orderType==='delivery' ? <MapPin size={20} /> : <Clock size={20} />} 
-                        {orderType==='delivery' ? 'Paso 2 · Entrega' : 'Paso 2 · Recojo'}
-                      </h3>
-                      <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 2</span>
-                    </div>
-                    
-                    {orderType==='delivery' ? (
-                      <div className="space-y-4">
-                        <div className="bg-green-500/10 border-2 border-green-500/30 rounded-xl p-4 text-sm text-green-200 font-semibold flex items-start gap-2">
-                          <Truck size={18} className="flex-shrink-0" />
-                          <span>Tu delivery se coordina en inDrive. El costo es variable según ubicación y horario, y te enviamos el enlace por WhatsApp.</span>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-white mb-2">Dirección</label>
-                          <div className="relative">
-                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
-                            <input
-                              value={deliveryAddress}
-                              onChange={(e)=>setDeliveryAddress(e.target.value)}
-                              placeholder="Calle y número"
-                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-white mb-2">Referencia</label>
-                          <div className="relative">
-                            <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
-                            <input
-                              value={deliveryReference}
-                              onChange={(e)=>setDeliveryReference(e.target.value)}
-                              placeholder="Ej: Frente al parque"
-                              className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <div className="bg-blue-600/10 border-2 border-blue-500/30 rounded-xl p-4 text-sm text-blue-200 font-semibold flex items-start gap-2">
-                            <MapPin size={18} className="flex-shrink-0" />
-                            <span>Comparte tu ubicación (Google Maps). Si eliges delivery, intentamos detectarla automáticamente para coordinar más rápido por inDrive.</span>
-                          </div>
-
-                          <button 
-                            type="button"
-                            onClick={() => getUserLocation()} 
-                            className={`w-full min-h-[140px] rounded-2xl border-3 flex flex-col items-center justify-center gap-4 px-8 text-center transition-all shadow-xl ${locationLink ? 'bg-green-600/20 border-green-500 text-white' : 'bg-[#4285F4] border-[#4285F4] text-white hover:bg-[#3367D6] active:scale-[0.98]'}`}
-                          >
-                            <span className={`w-16 h-16 rounded-full flex items-center justify-center ${locationLink ? 'bg-green-500 text-white' : 'bg-white/20 backdrop-blur-sm'}`}>
-                              {isLocating ? <Loader2 size={32} className="animate-spin" /> : <MapPin size={32} strokeWidth={2.5} />}
-                            </span>
-                            <div className="space-y-1">
-                              <span className="text-xl font-black leading-tight block">
-                                {locationLink ? '✓ Ubicación lista' : isLocating ? 'Detectando ubicación...' : 'Compartir mi ubicación'}
-                              </span>
-                              <span className="text-sm opacity-90 font-semibold block">
-                                {locationLink ? 'Se enviará para coordinar inDrive' : isLocating ? 'Acepta permisos del navegador' : 'Presiona para activar GPS'}
-                              </span>
-                            </div>
-                          </button>
-
-                          {locationLink && (
-                            <div className="bg-green-600/10 border-2 border-green-500/30 rounded-xl p-4 space-y-2 animate-in fade-in">
-                              <p className="text-sm text-green-200 font-bold flex items-center gap-2">
-                                <Check size={18} className="text-green-400" />
-                                Tu ubicación está lista
-                              </p>
-                              <p className="text-xs text-green-300/80 leading-relaxed break-all">
-                                {locationLink}
-                              </p>
-                              <button
-                                type="button"
-                                onClick={() => setLocationLink("")}
-                                className="text-xs text-green-200 hover:text-white underline font-semibold"
-                              >
-                                Cambiar ubicación
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="bg-neutral-900/80 border border-neutral-700 rounded-xl p-5 space-y-3">
-                          <p className="text-base font-bold text-white flex items-center gap-2">
-                            <Sparkles size={18} className="text-[#FCC900]" />
-                            Sobre el delivery por inDrive
-                          </p>
-                          <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-300 leading-relaxed">
-                            <li className="pl-2">Elegimos al conductor mediante <span className="font-bold text-white">inDrive</span> cuando confirmes el pedido.</li>
-                            <li className="pl-2">La tarifa de envío es <span className="font-bold text-white">variable</span> y depende de zona, tráfico y hora.</li>
-                            <li className="pl-2">Si compartes ubicación GPS, coordinamos más rápido y con menos errores de ruta.</li>
-                          </ol>
-                          <div className="bg-neutral-800/60 rounded-lg p-3 mt-3">
-                            <p className="text-xs text-neutral-400 leading-relaxed">
-                              <span className="font-semibold text-neutral-300">Tip:</span> Si no quieres activar GPS, también puedes escribir dirección y referencia manualmente.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="bg-[#ea004b]/10 border border-[#ea004b]/30 rounded-xl p-4 text-xs text-[#ff80aa] space-y-2">
-                          <p className="text-sm font-semibold flex items-center gap-2">
-                            <Send size={16} className="text-[#ff99bb]" />
-                            ¿Fuera de la zona de inDrive?
-                          </p>
-                          <p>Si estás lejos de Centro de Lima puedes hacer tu pedido por PedidosYa y llegará igual de rápido.</p>
-                          <a
-                            href={PEDIDOSYA_LINK}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ea004b] hover:bg-[#d60044] text-white font-semibold transition-all w-full justify-center"
-                          >
-                            Abrir PedidosYa
-                            <ArrowUpRight size={14} />
-                          </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-white mb-3">¿Cuándo lo recoges?</label>
-                        {!isOpen && isPreOrder ? (
-                          <div className="bg-[#FCC900]/10 border-2 border-[#FCC900]/30 rounded-xl p-4 mb-3">
-                            <p className="text-[#FCC900] text-sm font-semibold flex items-center gap-2">
-                              <AlertTriangle size={18} />
-                              Estamos cerrados. Solo puedes programar tu pedido.
-                            </p>
-                          </div>
-                        ) : null}
-                        <div className="grid grid-cols-1 gap-3">
-                          <button
-                              type="button"
-                              onClick={()=>setPickupTime("now")}
-                              disabled={!isOpen && isPreOrder}
-                              className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${
-                                !isOpen && isPreOrder 
-                                  ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed opacity-50'
-                                  : pickupTime==='now'
-                                    ? 'bg-[#FCC900] text-black border-[#FCC900]'
-                                    : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'
-                              }`}
-                              >
-                                <Clock size={20} />
-                                Ahora mismo (15-20 min)
-                              </button>
-                              <button
-                                type="button"
-                                onClick={()=>setPickupTime("schedule")}
-                                className={`min-h-[60px] px-4 rounded-2xl text-base font-bold border-2 flex items-center justify-center gap-3 transition-all ${pickupTime==='schedule'? 'bg-[#FCC900] text-black border-[#FCC900]':'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
-                              >
-                                <Clock size={20} />
-                                Programar hora
-                              </button>
-                          </div>
-                        </div>                        {pickupTime==='schedule' && (
-                          <div className="animate-in slide-in-from-top-2 duration-200">
-                            <label className="block text-sm text-neutral-300 mb-3">
-                              Selecciona una hora {!isOpen && '(a partir de la apertura)'}
-                            </label>
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                              {/* Generar slots de tiempo: desde apertura si estamos cerrados, o desde ahora si estamos abiertos */}
-                              {(() => {
-                                const slots = [];
-                                let startTime = new Date();
-                                
-                                // Si estamos cerrados, comenzar desde la próxima apertura
-                                if (!isOpen) {
-                                  const nextOpen = getNextOpenDate(new Date());
-                                  if (nextOpen) {
-                                    startTime = new Date(nextOpen);
-                                  }
-                                } else {
-                                  // Si estamos abiertos, comenzar desde ahora + 15 min redondeado
-                                  const remainder = 15 - (startTime.getMinutes() % 15);
-                                  startTime.setMinutes(startTime.getMinutes() + remainder);
-                                }
-                                
-                                // Generar 6 slots de 15 minutos
-                                for(let i=0; i<6; i++) {
-                                  const dateStr = startTime.toISOString().slice(0, 16); // formato datetime-local
-                                  const displayStr = startTime.toLocaleString('es-PE', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                  });
-                                  slots.push({ value: dateStr, label: displayStr });
-                                  startTime.setMinutes(startTime.getMinutes() + 15);
-                                }
-                                
-                                return slots.map(slot => (
-                                  <button
-                                    type="button"
-                                    key={slot.value}
-                                    onClick={()=>setScheduledTime(slot.value)}
-                                    className={`min-h-[56px] rounded-xl text-sm font-bold border-2 transition-all ${scheduledTime===slot.value ? 'bg-[#FCC900] text-black border-[#FCC900]' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'}`}
-                                  >
-                                    {slot.label}
-                                  </button>
-                                ));
-                              })()}
-                            </div>
-                            <div className="relative">
-                               <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
-                               <input
-                                type="datetime-local"
-                                value={scheduledTime}
-                                min={(() => {
-                                  // Establecer mínimo: hora de apertura si cerrado, o ahora si abierto
-                                  if (!isOpen) {
-                                    const nextOpen = getNextOpenDate(new Date());
-                                    return nextOpen ? nextOpen.toISOString().slice(0, 16) : undefined;
-                                  }
-                                  const now = new Date();
-                                  now.setMinutes(now.getMinutes() + 15);
-                                  return now.toISOString().slice(0, 16);
-                                })()}
-                                onChange={(e)=>setScheduledTime(e.target.value)}
-                                className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-4 pl-12 pr-4 text-base font-semibold focus:border-[#FCC900] outline-none text-white"
-                              />
-                            </div>
-                            <p className="text-xs text-neutral-400 mt-2 text-center">O elige una fecha y hora personalizada</p>
-                          </div>
-                        )}
-                        
-                        {pickupTime==='now' && (
-                          <div className="bg-[#FCC900]/10 border-2 border-[#FCC900]/30 rounded-xl p-4 text-sm text-[#FCC900] font-semibold flex gap-3 items-center animate-in fade-in">
-                            <Clock size={18} /> Prepararemos tu pedido en aprox. 15-20 minutos
-                          </div>
-                        )}
-                        
-                        <a
-                          href={restaurantInfo.contact.googleMapsLink}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-full min-h-[56px] bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-colors border-2 border-neutral-700"
-                        >
-                          <Navigation size={18} /> Ver ubicación del local
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Paso 3: Pago */}
-                  <div className="bg-neutral-800/60 rounded-2xl border-2 border-neutral-700 p-6 space-y-5 animate-in fade-in">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold text-[#FCC900] flex items-center gap-2"><CreditCard size={20} /> Paso 3 · Pago</h3>
-                      <span className="text-xs px-3 py-1.5 bg-neutral-700 rounded-full font-semibold">Paso 3</span>
-                    </div>
-                    <div className="grid gap-5">
-                      {orderType==='delivery' && (
-                        <div className="bg-yellow-600/10 border-2 border-yellow-600/30 rounded-xl p-3 text-xs text-yellow-200 font-semibold">
-                          Para delivery: paga con <span className="font-bold">Yape</span> o <span className="font-bold">Plin</span>.
-                        </div>
-                      )}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {[
-                          {id: 'efectivo', label: 'Efectivo', icon: Banknote},
-                          {id: 'yape', label: 'Yape', icon: Smartphone},
-                          {id: 'plin', label: 'Plin', icon: Smartphone},
-                        ].map(m => {
-                          const isCashDisabled = orderType==='delivery' && m.id==='efectivo';
-                          const disabled = m.disabled || isCashDisabled;
-                          const isActive = paymentMethod===m.id && !disabled;
-                          return (
-                            <button
-                              type="button"
-                              key={m.id}
-                              onClick={() => { if (!disabled) setPaymentMethod(m.id); }}
-                              disabled={disabled}
-                              aria-disabled={disabled ? 'true' : 'false'}
-                              className={`min-h-[96px] rounded-2xl text-base font-bold border-2 flex flex-col items-center justify-center gap-2 px-4 text-center transition-all ${isActive ? 'bg-[#FCC900] text-black border-[#FCC900] shadow-lg' : 'bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                              <span className={`w-12 h-12 rounded-full flex items-center justify-center ${isActive ? 'bg-black/10 text-black' : 'bg-neutral-900 text-white border border-neutral-700'}`}>
-                                <m.icon size={22} />
-                              </span>
-                              <span>{m.label}</span>
-                              {isCashDisabled && <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">No disponible en delivery</span>}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-white mb-2">Instrucciones especiales (Opcional)</label>
-                        <textarea
-                          value={notes}
-                          onChange={(e)=>setNotes(e.target.value)}
-                          rows={3}
-                          placeholder="Ej: Sin cebolla, sin mayonesa, entregar en portería..."
-                          className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl p-4 text-base focus:border-[#FCC900] outline-none resize-none text-white placeholder:text-neutral-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t-2 border-neutral-800 bg-neutral-900">
-              {cart.length > 0 && (
-                <button
-                  onClick={clearCart}
-                  className="w-full mb-4 min-h-[48px] bg-red-600/20 hover:bg-red-600/30 border-2 border-red-600/40 hover:border-red-500 text-red-400 hover:text-red-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]"
-                >
-                  <Trash2 size={18} />
-                  Vaciar carrito
-                </button>
-              )}
-              <div className="flex justify-between items-center mb-5 text-xl font-bold">
-                <span className="text-white">Total</span>
-                <span className="text-[#FCC900] text-3xl">S/ {total.toFixed(2)}</span>
-              </div>
-              {orderType === "delivery" && (
-                <div className="mb-4 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 text-xs text-blue-100">
-                  El costo de delivery se coordina con inDrive y puede variar según ubicación, tráfico y hora. Este total no incluye ese envío.
-                </div>
-              )}
-              <button
-                onClick={submitOrderToSystem}
-                disabled={cart.length === 0 || isSubmittingOrder}
-                className="w-full min-h-[68px] bg-green-600 hover:bg-green-500 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-3 text-lg shadow-xl shadow-green-900/30 active:scale-[0.98]"
-              >
-                {isSubmittingOrder ? <Loader2 size={22} className="animate-spin" /> : <Send size={22} />}
-                {isSubmittingOrder ? "ENVIANDO PEDIDO..." : "ENVIAR PEDIDO AL SISTEMA"}
-              </button>
-              {submitResult && (
-                <div
-                  className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
-                    submitResult.type === "success"
-                      ? "border-green-500/40 bg-green-500/10 text-green-200"
-                      : "border-red-500/40 bg-red-500/10 text-red-200"
-                  }`}
-                >
-                  <p className="font-semibold">{submitResult.message}</p>
-                  {submitResult.orderId && <p className="mt-1">OrderId: {submitResult.orderId}</p>}
-                  {submitResult.saleId && <p className="mt-1">SaleId: {submitResult.saleId}</p>}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <CartDrawer
+        isCartOpen={isCartOpen}
+        setIsCartOpen={setIsCartOpen}
+        cart={cart}
+        menuItems={menuItems}
+        openProductModal={openProductModal}
+        updateQuantity={updateQuantity}
+        removeFromCart={removeFromCart}
+        orderType={orderType}
+        handleSelectOrderType={handleSelectOrderType}
+        deliveryAvailable={deliveryAvailable}
+        customerName={customerName}
+        setCustomerName={setCustomerName}
+        deliveryAddress={deliveryAddress}
+        setDeliveryAddress={setDeliveryAddress}
+        deliveryReference={deliveryReference}
+        setDeliveryReference={setDeliveryReference}
+        deliveryDetails={deliveryDetails}
+        setDeliveryDetails={setDeliveryDetails}
+        locationLink={locationLink}
+        isLocating={isLocating}
+        getUserLocation={getUserLocation}
+        setLocationLink={setLocationLink}
+        isOpen={isOpen}
+        isPreOrder={isPreOrder}
+        restaurantInfo={restaurantInfo}
+        PEDIDOSYA_LINK={PEDIDOSYA_LINK}
+        RAPPI_LINK={RAPPI_LINK}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        notes={notes}
+        setNotes={setNotes}
+        clearCart={clearCart}
+        total={total}
+        submitOrderToSystem={submitOrderToSystem}
+        isSubmittingOrder={isSubmittingOrder}
+        submitResult={submitResult}
+      />
 
       {/* Footer Mejorado */}
       <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-[#FCC900]/30">
