@@ -2,26 +2,23 @@ import { NextResponse } from "next/server";
 
 const REQUEST_TIMEOUT_MS = 15000;
 const DEFAULT_ERP_BASE_URL = "https://bigjack-rp.vercel.app";
+const DEFAULT_WEBHOOK_PATH = "/api/webhooks/orders";
 
-function getUpstreamUrl() {
+function getWebhookUrl() {
+  const directUrl = process.env.WEBHOOK_ORDERS_URL;
+  if (directUrl) return directUrl;
+
   const baseUrl = process.env.ERP_BASE_URL || DEFAULT_ERP_BASE_URL;
-  return `${baseUrl.replace(/\/$/, "")}/api/online-orders`;
+  return `${baseUrl.replace(/\/$/, "")}${DEFAULT_WEBHOOK_PATH}`;
 }
 
-function getApiKey() {
-  return process.env.ERP_ONLINE_ORDERS_KEY || process.env.ONLINE_ORDERS_API_KEY || null;
+function getWebhookSecret() {
+  return process.env.WEBHOOK_MENU_SECRET || null;
 }
 
 export async function POST(request) {
-  const upstreamUrl = getUpstreamUrl();
-  const apiKey = getApiKey();
-
-  if (!apiKey) {
-    return NextResponse.json(
-      { success: false, error: "Falta configurar ERP_ONLINE_ORDERS_KEY u ONLINE_ORDERS_API_KEY." },
-      { status: 500 }
-    );
-  }
+  const upstreamUrl = getWebhookUrl();
+  const webhookSecret = getWebhookSecret();
 
   let payload;
   try {
@@ -40,16 +37,38 @@ export async function POST(request) {
     );
   }
 
+  if (!payload?.eventId || typeof payload.eventId !== "string") {
+    return NextResponse.json(
+      { success: false, error: "El pedido debe incluir eventId para idempotencia." },
+      { status: 400 }
+    );
+  }
+
+  const hasInvalidItem = payload.items.some(
+    (item) => !item?.sku || !Number.isFinite(Number(item.quantity)) || Number(item.quantity) <= 0
+  );
+  if (hasInvalidItem) {
+    return NextResponse.json(
+      { success: false, error: "Todos los items deben incluir sku y quantity mayor a 0." },
+      { status: 400 }
+    );
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (webhookSecret) {
+      headers["x-webhook-secret"] = webhookSecret;
+    }
+
     const upstream = await fetch(upstreamUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-online-orders-key": apiKey,
-      },
+      headers,
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
@@ -63,34 +82,17 @@ export async function POST(request) {
       body = { success: upstream.ok, message: rawText || "Respuesta sin JSON" };
     }
 
-    const isGenericUpstreamError =
-      upstream.status >= 500 &&
-      typeof body?.error === "string" &&
-      body.error.trim().toLowerCase() === "no se pudo registrar el pedido.";
-
-    if (isGenericUpstreamError) {
-      return NextResponse.json(
-        {
-          ...body,
-          error: "El ERP devolvio un error interno al registrar el pedido.",
-          upstreamStatus: upstream.status,
-          hint: "Revisa logs del ERP (modulo online-orders, creacion de venta, stock e inventario).",
-        },
-        { status: upstream.status }
-      );
-    }
-
     return NextResponse.json(body, { status: upstream.status });
   } catch (error) {
     if (error?.name === "AbortError") {
       return NextResponse.json(
-        { success: false, error: "Tiempo de espera agotado al conectar con el ERP." },
+        { success: false, error: "Tiempo de espera agotado al conectar con el webhook." },
         { status: 504 }
       );
     }
 
     return NextResponse.json(
-      { success: false, error: "No se pudo conectar con el ERP de pedidos." },
+      { success: false, error: "No se pudo conectar con el webhook de pedidos." },
       { status: 502 }
     );
   } finally {

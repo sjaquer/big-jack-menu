@@ -1,4 +1,8 @@
-# Integracion API de Pedidos Online
+# Integracion API de Pedidos Online (DEPRECADO)
+
+> Este documento queda solo como referencia historica.
+>
+> Usa `webhook-pedidos.md` para la integracion vigente basada en webhook.
 
 Este documento explica como integrar una web externa de pedidos con el endpoint del ERP Big Jack.
 

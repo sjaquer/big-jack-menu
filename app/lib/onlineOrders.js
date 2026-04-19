@@ -1,8 +1,15 @@
 function normalizePaymentMethod(method) {
   const value = String(method || "").toLowerCase();
-  if (value === "efectivo") return "cash";
-  if (value === "tarjeta") return "card";
-  return value || "cash";
+  if (value === "cash") return "efectivo";
+  if (value === "card") return "tarjeta";
+  return value || "efectivo";
+}
+
+function buildEventId() {
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10).replace(/-/g, "");
+  const nonce = Math.random().toString(36).slice(2, 8);
+  return `menu-${date}-${nonce}`;
 }
 
 function buildDeliveryNotes({ orderType, deliveryReference, pickupTime, scheduledTime, locationLink }) {
@@ -28,6 +35,7 @@ export function buildOnlineOrderPayload(input) {
   const {
     cart,
     customerName,
+    customerPhone,
     paymentMethod,
     notes,
     orderType,
@@ -40,7 +48,6 @@ export function buildOnlineOrderPayload(input) {
   } = input;
 
   const orderDate = new Date().toISOString();
-  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const extraNotes = buildDeliveryNotes({
     orderType,
     deliveryReference,
@@ -50,36 +57,33 @@ export function buildOnlineOrderPayload(input) {
   });
 
   const composedNotes = [notes?.trim(), extraNotes].filter(Boolean).join(" | ");
-  const externalOrderId = `web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const normalizedCustomerName = customerName?.trim() || "Cliente online";
+  const normalizedCustomerPhone = customerPhone?.trim() || undefined;
 
   return {
-    externalOrderId,
+    eventId: buildEventId(),
     orderDate,
-    customerName: customerName?.trim() || "Cliente online",
+    source: "menu-web",
+    customer: {
+      name: normalizedCustomerName,
+      phone: normalizedCustomerPhone,
+    },
     paymentMethod: normalizePaymentMethod(paymentMethod),
-    source: "web",
-    status: "pending",
-    useCatalogPrice: true,
-    acceptPriceDiff: true,
-    enforceStock: false,
-    totalAmount,
     notes: composedNotes || undefined,
-    deliveryAddress: orderType === "delivery" ? deliveryAddress?.trim() || undefined : undefined,
     items: cart.map((item) => ({
       sku: item.sku,
       quantity: item.quantity,
-      productName: item.name,
-      unitPrice: item.price,
-      lineNotes: item.optionLabel,
+      notes: item.optionLabel || undefined,
     })),
     metadata: {
-      origin: "big-jack-menu-web",
-      channel: "web",
+      origin: "menu-web",
+      channel: "menu-web",
       orderType,
       pickupTime,
       scheduledTime: scheduledTime || null,
       isPreOrder: Boolean(isPreOrder),
       locationLink: locationLink || null,
+      deliveryAddress: orderType === "delivery" ? deliveryAddress?.trim() || null : null,
     },
   };
 }

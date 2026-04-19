@@ -36,9 +36,9 @@ export const menuItems = [
   {
     id: 1,
     sku: "PRD-LAB-JFSY",
-    slug: "bacon-jack",
+    slug: "la-bacon",
     category: "LAS INTOCABLES",
-    name: "Bacon Jack",
+    name: "La Bacon",
     description: "Pan brillante, medallón grueso de carne, queso derretido, tira de bacon crocante, pepinillos y salsa Big Jack.",
     image: "/images/baconjack.webp",
     popular: true,
@@ -50,7 +50,7 @@ export const menuItems = [
   {
     id: 2,
     sku: "PRD-LAR-LUS0",
-    slug: "royal-jack",
+    slug: "la-royal-con-huevo",
     category: "LAS INTOCABLES",
     name: "La Real con Huevo",
     description: "Medallón de carne a la plancha, queso fundido, jamón inglés sellado y huevo de yema cremosa con nuestra salsa especial.",
@@ -79,7 +79,7 @@ export const menuItems = [
   {
     id: 4,
     sku: "PRD-ALO-KC88",
-    slug: "jack-a-lo-pobre",
+    slug: "la-pobre-pero-fina",
     category: "LAS INTOCABLES",
     name: "La Pobre pero Fina",
     description: "Medallón de carne jugosa, cheddar, huevo frito y plátano maduro caramelizado que combina dulce y salado.",
