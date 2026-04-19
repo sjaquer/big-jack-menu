@@ -13,7 +13,12 @@ function getWebhookUrl() {
 }
 
 function getWebhookSecret() {
-  return process.env.WEBHOOK_MENU_SECRET || null;
+  return (
+    process.env.WEBHOOK_MENU_SECRET ||
+    process.env.WEBHOOK_SECRET ||
+    process.env.ERP_WEBHOOK_SECRET ||
+    null
+  );
 }
 
 export async function POST(request) {

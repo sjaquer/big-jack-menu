@@ -1,6 +1,27 @@
 import { buildOnlineOrderPayload, createOnlineOrder } from "../../../lib/onlineOrders";
 import { hasMissingSku, migrateLegacyCartItems } from "../../../lib/cartModel";
 
+function getActiveMenuSkus(menuItems = []) {
+  const skus = new Set();
+
+  for (const item of menuItems) {
+    if (!item || item.available === false) continue;
+
+    const optionSkus = Array.isArray(item.options) ? item.options.map((option) => option?.sku) : [];
+    for (const sku of optionSkus) {
+      if (typeof sku === "string" && sku.trim()) {
+        skus.add(sku.trim());
+      }
+    }
+
+    if (typeof item.sku === "string" && item.sku.trim()) {
+      skus.add(item.sku.trim());
+    }
+  }
+
+  return skus;
+}
+
 export async function submitOnlineOrder({
   cart,
   orderType,
@@ -42,6 +63,12 @@ export async function submitOnlineOrder({
   const migratedCart = migrateLegacyCartItems(cart, menuItems);
   if (hasMissingSku(migratedCart) || migratedCart.length !== cart.length) {
     throw new Error("Hay productos sin SKU válido. Actualiza el carrito para poder enviar el pedido.");
+  }
+
+  const activeSkus = getActiveMenuSkus(menuItems);
+  const hasUnknownSku = migratedCart.some((item) => !activeSkus.has(String(item.sku || "").trim()));
+  if (hasUnknownSku) {
+    throw new Error("Hay productos desactualizados en tu carrito. Vacialo y vuelve a agregar desde el menu actual.");
   }
 
   const mergedDeliveryReference = [deliveryReference, deliveryDetails]
