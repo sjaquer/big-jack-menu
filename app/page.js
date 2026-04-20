@@ -58,6 +58,7 @@ export default function BigJackMenu() {
   // Estados para el Checkout
   const [orderType, setOrderType] = useState("pickup"); // 'pickup' | 'delivery'
   const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryReference, setDeliveryReference] = useState("");
   const [deliveryDetails, setDeliveryDetails] = useState("");
@@ -85,6 +86,7 @@ export default function BigJackMenu() {
       const saved = JSON.parse(localStorage.getItem("bj_checkout"));
       if (saved) {
         setCustomerName(saved.customerName || "");
+        setCustomerPhone(saved.customerPhone || "");
         const persistedOrderType =
           saved.orderType && saved.orderType !== "pickup"
             ? "pickup"
@@ -154,6 +156,7 @@ export default function BigJackMenu() {
     const timeout = setTimeout(() => {
       const data = {
         customerName,
+        customerPhone,
         orderType,
         deliveryAddress,
         deliveryReference,
@@ -164,7 +167,7 @@ export default function BigJackMenu() {
       localStorage.setItem("bj_checkout", JSON.stringify(data));
     }, 400);
     return () => clearTimeout(timeout);
-  }, [customerName, orderType, deliveryAddress, deliveryReference, deliveryDetails, paymentMethod, notes]);
+  }, [customerName, customerPhone, orderType, deliveryAddress, deliveryReference, deliveryDetails, paymentMethod, notes]);
 
 
   // Filtrar productos por categoría
@@ -554,6 +557,7 @@ export default function BigJackMenu() {
         isPreOrder,
         isOpen,
         customerName,
+        customerPhone,
         paymentMethod,
         deliveryAddress,
         deliveryReference,
@@ -580,6 +584,7 @@ export default function BigJackMenu() {
           cartLines,
           "",
           `Cliente: ${customerName}`,
+          `Telefono: ${customerPhone || "No especificado"}`,
           `Tipo: ${orderMode}`,
           `Pago: ${paymentMethod}`,
           `Total web: S/ ${total.toFixed(2)}${orderType === "delivery" ? " (sin costo de envio)" : ""}`,
@@ -1162,6 +1167,8 @@ export default function BigJackMenu() {
         deliveryAvailable={deliveryAvailable}
         customerName={customerName}
         setCustomerName={setCustomerName}
+        customerPhone={customerPhone}
+        setCustomerPhone={setCustomerPhone}
         deliveryAddress={deliveryAddress}
         setDeliveryAddress={setDeliveryAddress}
         deliveryReference={deliveryReference}

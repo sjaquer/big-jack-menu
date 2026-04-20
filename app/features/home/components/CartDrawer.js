@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Smartphone,
   Sparkles,
+  Phone,
   Trash2,
   Truck,
   User,
@@ -35,6 +36,8 @@ export default function CartDrawer({
   deliveryAvailable,
   customerName,
   setCustomerName,
+  customerPhone,
+  setCustomerPhone,
   deliveryAddress,
   setDeliveryAddress,
   deliveryReference,
@@ -62,7 +65,8 @@ export default function CartDrawer({
 }) {
   if (!isCartOpen) return null;
 
-  const stepClientDone = customerName.trim().length >= 2;
+  const cleanPhone = String(customerPhone || "").replace(/\D/g, "");
+  const stepClientDone = customerName.trim().length >= 2 && cleanPhone.length >= 9;
   const stepDeliveryDone =
     orderType === "pickup" ? true : Boolean(deliveryAddress.trim() || locationLink);
   const stepPaymentDone = Boolean(paymentMethod);
@@ -220,6 +224,17 @@ export default function CartDrawer({
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Tu nombre"
+                      className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+                    <input
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      inputMode="tel"
+                      autoComplete="tel"
+                      placeholder="Teléfono (9 dígitos o más)"
                       className="w-full bg-neutral-950 border-2 border-neutral-700 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:border-[#FCC900] outline-none transition-colors text-white placeholder:text-neutral-500"
                     />
                   </div>

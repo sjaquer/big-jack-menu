@@ -1,5 +1,9 @@
 param(
-  [int]$Attempts = 1
+  [int]$Attempts = 1,
+  [string]$WebhookUrl,
+  [string]$WebhookSecret,
+  [string]$MenuFile = "app/data/menuData.js",
+  [int]$TimeoutSec = 30
 )
 
 if ($Attempts -lt 1) {
@@ -7,27 +11,176 @@ if ($Attempts -lt 1) {
   exit 1
 }
 
+if ($TimeoutSec -lt 1) {
+  Write-Error "TimeoutSec debe ser mayor o igual a 1."
+  exit 1
+}
+
 $ErrorActionPreference = "Stop"
 
-# ==============================
-# CONFIG HARD-CODEADA (LOCAL)
-# ==============================
-$WebhookUrl = "https://bigjack-rp.vercel.app/api/webhooks/orders"
-$WebhookSecret = "pkwevojn2981334ou3m86b9209u25161v3rtf6g5g15iu5n19"
 
-# SKUs reales compartidos por ti
-$CatalogSkus = @(
-  "PRD-LAM-IPH3", # LA MISIA (UNA CARNE)
-  "PRD-INK-PXC0", # INKA COLA 600ML
-  "PRD-LAR-N4R4", # LA ROYAL (DOBLE CARNE)
-  "PRD-ALO-KC88", # A LO POBRE (UNA CARNE)
-  "PRD-ALO-LA72", # A LO POBRE (DOBLE CARNE)
-  "PRD-LAB-JFSY", # LA BACON (UNA CARNE)
-  "PRD-LAR-LUS0", # LA ROYAL (UNA CARNE)
-  "PRD-AGU-RC7G", # AGUA CIELO PERSONAL
-  "PRD-LAB-JXVH", # LA BACON (DOBLE CARNE)
-  "PRD-COC-QLER"  # COCA COLA 600ML
-)
+function Get-WebhookUrl {
+  param([string]$ExplicitUrl)
+
+  if ($ExplicitUrl) { return $ExplicitUrl }
+  if ($env:WEBHOOK_ORDERS_URL) { return $env:WEBHOOK_ORDERS_URL }
+
+  $baseUrl = if ($env:ERP_BASE_URL) { $env:ERP_BASE_URL } else { "https://bigjack-rp.vercel.app" }
+  return ($baseUrl.TrimEnd("/")) + "/api/webhooks/orders"
+}
+
+function Get-WebhookSecret {
+  param([string]$ExplicitSecret)
+
+  if ($ExplicitSecret) { return $ExplicitSecret }
+
+  foreach ($name in @("WEBHOOK_MENU_SECRET", "WEBHOOK_SECRET", "ERP_WEBHOOK_SECRET")) {
+    $value = [Environment]::GetEnvironmentVariable($name)
+    if (-not [string]::IsNullOrWhiteSpace($value)) {
+      return $value
+    }
+  }
+
+  return ""
+}
+
+function Get-BraceDelta {
+  param([string]$Line)
+
+  $openCount = ([regex]::Matches($Line, "\\{")).Count
+  $closeCount = ([regex]::Matches($Line, "\\}")).Count
+  return $openCount - $closeCount
+}
+
+function Get-ActiveMenuSkus {
+  param([string]$RelativeMenuPath)
+
+  $menuPath = Join-Path (Get-Location) $RelativeMenuPath
+  if (-not (Test-Path $menuPath)) {
+    throw "No se encontro el archivo de menu en: $menuPath"
+  }
+
+  $lines = Get-Content -Path $menuPath
+  $insideMenuItems = $false
+  $insideItem = $false
+  $depth = 0
+  $itemLines = [System.Collections.Generic.List[string]]::new()
+  $result = [System.Collections.Generic.List[string]]::new()
+
+  foreach ($line in $lines) {
+    if (-not $insideMenuItems) {
+      if ($line -match "^\s*export\s+const\s+menuItems\s*=\s*\[") {
+        $insideMenuItems = $true
+      }
+      continue
+    }
+
+    if ($insideMenuItems -and -not $insideItem) {
+      if ($line -match "^\s*\]\s*;\s*$") {
+        break
+      }
+
+      if ($line -match "^\s*\{\s*$") {
+        $insideItem = $true
+        $depth = 0
+        $itemLines.Clear()
+      } else {
+        continue
+      }
+    }
+
+    if ($insideItem) {
+      $itemLines.Add($line)
+      $depth += Get-BraceDelta -Line $line
+
+      if ($depth -eq 0) {
+        $block = ($itemLines -join "`n")
+        $insideItem = $false
+
+        if ($block -match '\bavailable\s*:\s*false\b') {
+          continue
+        }
+
+        $matches = [regex]::Matches($block, '\bsku\s*:\s*"([^"]+)"')
+        foreach ($match in $matches) {
+          $sku = $match.Groups[1].Value.Trim()
+          if (-not [string]::IsNullOrWhiteSpace($sku)) {
+            $result.Add($sku)
+          }
+        }
+      }
+    }
+  }
+
+  $unique = $result | Select-Object -Unique
+  if (-not $unique -or $unique.Count -lt 2) {
+    throw "No hay suficientes SKUs activos en $RelativeMenuPath para ejecutar pruebas (se requieren al menos 2)."
+  }
+
+  return $unique
+}
+
+function Normalize-PaymentMethod {
+  param([string]$PaymentMethod)
+
+  $value = [string]($PaymentMethod)
+  $value = $value.Trim().ToLowerInvariant()
+
+  if ($value -eq "cash") { return "efectivo" }
+  if ($value -eq "card") { return "tarjeta" }
+  if ([string]::IsNullOrWhiteSpace($value)) { return "efectivo" }
+
+  return $value
+}
+
+function New-MenuEventId {
+  $date = (Get-Date).ToUniversalTime().ToString("yyyyMMdd")
+  $nonce = -join ((48..57 + 97..122) | Get-Random -Count 6 | ForEach-Object { [char]$_ })
+  return "menu-$date-$nonce"
+}
+
+function New-OrderPayload {
+  param(
+    [string]$EventId,
+    [array]$Items,
+    [string]$ExpectedHint
+  )
+
+  $orderType = "pickup"
+  $pickupTime = "now"
+  $scheduledTime = ""
+  $locationLink = ""
+  $deliveryAddress = ""
+
+  return @{
+    eventId = $EventId
+    orderDate = (Get-Date).ToUniversalTime().ToString("o")
+    source = "menu-web"
+    customer = @{
+      name = "Cliente online"
+      phone = "+51999999999"
+    }
+    paymentMethod = Normalize-PaymentMethod -PaymentMethod "yape"
+    notes = "Prueba local webhook"
+    items = $Items
+    metadata = @{
+      origin = "menu-web"
+      channel = "menu-web"
+      orderType = $orderType
+      pickupTime = $pickupTime
+      scheduledTime = if ($scheduledTime) { $scheduledTime } else { $null }
+      isPreOrder = $false
+      locationLink = if ($locationLink) { $locationLink } else { $null }
+      deliveryAddress = if ($orderType -eq "delivery" -and $deliveryAddress) { $deliveryAddress } else { $null }
+      testMode = "local-script"
+      expected = $ExpectedHint
+    }
+  }
+}
+
+$WebhookUrl = Get-WebhookUrl -ExplicitUrl $WebhookUrl
+$WebhookSecret = Get-WebhookSecret -ExplicitSecret $WebhookSecret
+$CatalogSkus = Get-ActiveMenuSkus -RelativeMenuPath $MenuFile
 
 function Invoke-WebhookTest {
   param(
@@ -39,28 +192,11 @@ function Invoke-WebhookTest {
   )
 
   $headers = @{ "Content-Type" = "application/json" }
-  if ($Secret) {
+  if (-not [string]::IsNullOrWhiteSpace($Secret)) {
     $headers["x-webhook-secret"] = $Secret
   }
 
-  $payload = @{
-    eventId = $EventId
-    orderDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
-    source = "menu-web"
-    customer = @{
-      name = "Test Local Webhook"
-      phone = "+51999999999"
-    }
-    paymentMethod = "yape"
-    notes = "Script local hardcoded"
-    items = $Items
-    metadata = @{
-      origin = "menu-web"
-      channel = "menu-web"
-      testMode = "hardcoded-local"
-      expected = $ExpectedHint
-    }
-  }
+  $payload = New-OrderPayload -EventId $EventId -Items $Items -ExpectedHint $ExpectedHint
 
   $body = $payload | ConvertTo-Json -Depth 10
 
@@ -72,7 +208,7 @@ function Invoke-WebhookTest {
   Write-Host ("ITEMS: " + (($Items | ForEach-Object { $_.sku + " x" + $_.quantity }) -join ", "))
 
   try {
-    $resp = Invoke-WebRequest -Method Post -Uri $WebhookUrl -Headers $headers -Body $body -TimeoutSec 30
+    $resp = Invoke-WebRequest -Method Post -Uri $WebhookUrl -Headers $headers -Body $body -TimeoutSec $TimeoutSec
     Write-Host ("STATUS: " + [int]$resp.StatusCode)
     Write-Host "BODY:"
     Write-Host $resp.Content
@@ -97,23 +233,26 @@ function Invoke-WebhookTest {
   }
 }
 
-Write-Output "=== TEST WEBHOOK LOCAL (HARDCODED) ==="
+Write-Output "=== TEST WEBHOOK LOCAL (ALINEADO A ONLINE ORDERS) ==="
 Write-Output ("Attempts: " + $Attempts)
 Write-Output ("Webhook URL: " + $WebhookUrl)
-Write-Output ("Secret hardcodeado: " + ($(if ($WebhookSecret) { "SI" } else { "NO" })))
+Write-Output ("Secret detectado/env: " + ($(if ($WebhookSecret) { "SI" } else { "NO" })))
+Write-Output ("Menu source: " + $MenuFile)
 Write-Output ""
-Write-Output "SKUs disponibles en script:"
+Write-Output "SKUs activos detectados en menuData.js:"
 $CatalogSkus | ForEach-Object { Write-Output ("- " + $_) }
 
 $exitCode = 0
 
 for ($i = 1; $i -le $Attempts; $i++) {
-  $baseEvent = "menu-local-" + (Get-Date -Format "yyyyMMddHHmmss") + "-" + $i
+  $baseEvent = (New-MenuEventId) + "-$i"
+  $validSkuA = $CatalogSkus[0]
+  $validSkuB = $CatalogSkus[1]
 
   # Caso 1: pedido valido (debe crear venta)
   $validItems = @(
-    @{ sku = "PRD-LAM-IPH3"; quantity = 1; notes = "Hamburguesa" },
-    @{ sku = "PRD-INK-PXC0"; quantity = 1; notes = "Bebida" }
+    @{ sku = $validSkuA; quantity = 1; notes = "Item A" },
+    @{ sku = $validSkuB; quantity = 1; notes = "Item B" }
   )
   $res1 = Invoke-WebhookTest -Title "CASO 1 - VALIDO" -EventId $baseEvent -Items $validItems -Secret $WebhookSecret -ExpectedHint "200 success=true"
   if ($res1.Status -ne 200) { $exitCode = 1 }

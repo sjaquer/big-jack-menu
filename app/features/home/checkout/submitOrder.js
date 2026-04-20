@@ -28,6 +28,7 @@ export async function submitOnlineOrder({
   isPreOrder,
   isOpen,
   customerName,
+  customerPhone,
   paymentMethod,
   deliveryAddress,
   locationLink,
@@ -79,6 +80,7 @@ export async function submitOnlineOrder({
   const payload = buildOnlineOrderPayload({
     cart: migratedCart,
     customerName,
+    customerPhone,
     paymentMethod,
     notes,
     orderType,
