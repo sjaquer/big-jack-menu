@@ -58,12 +58,15 @@ export function buildOnlineOrderPayload(input) {
 
   const composedNotes = [notes?.trim(), extraNotes].filter(Boolean).join(" | ");
   const normalizedCustomerName = customerName?.trim() || "Cliente online";
-  const normalizedCustomerPhone = customerPhone?.trim() || undefined;
+  const normalizedCustomerPhone = customerPhone?.trim() || null;
 
   return {
     eventId: buildEventId(),
     orderDate,
     source: "menu-web",
+    // Compatibilidad con webhooks que leen customerName/customerPhone en raíz.
+    customerName: normalizedCustomerName,
+    customerPhone: normalizedCustomerPhone,
     customer: {
       name: normalizedCustomerName,
       phone: normalizedCustomerPhone,

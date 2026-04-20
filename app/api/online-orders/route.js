@@ -21,6 +21,33 @@ function getWebhookSecret() {
   );
 }
 
+function normalizePayloadForWebhook(payload) {
+  const customerName =
+    typeof payload?.customerName === "string"
+      ? payload.customerName.trim()
+      : typeof payload?.customer?.name === "string"
+      ? payload.customer.name.trim()
+      : "";
+
+  const customerPhone =
+    typeof payload?.customerPhone === "string"
+      ? payload.customerPhone.trim()
+      : typeof payload?.customer?.phone === "string"
+      ? payload.customer.phone.trim()
+      : "";
+
+  return {
+    ...payload,
+    customerName: customerName || "Cliente online",
+    customerPhone: customerPhone || null,
+    customer: {
+      ...(payload?.customer || {}),
+      name: customerName || "Cliente online",
+      phone: customerPhone || null,
+    },
+  };
+}
+
 export async function POST(request) {
   const upstreamUrl = getWebhookUrl();
   const webhookSecret = getWebhookSecret();
@@ -59,6 +86,8 @@ export async function POST(request) {
     );
   }
 
+  const normalizedPayload = normalizePayloadForWebhook(payload);
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
@@ -74,7 +103,7 @@ export async function POST(request) {
     const upstream = await fetch(upstreamUrl, {
       method: "POST",
       headers,
-      body: JSON.stringify(payload),
+      body: JSON.stringify(normalizedPayload),
       signal: controller.signal,
     });
 
