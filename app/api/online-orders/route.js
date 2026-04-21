@@ -120,13 +120,13 @@ export async function POST(request) {
   } catch (error) {
     if (error?.name === "AbortError") {
       return NextResponse.json(
-        { success: false, error: "Tiempo de espera agotado al conectar con el webhook." },
+        { success: false, error: "Tiempo de espera agotado al registrar tu pedido. Intenta nuevamente." },
         { status: 504 }
       );
     }
 
     return NextResponse.json(
-      { success: false, error: "No se pudo conectar con el webhook de pedidos." },
+      { success: false, error: "No se pudo completar el registro del pedido en este momento." },
       { status: 502 }
     );
   } finally {

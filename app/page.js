@@ -50,6 +50,109 @@ import {
 } from "./features/home/seo";
 
 export default function BigJackMenu() {
+  const PAYMENT_LABELS = {
+    efectivo: "Efectivo",
+    yape: "Yape",
+    plin: "Plin",
+    tarjeta: "Tarjeta",
+  };
+
+  const normalizePhoneForDisplay = (value) => {
+    const digits = String(value || "").replace(/\D/g, "");
+    if (!digits) return "";
+    return digits.startsWith("+") ? digits : `+${digits}`;
+  };
+
+  const buildDeliveryPaymentReminder = (selectedMethod, businessNumber) => {
+    if (!["yape", "plin", "tarjeta"].includes(selectedMethod)) return null;
+
+    if (selectedMethod === "tarjeta") {
+      return {
+        title: "Pago por tarjeta",
+        body: "Recuerda solicitar por WhatsApp el link de pago para completar tu delivery.",
+      };
+    }
+
+    const methodLabel = selectedMethod === "yape" ? "Yape" : "Plin";
+    return {
+      title: `Pago por ${methodLabel}`,
+      body: `Recuerda realizar el pago al numero oficial de BIG JACK: ${businessNumber}.`,
+    };
+  };
+
+  const buildFriendlyOrderError = (rawMessage) => {
+    const fallback = "No se pudo registrar tu pedido. Intenta nuevamente en unos minutos.";
+    if (!rawMessage || typeof rawMessage !== "string") return fallback;
+
+    if (/webhook/i.test(rawMessage)) {
+      return "No pudimos registrar tu pedido por un problema temporal. Intenta nuevamente en unos minutos.";
+    }
+
+    return rawMessage;
+  };
+
+  const buildWhatsappOrderMessage = ({
+    migratedCart,
+    orderType,
+    customerName,
+    customerPhone,
+    paymentMethod,
+    total,
+    deliveryAddress,
+    deliveryReference,
+    deliveryDetails,
+    locationLink,
+    notes,
+    paymentReminder,
+  }) => {
+    const cartLines = migratedCart
+      .map((item, index) => `${index + 1}. ${item.quantity}x ${item.name} (${item.optionLabel})`)
+      .join("\n");
+    const orderMode = orderType === "delivery" ? "Delivery" : "Recojo";
+    const paymentLabel = PAYMENT_LABELS[paymentMethod] || paymentMethod;
+    const referenceText = [deliveryReference, deliveryDetails]
+      .map((value) => (value || "").trim())
+      .filter(Boolean)
+      .join(" | ");
+
+    const deliveryBlock =
+      orderType === "delivery"
+        ? [
+            "", 
+            "DATOS DE ENTREGA",
+            `- Direccion: ${deliveryAddress || "No especificada"}`,
+            `- Referencia: ${referenceText || "No especificada"}`,
+            `- Ubicacion GPS: ${locationLink || "No compartida"}`,
+          ].join("\n")
+        : "";
+
+    const notesBlock = notes?.trim() ? `\nNOTAS\n- ${notes.trim()}` : "";
+    const paymentReminderBlock = paymentReminder
+      ? `\nIMPORTANTE - ${paymentReminder.title.toUpperCase()}\n- ${paymentReminder.body}`
+      : "";
+
+    return [
+      "Hola BIG JACK, acabo de registrar mi pedido desde el menu digital:",
+      "",
+      "DETALLE DEL PEDIDO",
+      cartLines,
+      "",
+      "DATOS DEL CLIENTE",
+      `- Nombre: ${customerName}`,
+      `- Telefono: ${customerPhone || "No especificado"}`,
+      `- Tipo de pedido: ${orderMode}`,
+      `- Metodo de pago: ${paymentLabel}`,
+      `- Total del menu web: S/ ${total.toFixed(2)}${orderType === "delivery" ? " (sin costo de envio)" : ""}`,
+      deliveryBlock,
+      notesBlock,
+      paymentReminderBlock,
+      "",
+      "Quedo atento(a) a su confirmacion por este WhatsApp.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  };
+
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("TODOS");
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -79,6 +182,7 @@ export default function BigJackMenu() {
   const [isPreOrder, setIsPreOrder] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [submitResult, setSubmitResult] = useState(null);
+  const [orderConfirmation, setOrderConfirmation] = useState(null);
 
   // Cargar estado desde localStorage al iniciar
   useEffect(() => {
@@ -386,12 +490,14 @@ export default function BigJackMenu() {
   const removeFromCart = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
     setSubmitResult(null);
+    setOrderConfirmation(null);
   };
 
   const clearCart = () => {
     if (window.confirm('¿Estás seguro de vaciar todo el carrito?')) {
       setCart([]);
       setSubmitResult(null);
+      setOrderConfirmation(null);
       setIsPreOrder(false);
       try {
         localStorage.removeItem('cart');
@@ -413,6 +519,17 @@ export default function BigJackMenu() {
       )
     );
     setSubmitResult(null);
+    setOrderConfirmation(null);
+  };
+
+  const openOrderOnWhatsapp = () => {
+    if (typeof window === "undefined") return;
+    if (!orderConfirmation?.whatsappUrl) return;
+    window.open(orderConfirmation.whatsappUrl, "_blank", "noopener,noreferrer");
+    setOrderConfirmation((current) => {
+      if (!current) return current;
+      return { ...current, whatsappSent: true };
+    });
   };
 
   // --- Sugerencias de complementos (mini ventana) ---
@@ -567,42 +684,47 @@ export default function BigJackMenu() {
         menuItems,
       });
 
-      if (typeof window !== "undefined") {
-        const cartLines = migratedCart
-          .map((item) => `- ${item.quantity}x ${item.name} (${item.optionLabel})`)
-          .join("\n");
-        const orderMode = orderType === "delivery" ? "Delivery" : "Recojo";
-        const referenceText = [deliveryReference, deliveryDetails].filter(Boolean).join(" | ");
-        const addressBlock =
-          orderType === "delivery"
-            ? `\nDireccion: ${deliveryAddress || "No especificada"}\nReferencia: ${referenceText || "No especificada"}\nUbicacion GPS: ${locationLink || "No compartida"}`
-            : "";
-        const notesBlock = notes?.trim() ? `\nNota: ${notes.trim()}` : "";
-        const message = [
-          "Hola Big Jack, quiero confirmar este pedido:",
-          "",
-          cartLines,
-          "",
-          `Cliente: ${customerName}`,
-          `Telefono: ${customerPhone || "No especificado"}`,
-          `Tipo: ${orderMode}`,
-          `Pago: ${paymentMethod}`,
-          `Total web: S/ ${total.toFixed(2)}${orderType === "delivery" ? " (sin costo de envio)" : ""}`,
-          addressBlock,
-          notesBlock,
-        ]
-          .filter(Boolean)
-          .join("\n");
+      const businessWhatsapp = normalizePhoneForDisplay(restaurantInfo?.contact?.whatsapp) || "No configurado";
+      const paymentReminder =
+        orderType === "delivery" ? buildDeliveryPaymentReminder(paymentMethod, businessWhatsapp) : null;
 
-        const whatsappUrl = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-      }
+      const message = buildWhatsappOrderMessage({
+        migratedCart,
+        orderType,
+        customerName,
+        customerPhone,
+        paymentMethod,
+        total,
+        deliveryAddress,
+        deliveryReference,
+        deliveryDetails,
+        locationLink,
+        notes,
+        paymentReminder,
+      });
+      const whatsappUrl = `https://wa.me/${restaurantInfo.contact.whatsapp}?text=${encodeURIComponent(message)}`;
+
+      setOrderConfirmation({
+        customerName,
+        orderMode: orderType === "delivery" ? "Delivery" : "Recojo",
+        paymentMethod: PAYMENT_LABELS[paymentMethod] || paymentMethod,
+        paymentReminder,
+        total: `S/ ${total.toFixed(2)}`,
+        whatsappUrl,
+        whatsappContact: businessWhatsapp,
+        items: migratedCart.map((item) => `${item.quantity}x ${item.name} (${item.optionLabel})`),
+        orderId: response?.orderId || null,
+        saleId: response?.saleId || null,
+        whatsappSent: false,
+      });
+
+      setIsCartOpen(false);
 
       setSubmitResult({
         type: "success",
         message: response?.duplicated
-          ? response?.message || "Pedido ya registrado previamente."
-          : response?.message || "Pedido enviado correctamente al sistema.",
+          ? "Este pedido ya estaba registrado previamente."
+          : "Pedido registrado con exito. Revisa la confirmacion para enviarlo por WhatsApp.",
         orderId: response?.orderId || null,
         saleId: response?.saleId || null,
       });
@@ -615,10 +737,11 @@ export default function BigJackMenu() {
       localStorage.removeItem("cart");
       localStorage.removeItem("bj_preorder");
     } catch (error) {
-      alert(error?.message || "No se pudo enviar el pedido. Intenta nuevamente.");
+      const friendlyError = buildFriendlyOrderError(error?.message);
+      alert(friendlyError);
       setSubmitResult({
         type: "error",
-        message: error?.message || "No se pudo enviar el pedido. Intenta nuevamente.",
+        message: friendlyError,
       });
     } finally {
       setIsSubmittingOrder(false);
@@ -1194,6 +1317,74 @@ export default function BigJackMenu() {
         isSubmittingOrder={isSubmittingOrder}
         submitResult={submitResult}
       />
+
+      {orderConfirmation && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+            onClick={() => setOrderConfirmation(null)}
+            aria-label="Cerrar confirmacion"
+          />
+          <div className="relative z-10 w-full max-w-lg rounded-3xl border border-neutral-700 bg-neutral-900 shadow-2xl">
+            <div className="border-b border-neutral-800 p-5">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#FCC900]">Pedido registrado</p>
+              <h3 className="mt-2 text-2xl font-black text-white">Confirma el envio por WhatsApp</h3>
+              <p className="mt-2 text-sm text-neutral-300">
+                {orderConfirmation.customerName}, tu pedido ya se registro en el sistema. Ahora envialo por WhatsApp para coordinar la atencion.
+              </p>
+            </div>
+
+            <div className="space-y-4 p-5">
+              <div className="rounded-2xl border border-neutral-700 bg-neutral-950/70 p-4 text-sm text-neutral-200">
+                <p><span className="text-neutral-400">Tipo:</span> {orderConfirmation.orderMode}</p>
+                <p><span className="text-neutral-400">Pago:</span> {orderConfirmation.paymentMethod}</p>
+                <p><span className="text-neutral-400">Total:</span> {orderConfirmation.total}</p>
+                {orderConfirmation.orderId && <p><span className="text-neutral-400">Pedido:</span> {orderConfirmation.orderId}</p>}
+              </div>
+
+              {orderConfirmation.paymentReminder && (
+                <div className="rounded-2xl border border-blue-500/35 bg-blue-500/10 p-4 text-sm text-blue-100">
+                  <p className="font-bold">{orderConfirmation.paymentReminder.title}</p>
+                  <p className="mt-1">{orderConfirmation.paymentReminder.body}</p>
+                </div>
+              )}
+
+              <div className="rounded-2xl border border-neutral-700 bg-neutral-950/70 p-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-neutral-400">Resumen</p>
+                <ul className="mt-2 space-y-1 text-sm text-neutral-200">
+                  {orderConfirmation.items.slice(0, 4).map((line) => (
+                    <li key={line}>- {line}</li>
+                  ))}
+                  {orderConfirmation.items.length > 4 && (
+                    <li className="text-neutral-400">+ {orderConfirmation.items.length - 4} item(s) adicional(es)</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setOrderConfirmation(null)}
+                  className="min-h-[48px] rounded-xl border border-neutral-700 bg-neutral-800 px-4 text-sm font-semibold text-white hover:bg-neutral-700 transition-colors"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="button"
+                  onClick={openOrderOnWhatsapp}
+                  className="min-h-[48px] rounded-xl bg-[#25D366] px-4 text-sm font-black text-black hover:bg-[#1ebc58] transition-colors"
+                >
+                  {orderConfirmation.whatsappSent ? "Reenviar por WhatsApp" : "Enviar por WhatsApp"}
+                </button>
+              </div>
+
+              <p className="text-xs text-neutral-400">
+                WhatsApp BIG JACK: {orderConfirmation.whatsappContact}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer Mejorado */}
       <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-[#FCC900]/30">

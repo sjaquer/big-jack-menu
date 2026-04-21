@@ -72,6 +72,9 @@ export default function CartDrawer({
   const stepPaymentDone = Boolean(paymentMethod);
   const completedSteps = [stepClientDone, stepDeliveryDone, stepPaymentDone].filter(Boolean).length;
   const checkoutProgress = `${(completedSteps / 3) * 100}%`;
+  const businessWhatsapp = `+${String(restaurantInfo?.contact?.whatsapp || "").replace(/\D/g, "")}`;
+  const showDeliveryPaymentReminder =
+    orderType === "delivery" && ["yape", "plin", "tarjeta"].includes(paymentMethod);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -387,6 +390,15 @@ export default function CartDrawer({
                     placeholder="Nota opcional"
                     className="w-full bg-neutral-950 border border-neutral-700 rounded-xl p-3 text-sm focus:border-[#FCC900] outline-none resize-none text-white placeholder:text-neutral-500"
                   />
+                  {showDeliveryPaymentReminder && (
+                    <div className="rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 text-xs text-blue-100">
+                      {paymentMethod === "tarjeta" ? (
+                        <p>Delivery con tarjeta: recuerda pedir por WhatsApp el link de pago para completar tu pedido.</p>
+                      ) : (
+                        <p>Delivery con {paymentMethod === "yape" ? "Yape" : "Plin"}: recuerda realizar el pago al numero de BIG JACK {businessWhatsapp} y enviar el comprobante por WhatsApp.</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </>
@@ -420,8 +432,8 @@ export default function CartDrawer({
               }`}
             >
               <p className="font-semibold">{submitResult.message}</p>
-              {submitResult.orderId && <p className="mt-1">OrderId: {submitResult.orderId}</p>}
-              {submitResult.saleId && <p className="mt-1">SaleId: {submitResult.saleId}</p>}
+              {submitResult.orderId && <p className="mt-1">Codigo de pedido: {submitResult.orderId}</p>}
+              {submitResult.saleId && <p className="mt-1">Codigo interno: {submitResult.saleId}</p>}
             </div>
           )}
         </div>
