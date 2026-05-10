@@ -29,7 +29,7 @@ export async function sendComplaint(formData) {
 
   const mailOptions = {
     from: process.env.GMAIL_USER,
-    to: "bigjackpe@gmail.com",
+    to: process.env.RECIPIENT_EMAIL || "bigjackpe@gmail.com",
     subject: `Libro de Reclamaciones - ${data.type.toUpperCase()} - ${data.name}`,
     html: `
       <h1>Nuevo Registro en Libro de Reclamaciones</h1>
