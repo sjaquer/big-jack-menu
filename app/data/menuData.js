@@ -44,7 +44,7 @@ export const menuItems = [
     popular: true,
     options: [
       { id: "simple", sku: "PRD-LAB-JFSY", label: "Clásica (1 carne) - la de siempre", price: 17.90 },
-      { id: "doble", sku: "PRD-LAB-JXVH", label: "Doble (2 carnes) - para llenarse", price: 22.90 }
+      { id: "doble", sku: "PRD-LAB-JXVH", label: "Doble (2 carnes) - para llenarse", price: 26.90 }
     ]
   },
   {
@@ -87,7 +87,7 @@ export const menuItems = [
     popular: false,
     options: [
       { id: "simple", sku: "PRD-ALO-KC88", label: "Clásica (1 carne) - comfort", price: 16.90 },
-      { id: "doble", sku: "PRD-ALO-LA72", label: "Doble (2 carnes) - contundente", price: 22.90 }
+      { id: "doble", sku: "PRD-ALO-LA72", label: "Doble (2 carnes) - contundente", price: 24.90 }
     ]
   },
   {
