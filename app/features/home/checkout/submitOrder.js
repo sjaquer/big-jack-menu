@@ -1,5 +1,6 @@
 import { buildOnlineOrderPayload, createOnlineOrder } from "../../../lib/onlineOrders";
 import { hasMissingSku, migrateLegacyCartItems } from "../../../lib/cartModel";
+import { MAX_QTY_PER_ITEM, MAX_CART_ITEMS } from "../constants";
 
 function getActiveMenuSkus(menuItems = []) {
   const skus = new Set();
@@ -39,6 +40,19 @@ export async function submitOnlineOrder({
 }) {
   if (!cart?.length) {
     throw new Error("Tu carrito está vacío.");
+  }
+
+  let totalItemsCount = 0;
+  for (const item of cart) {
+    const qty = Number(item.quantity);
+    if (qty > MAX_QTY_PER_ITEM) {
+      throw new Error(`La cantidad máxima por producto es de ${MAX_QTY_PER_ITEM} unidades.`);
+    }
+    totalItemsCount += qty;
+  }
+
+  if (totalItemsCount > MAX_CART_ITEMS) {
+    throw new Error(`El pedido no puede tener más de ${MAX_CART_ITEMS} productos en total.`);
   }
 
   if (isPreOrder && orderType === "delivery") {

@@ -1,5 +1,10 @@
 export const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
-export const COMPLEMENT_CATEGORIES = ["GUARNICION", "BEBIDAS"];
+export const COMPLEMENT_CATEGORIES = ["BEBIDAS"];
+
+export const MAX_QTY_PER_ITEM = 10;
+export const MAX_CART_ITEMS = 30;
+export const RATE_LIMIT_WINDOW_MS = 900000; // 15 minutes
+export const RATE_LIMIT_MAX_REQUESTS = 5;
 
 export const DAY_NAMES = [
   "Sunday",

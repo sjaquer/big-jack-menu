@@ -1,5 +1,14 @@
 import { Anton, Parkinsans, Poppins } from "next/font/google";
 import "./globals.css";
+import { menuItems, restaurantInfo, categories } from "./data/menuData";
+import {
+  buildOpeningHoursSpecification,
+  buildMenuSections,
+  buildRestaurantSchema,
+  buildFaqSchema,
+  getComputedPriceRange,
+} from "./features/home/seo";
+import { DEFAULT_SITE_URL, MARKETING_DESCRIPTION, AREA_SERVED } from "./features/home/constants";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -83,11 +92,35 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const computedPriceRange = getComputedPriceRange(menuItems);
+  const openingHoursSpecification = buildOpeningHoursSpecification(restaurantInfo.hours);
+  const menuSections = buildMenuSections(menuItems, categories);
+
+  const restaurantSchema = buildRestaurantSchema({
+    restaurantInfo,
+    siteUrl: DEFAULT_SITE_URL,
+    marketingDescription: MARKETING_DESCRIPTION,
+    computedPriceRange,
+    openingHoursSpecification,
+    menuSections,
+    areaServed: AREA_SERVED,
+  });
+
+  const faqSchema = buildFaqSchema();
+
   return (
     <html lang="es">
       <body
         className={`${poppins.variable} ${anton.variable} ${parkinsans.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
         {children}
       </body>
     </html>

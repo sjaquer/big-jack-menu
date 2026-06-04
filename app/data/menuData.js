@@ -8,13 +8,13 @@ export const restaurantInfo = {
   // Horarios por día (0 = Domingo, 1 = Lunes, ..., 6 = Sábado)
   // Cada día define { open: "HH:MM", close: "HH:MM" } en horario local
   hours: {
-    0: { open: "18:00", close: "01:00" }, // Domingo
-    1: { open: "18:00", close: "01:00" }, // Lunes
-    2: { open: "18:00", close: "01:00" }, // Martes
-    3: { open: "18:00", close: "01:00" }, // Miércoles
-    4: { open: "18:00", close: "01:00" }, // Jueves
-    5: { open: "18:00", close: "01:00" }, // Viernes
-    6: { open: "18:00", close: "01:00" }, // Sábado
+    0: { open: "19:00", close: "01:00" }, // Domingo
+    1: { open: "19:00", close: "01:00" }, // Lunes
+    2: { open: "19:00", close: "01:00" }, // Martes
+    3: { open: "19:00", close: "01:00" }, // Miércoles
+    4: { open: "19:00", close: "01:00" }, // Jueves
+    5: { open: "19:00", close: "01:00" }, // Viernes
+    6: { open: "19:00", close: "01:00" }, // Sábado
   },
   logo: "/images/big-jack-logo.png", // opcional: coloca tu logo en public/images
   contact: {
@@ -28,7 +28,6 @@ export const restaurantInfo = {
 
 export const categories = [
   "LAS INTOCABLES",
-  "GUARNICION",
   "BEBIDAS"
 ];
 
@@ -62,21 +61,6 @@ export const menuItems = [
     ]
   },
   {
-    id: 3,
-    sku: "BURG-005",
-    slug: "grill-jack",
-    category: "LAS INTOCABLES",
-    name: "La Parrillera",
-    description: "Burger gruesa con chorizo parrillero, cheddar, chimichurri casero y crema especial Big Jack.",
-    image: "/images/grilljack.webp",
-    popular: false,
-    available: false,
-    options: [
-      { id: "simple", sku: "BURG-005", label: "Clásica (1 carne) - intensa", price: 17.90 },
-      { id: "doble", sku: "BURG-006", label: "Doble (2 carnes) - bestial", price: 22.90 }
-    ]
-  },
-  {
     id: 4,
     sku: "PRD-ALO-KC88",
     slug: "la-pobre-pero-fina",
@@ -91,34 +75,6 @@ export const menuItems = [
     ]
   },
   {
-    id: 5,
-    sku: "SNACK-001",
-    slug: "choripan",
-    category: "LAS INTOCABLES",
-    name: "Choripan",
-    description: "Chorizo parrillero jugoso en pan con chimichurri casero, cebolla caramelizada y un toque de mostaza.",
-    image: "/images/choripan.webp",
-    popular: false,
-    available: false,
-    options: [{ id: "simple", sku: "SNACK-001", label: "Clásico - sabor auténtico", price: 7.90 }]
-  },
-  {
-    id: 6,
-    sku: "SNACK-002",
-    slug: "salchipapa",
-    category: "LAS INTOCABLES",
-    name: "Salchipapa",
-    description: "Papas fritas doradas con salchicha cortada, bañadas en salsas de la casa. La opción 'Especial' incluye chorizo, queso y huevo.",
-    image: "/images/salchipapa.webp",
-    popular: false,
-    available: false,
-    options: [
-      { id: "clasica", sku: "SNACK-002", label: "Clásica - con salchicha", price: 14.0 },
-      { id: "chorizo", sku: "SNACK-003", label: "Con Chorizo - más intenso", price: 17.0 },
-      { id: "especial", sku: "SNACK-004", label: "Especial - chorizo, queso y huevo", price: 20.0 }
-    ]
-  },
-  {
     id: 7,
     sku: "PRD-LAM-IPH3",
     slug: "la-misia",
@@ -128,18 +84,6 @@ export const menuItems = [
     image: "/images/lamisia.webp",
     popular: false,
     options: [{ id: "simple", sku: "PRD-LAM-IPH3", label: "Clásica (1 carne)", price: 12.90 }]
-  },
-  {
-    id: 20,
-    sku: "SIDE-001",
-    slug: "papas-fritas",
-    category: "GUARNICION",
-    name: "Papas Fritas - Nativas",
-    description: "Corte rápidos, fritas al momento y terminadas con sal al punto.",
-    image: "/images/papas-fritas.webp",
-    popular: false,
-    available: false,
-    options: [{ id: "regular", sku: "SIDE-001", label: "Porción personal - para picar", price: 4.90 }]
   },
   {
     id: 30,
@@ -175,3 +119,4 @@ export const menuItems = [
     options: [{ id: "personal", sku: "PRD-AGU-RC7G", label: "Personal", price: 2.0 }]
   }
 ];
+

@@ -22,6 +22,7 @@ import {
   X,
   ArrowUpRight,
 } from "lucide-react";
+import { MAX_QTY_PER_ITEM } from "../constants";
 
 export default function CartDrawer({
   isCartOpen,
@@ -63,8 +64,6 @@ export default function CartDrawer({
   isSubmittingOrder,
   submitResult,
 }) {
-  if (!isCartOpen) return null;
-
   const cleanPhone = String(customerPhone || "").replace(/\D/g, "");
   const stepClientDone = customerName.trim().length >= 2 && cleanPhone.length >= 9;
   const stepDeliveryDone =
@@ -77,14 +76,19 @@ export default function CartDrawer({
     orderType === "delivery" && ["yape", "plin", "tarjeta"].includes(paymentMethod);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className={`fixed inset-0 z-50 flex justify-end cart-drawer-container ${isCartOpen ? "" : "cart-closed"}`} aria-hidden={!isCartOpen}>
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer cart-drawer-backdrop"
         onClick={() => setIsCartOpen(false)}
         aria-label="Cerrar carrito"
       ></div>
 
-      <div className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl rounded-l-[32px] flex flex-col border-l border-neutral-800 animate-in slide-in-from-right duration-300 z-10">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-label="Carrito de compras"
+        className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl rounded-l-[32px] flex flex-col border-l border-neutral-800 z-10 cart-drawer-panel"
+      >
         <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
           <h2 className="text-xl font-black flex items-center gap-2 text-white">
             <ShoppingCart className="text-[#FCC900]" />
@@ -93,6 +97,7 @@ export default function CartDrawer({
           <button
             onClick={() => setIsCartOpen(false)}
             className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white"
+            aria-label="Cerrar carrito"
           >
             <X size={24} />
           </button>
@@ -176,20 +181,33 @@ export default function CartDrawer({
                           <button
                             onClick={() => updateQuantity(item.id, -1)}
                             className="w-6 h-6 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 rounded text-white transition-colors"
+                            aria-label="Disminuir cantidad"
                           >
                             <Minus size={14} />
                           </button>
                           <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="w-6 h-6 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] text-black rounded transition-colors"
+                            onClick={() => {
+                              if (item.quantity < MAX_QTY_PER_ITEM) {
+                                updateQuantity(item.id, 1);
+                              } else {
+                                alert(`La cantidad máxima por producto es de ${MAX_QTY_PER_ITEM} unidades.`);
+                              }
+                            }}
+                            disabled={item.quantity >= MAX_QTY_PER_ITEM}
+                            className="w-6 h-6 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] disabled:bg-neutral-800 disabled:text-neutral-600 text-black rounded transition-colors"
+                            aria-label="Aumentar cantidad"
                           >
                             <Plus size={14} />
                           </button>
                         </div>
                       </div>
                     </div>
-                    <button onClick={() => removeFromCart(item.id)} className="text-neutral-500 hover:text-red-500 self-start p-1 transition-colors">
+                    <button 
+                      onClick={() => removeFromCart(item.id)} 
+                      className="text-neutral-500 hover:text-red-500 self-start p-1 transition-colors"
+                      aria-label="Eliminar del carrito"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </div>
