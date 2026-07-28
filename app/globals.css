@@ -35,97 +35,62 @@ body {
   letter-spacing: -0.12em;
 }
 
-/* --- CINTA DE ADVERTENCIA (WARNING STRIPE) --- */
-.warning-stripe {
-  background: repeating-linear-gradient(
-    45deg,
-    #fcc900 0px,
-    #fcc900 8px,
-    #1e1e1e 8px,
-    #1e1e1e 16px
-  );
+/* --- ESTILO STREETWEAR / BRUTALISMO URBANO (BERLIN / TOKYO) --- */
+.border-streetwear {
+  border: 3px solid #1F1F24;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.warning-stripe-vertical {
-  background: repeating-linear-gradient(
-    -45deg,
-    #fcc900 0px,
-    #fcc900 8px,
-    #1e1e1e 8px,
-    #1e1e1e 16px
-  );
+.border-streetwear:hover {
+  border-color: #FCC900;
+  box-shadow: 0 0 20px rgba(252, 201, 0, 0.2);
 }
 
-.warning-border {
-  border: 3px solid #fcc900;
-  outline: 2px solid #1e1e1e;
-  outline-offset: -5px;
+.border-streetwear-gold {
+  border: 3px solid #FCC900;
 }
 
-.warning-border-light {
-  border: 2px solid #fcc900;
-  outline: 1px solid #1e1e1e;
-  outline-offset: -3px;
-}
-
-/* --- BADGE ESTILO LETRERO DE OBRA / CUIDADO --- */
-.cuidado-badge {
-  background: #fcc900;
-  color: #1e1e1e;
+.btn-streetwear {
+  background-color: #FCC900;
+  color: #000000;
   font-family: var(--font-anton), Impact, sans-serif;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  border: 2px solid #1e1e1e;
-  box-shadow: 4px 4px 0px #1e1e1e;
+  letter-spacing: 0.05em;
+  border: 3px solid #000000;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
 }
 
-.cuidado-badge-sm {
-  background: #fcc900;
-  color: #1e1e1e;
+.btn-streetwear:hover {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+.btn-streetwear:active {
+  transform: scale(0.97);
+}
+
+.tag-streetwear {
+  background-color: #1F1F24;
+  border: 2px solid #33333D;
+  color: #FCC900;
   font-weight: 900;
   text-transform: uppercase;
-  border: 2px solid #1e1e1e;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  border-radius: 4px;
 }
 
-/* --- SELLO / STAMP --- */
-.sello-stamp {
-  background: transparent;
-  color: #fcc900;
-  border: 2px dashed #fcc900;
-  text-transform: uppercase;
+.block-yellow {
+  background-color: #FCC900;
+  color: #000000;
+  font-family: var(--font-anton), Impact, sans-serif;
   font-weight: 900;
-  letter-spacing: 0.04em;
-  transform: rotate(-3deg);
-}
-
-/* --- ESQUINAS DECORATIVAS --- */
-.corner-accent::before,
-.corner-accent::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #fcc900;
-}
-.corner-accent::before {
-  top: -1px;
-  left: -1px;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-.corner-accent::after {
-  bottom: -1px;
-  right: -1px;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-}
-
-/* --- GLOW AMARILLO UNIFICADO --- */
-.glow-yellow {
-  box-shadow: 0 0 25px rgba(252, 201, 0, 0.25);
-}
-
-.glow-yellow-strong {
-  box-shadow: 0 0 30px rgba(252, 201, 0, 0.4);
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border: 2px solid #000000;
+  display: inline-block;
 }
 
 /* --- CART DRAWER TRANSITIONS --- */

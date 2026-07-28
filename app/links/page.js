@@ -149,7 +149,7 @@ export default function LinksPage() {
 
   const getButtonStyle = (style) => {
     const styles = {
-      primary: "bg-gradient-to-r from-[#d99133] to-[#b07020] text-white hover:shadow-lg hover:shadow-[#d99133]/20",
+      primary: "bg-[#FCC900] text-black font-black hover:bg-[#e2b500] hover:shadow-lg hover:shadow-[#FCC900]/20",
       whatsapp: "bg-[#25D366] text-white hover:bg-[#20BD5A] hover:shadow-lg hover:shadow-[#25D366]/20",
       pedidosya: "bg-[#FF0050] text-white hover:bg-[#E6004A] hover:shadow-lg hover:shadow-[#FF0050]/20",
       instagram: "bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white hover:shadow-lg hover:shadow-purple-500/20",
@@ -164,16 +164,16 @@ export default function LinksPage() {
   if (!mounted) {
     return (
       <div className="min-h-screen bg-[#020204] flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-3 border-[#d99133]/20 border-t-[#d99133] animate-spin"></div>
+        <div className="w-12 h-12 rounded-full border-3 border-[#FCC900]/20 border-t-[#FCC900] animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020204] text-white">
+    <div className="min-h-screen bg-[#0F0F12] text-white border-t-3 border-[#FCC900]">
       {/* Background Pattern */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(217,145,51,0.08),transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(252,201,0,0.08),transparent_50%)]"></div>
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
       </div>
 
@@ -183,7 +183,7 @@ export default function LinksPage() {
         <header className="flex flex-col items-center mb-10">
           {/* Logo Title */}
           <div className="relative w-64 h-32 mb-2">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-20 bg-[#d99133] blur-[60px] opacity-20 rounded-full pointer-events-none"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-20 bg-[#FCC900] blur-[60px] opacity-20 rounded-full pointer-events-none"></div>
              <Image 
                src="/images/bigjacktitle.webp" 
                alt="Big Jack"
@@ -203,7 +203,7 @@ export default function LinksPage() {
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             <span className="text-neutral-300">Abierto</span>
             <span className="text-neutral-600">|</span>
-            <MapPin size={14} className="text-[#d99133]" />
+            <MapPin size={14} className="text-[#FCC900]" />
             <span className="text-neutral-400">Centro de Lima</span>
           </div>
         </header>
@@ -211,15 +211,15 @@ export default function LinksPage() {
         {/* Intro SEO/Misión */}
         <section className="mb-8 text-center space-y-3">
           <h1 className="text-xl font-black text-white leading-tight">
-            Burger spot de barrio en pleno Centro de Lima
+            Hamburguesas Artesanales en Centro de Lima
           </h1>
           <p className="text-neutral-400 text-sm leading-relaxed">
-            Nacimos en una esquina céntrica para servir hamburguesas gruesas con alma peruana. Atención directa, delivery cercano y la misión de llevar nuestro sabor a más barrios del país.
+            Carne 100% de res jugosa y gruesa, queso derretido en su punto y salsas de la casa. Pide online con delivery o pasa a recoger al toque.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/"
-              className="px-4 py-2.5 rounded-xl bg-[#d99133] text-black font-bold hover:bg-[#c07e2b] transition-all"
+              className="px-4 py-2.5 rounded-xl bg-[#FCC900] text-black font-black hover:bg-[#e2b500] transition-all"
             >
               Ver menú y pedir
             </Link>
@@ -227,7 +227,7 @@ export default function LinksPage() {
               href={restaurantInfo.contact.googleMapsLink}
               target="_blank"
               rel="noreferrer"
-              className="px-4 py-2.5 rounded-xl border border-neutral-700 text-white font-semibold hover:border-[#d99133]/60 hover:text-[#d99133] transition-all"
+              className="px-4 py-2.5 rounded-xl border border-neutral-700 text-white font-semibold hover:border-[#FCC900]/60 hover:text-[#FCC900] transition-all"
             >
               Estamos en Centro de Lima
             </a>

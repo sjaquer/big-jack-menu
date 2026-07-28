@@ -8,7 +8,7 @@ export default function FooterSection({
   RAPPI_LINK,
 }) {
   return (
-    <footer className="mt-auto bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-t-2 border-[#FCC900]/30">
+    <footer className="mt-auto bg-[#0F0F12] border-t-3 border-[#FCC900]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         {/* Principal Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
@@ -21,15 +21,14 @@ export default function FooterSection({
                   alt={restaurantInfo.name}
                   fill
                   sizes="192px"
-                  className="object-contain drop-shadow-[0_0_15px_rgba(252,201,0,0.24)]"
+                  className="object-contain"
                 />
               </div>
-              <p className="text-[#C0C0C0] text-sm leading-relaxed">{restaurantInfo.slogan}</p>
-              <div className="mt-4 rounded-xl border border-[#FCC900]/45 px-4 py-3 bg-[#1E1E1E]">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[#FCC900] font-black">
-                  Central de Potencia
-                </p>
-                <p className="font-signature text-white text-lg mt-1">Sello de autenticidad</p>
+              <p className="text-neutral-400 text-sm leading-relaxed">{restaurantInfo.slogan}</p>
+              <div className="mt-4">
+                <span className="tag-streetwear">
+                  [ CENTRAL BIG JACK - LIMA PERÚ ]
+                </span>
               </div>
             </div>
             <div>
@@ -193,7 +192,7 @@ export default function FooterSection({
                 Volver al menú
               </a>
               <p className="text-xs flex items-center gap-2 text-[#C0C0C0]">
-                Hecho en Lima <Sparkles size={14} className="text-[#B22222]" /> con calle
+                Hecho en Lima <Sparkles size={14} className="text-[#FCC900]" /> con calle
               </p>
             </div>
           </div>

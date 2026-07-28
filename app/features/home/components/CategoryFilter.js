@@ -44,14 +44,13 @@ export default function CategoryFilter({
   }, []);
 
   return (
-    <div className="sticky top-[73px] z-40 bg-gradient-to-b from-neutral-950 via-neutral-900/95 to-neutral-950 backdrop-blur-lg border-b-2 border-neutral-800 py-4 shadow-xl overflow-hidden">
+    <div className="sticky top-[73px] z-40 bg-[#0F0F12]/95 backdrop-blur-md border-b-3 border-neutral-800 py-4 shadow-xl overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 space-y-4">
         {/* Buscador en Tiempo Real & Título */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <p className="text-xs uppercase tracking-widest text-[#FCC900] font-black flex items-center gap-1.5">
-            <Flame size={14} className="text-[#B22222]" />
-            Catálogo & Categorías
-          </p>
+          <span className="tag-streetwear self-start sm:self-auto">
+            [ CATÁLOGO DE HAMBURGUESAS ]
+          </span>
 
           {onSearchChange && (
             <div className="relative w-full sm:w-72">
@@ -62,7 +61,7 @@ export default function CategoryFilter({
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Buscar burger, papas, bebida..."
                 aria-label="Buscar productos por nombre o ingrediente"
-                className="w-full bg-neutral-900 border border-neutral-700 focus:border-[#FCC900] focus:ring-2 focus:ring-[#FCC900]/20 rounded-full pl-10 pr-9 py-2 text-xs font-semibold text-white placeholder:text-neutral-500 outline-none transition-all"
+                className="w-full bg-[#131317] border-2 border-neutral-700 focus:border-[#FCC900] rounded-xl pl-10 pr-9 py-2 text-xs font-bold text-white placeholder:text-neutral-500 outline-none transition-all"
               />
               {searchQuery && (
                 <button
@@ -80,12 +79,12 @@ export default function CategoryFilter({
         {/* Scroller de Categorías */}
         <div className="relative">
           <div
-            className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-neutral-950 to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
+            className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0F0F12] to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
               scrolledLeft ? "opacity-100" : "opacity-0"
             }`}
           />
           <div
-            className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-neutral-950 to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
+            className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0F0F12] to-transparent pointer-events-none z-10 transition-opacity duration-200 ${
               scrolledRight ? "opacity-100" : "opacity-0"
             }`}
           />
@@ -107,16 +106,16 @@ export default function CategoryFilter({
                   key={cat}
                   onClick={() => onSelectCategory(cat)}
                   style={{ "--index": idx }}
-                  className={`min-h-[44px] px-5 py-2.5 rounded-full text-xs font-black tracking-wider transition-all border whitespace-nowrap active:scale-95 fade-in-stagger flex items-center gap-2 ${
+                  className={`min-h-[42px] px-5 py-2 rounded-xl text-xs font-black tracking-wider transition-all border-2 whitespace-nowrap flex items-center gap-2 uppercase ${
                     isActive
-                      ? "bg-[#FCC900] text-black border-[#FCC900] shadow-lg shadow-[#FCC900]/25 scale-105"
-                      : "bg-neutral-900/90 text-neutral-300 border-neutral-800 hover:border-[#FCC900]/50 hover:text-white hover:bg-neutral-800"
+                      ? "bg-[#FCC900] text-black border-[#FCC900] shadow-md"
+                      : "bg-[#131317] text-neutral-300 border-neutral-800 hover:border-[#FCC900] hover:text-white"
                   }`}
                 >
-                  <span>{cat === "TODOS" ? "🔥 TODO" : cat}</span>
+                  <span>{cat === "TODOS" ? "TODO EL MENÚ" : cat}</span>
                   {typeof count === "number" && (
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-black ${
                         isActive ? "bg-black text-[#FCC900]" : "bg-neutral-800 text-neutral-400"
                       }`}
                     >

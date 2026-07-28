@@ -737,15 +737,15 @@ export default function BigJackMenu() {
   const displayProduct = modalProduct || activeModalProduct;
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-900 text-white font-sans overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-[#0F0F12] text-white font-sans overflow-x-hidden">
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-[#1E1E1E]/95 backdrop-blur-md border-b-2 border-[#FCC900]/40 shadow-[0_10px_35px_rgba(0,0,0,0.55)]">
+      <header className="sticky top-0 z-50 bg-[#0F0F12]/95 backdrop-blur-md border-b-3 border-[#FCC900] shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center py-3 sm:py-4 header-inner">
             {/* Logo y título */}
-            <div className="flex-1">
+            <div className="flex-1 flex items-center gap-3">
               <Link href="/" className="block">
-                <div className="relative h-10 sm:h-12 w-44 hover:scale-105 transition-transform drop-shadow-[0_0_15px_rgba(252,201,0,0.35)]">
+                <div className="relative h-10 sm:h-12 w-44 hover:scale-105 transition-transform">
                   <Image 
                     src="/images/bigjacktitle.svg" 
                     alt={restaurantInfo.name} 
@@ -755,8 +755,10 @@ export default function BigJackMenu() {
                     priority
                   />
                 </div>
-                <p className="text-[10px] text-[#C0C0C0] hidden sm:block mt-1 font-semibold tracking-wide ml-1">Hablamos legal</p>
               </Link>
+              <span className="hidden sm:inline-block tag-streetwear">
+                [ LIMA CENTRO ]
+              </span>
             </div>
 
             {/* Info rápida - Solo desktop */}

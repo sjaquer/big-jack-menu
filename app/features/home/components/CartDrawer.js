@@ -140,14 +140,19 @@ export default function CartDrawer({
         aria-label="Carrito de compras"
         className="relative w-full max-w-md bg-neutral-900 h-full shadow-2xl rounded-l-[32px] flex flex-col border-l border-neutral-800 z-10 cart-drawer-panel"
       >
-        <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
-          <h2 className="text-xl font-black flex items-center gap-2 text-white">
-            <ShoppingCart className="text-[#FCC900]" />
+        <div className="relative border-b-3 border-[#FCC900] bg-[#0F0F12] p-5 flex justify-between items-center">
+          <h2 className="text-2xl font-anton tracking-wide flex items-center gap-3 text-white uppercase">
+            <ShoppingCart className="text-[#FCC900]" size={24} />
             TU PEDIDO
+            {cart.length > 0 && (
+              <span className="block-yellow text-xs">
+                {cart.reduce((sum, item) => sum + item.quantity, 0)} ITEMS
+              </span>
+            )}
           </h2>
           <button
             onClick={() => setIsCartOpen(false)}
-            className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white"
+            className="p-2 hover:bg-neutral-800 rounded-xl transition-colors text-neutral-400 hover:text-white"
             aria-label="Cerrar carrito"
           >
             <X size={24} />

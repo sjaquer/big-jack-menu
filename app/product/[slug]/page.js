@@ -77,8 +77,9 @@ export default async function ProductDetail({ params }) {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Imagen del producto */}
           <div className="relative">
-            <div className="absolute inset-0 bg-[#d99133]/20 blur-3xl rounded-full"></div>
-            <div className="relative aspect-square w-full rounded-[2rem] overflow-hidden border-4 border-neutral-800 shadow-2xl">
+            <div className="absolute inset-0 bg-[#FCC900]/20 blur-3xl rounded-full"></div>
+            <div className="relative aspect-square w-full rounded-[2.5rem] overflow-hidden border-4 border-[#FCC900] shadow-2xl warning-border">
+              <div className="tape-corner-tr" />
               <Image
                 src={product.image}
                 alt={product.name}
@@ -88,13 +89,12 @@ export default async function ProductDetail({ params }) {
                 priority
               />
               {product.popular && (
-                <div className="absolute top-6 left-6 bg-[#d99133] text-black px-4 py-2 rounded-full font-black text-sm flex items-center gap-2 shadow-lg">
-                  <Star size={16} fill="currentColor" />
-                  POPULAR
+                <div className="absolute top-6 left-6 cuidado-badge px-4 py-2 rounded-xl text-xs sm:text-sm shadow-xl z-20">
+                  HIT LIMEÑO
                 </div>
               )}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-[#d99133] font-bold mb-1">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-20">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#FCC900] font-black mb-1">
                   {product.category}
                 </p>
                 <h1 className="text-4xl md:text-5xl font-black text-white">
