@@ -311,7 +311,7 @@ export default function BigJackMenu() {
   const deliveryAvailable = true;
 
   // Sugerencias: solo productos activos para evitar agregar items no vendibles.
-  const suggestedGuarn = menuItems.find((it) => it.category === "GUARNICION" && it.available !== false);
+  const suggestedGuarn = menuItems.find((it) => (it.category === "GUARNICIONES" || it.slug === "papas-fritas") && it.available !== false);
   const suggestedInka = menuItems.find((it) => it.slug === "inka-cola" && it.available !== false);
   const suggestedCoca = menuItems.find((it) => it.slug === "coca-cola" && it.available !== false);
   const suggestionCards = useMemo(
@@ -489,16 +489,14 @@ export default function BigJackMenu() {
   };
 
   const clearCart = () => {
-    if (window.confirm('¿Estás seguro de vaciar todo el carrito?')) {
-      setCart([]);
-      setSubmitResult(null);
-      setOrderConfirmation(null);
-      setIsPreOrder(false);
-      try {
-        localStorage.removeItem('cart');
-        localStorage.removeItem('bj_preorder');
-      } catch(e) {}
-    }
+    setCart([]);
+    setSubmitResult(null);
+    setOrderConfirmation(null);
+    setIsPreOrder(false);
+    try {
+      localStorage.removeItem("cart");
+      localStorage.removeItem("bj_preorder");
+    } catch (e) {}
   };
 
   const updateQuantity = (id, delta) => {

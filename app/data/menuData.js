@@ -28,6 +28,7 @@ export const restaurantInfo = {
 
 export const categories = [
   "LAS INTOCABLES",
+  "GUARNICIONES",
   "BEBIDAS"
 ];
 
@@ -84,6 +85,33 @@ export const menuItems = [
     image: "/images/lamisia.webp",
     popular: false,
     options: [{ id: "simple", sku: "PRD-LAM-IPH3", label: "Clásica (1 carne)", price: 12.90 }]
+  },
+  {
+    id: 20,
+    sku: "PRD-PAP-FRIT",
+    slug: "papas-fritas",
+    category: "GUARNICIONES",
+    name: "Papas Fritas Crocantes",
+    description: "Papas amarillas crocantes por fuera y suaves por dentro, sazonadas con sal de mar y especias.",
+    image: "/images/papas-fritas.webp",
+    popular: true,
+    options: [
+      { id: "personal", sku: "PRD-PAP-PERS", label: "Porción Personal", price: 7.00 },
+      { id: "familiar", sku: "PRD-PAP-FAMI", label: "Porción Familiar", price: 12.00 }
+    ]
+  },
+  {
+    id: 21,
+    sku: "PRD-SAL-CHIP",
+    slug: "salchipapa",
+    category: "GUARNICIONES",
+    name: "Salchipapa Clásica",
+    description: "Abundante porción de papas crocantes acompañadas de salchicha frankfurt dorada y cremas de la casa.",
+    image: "/images/salchipapa.webp",
+    popular: false,
+    options: [
+      { id: "personal", sku: "PRD-SAL-PERS", label: "Personal", price: 10.00 }
+    ]
   },
   {
     id: 30,
