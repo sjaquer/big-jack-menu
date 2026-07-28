@@ -104,18 +104,22 @@ export default function CategoryFilter({
               return (
                 <button
                   key={cat}
-                  onClick={() => onSelectCategory(cat)}
+                  type="button"
+                  onClick={(e) => {
+                    onSelectCategory(cat);
+                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                  }}
                   style={{ "--index": idx }}
-                  className={`min-h-[42px] px-5 py-2 rounded-xl text-xs font-black tracking-wider transition-all border-2 whitespace-nowrap flex items-center gap-2 uppercase ${
+                  className={`min-h-[44px] px-5 py-2.5 rounded-full text-xs font-black tracking-wider transition-all border-2 whitespace-nowrap flex items-center gap-2 uppercase active:scale-95 flex-shrink-0 ${
                     isActive
-                      ? "bg-[#FCC900] text-black border-[#FCC900] shadow-md"
-                      : "bg-[#131317] text-neutral-300 border-neutral-800 hover:border-[#FCC900] hover:text-white"
+                      ? "bg-[#FCC900] text-black border-[#FCC900] shadow-lg shadow-[#FCC900]/20 font-black scale-105"
+                      : "bg-[#131317] text-neutral-300 border-neutral-800 hover:border-[#FCC900]/50 hover:text-white"
                   }`}
                 >
                   <span>{cat === "TODOS" ? "TODO EL MENÚ" : cat}</span>
                   {typeof count === "number" && (
                     <span
-                      className={`px-2 py-0.5 rounded-lg text-[10px] font-black ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
                         isActive ? "bg-black text-[#FCC900]" : "bg-neutral-800 text-neutral-400"
                       }`}
                     >
