@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import { useState } from "react";
 import {
   AlertTriangle,
   Banknote,
@@ -14,7 +16,6 @@ import {
   Send,
   ShoppingCart,
   Smartphone,
-  Sparkles,
   Phone,
   Trash2,
   Truck,
@@ -23,6 +24,27 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { MAX_QTY_PER_ITEM } from "../constants";
+
+function ItemThumb({ src, name }) {
+  const [err, setErr] = useState(false);
+  if (err || !src) {
+    return (
+      <div className="w-full h-full bg-neutral-700 flex items-center justify-center text-neutral-500 text-xs">
+        BJ
+      </div>
+    );
+  }
+  return (
+    <Image
+      src={src}
+      alt={name}
+      fill
+      sizes="64px"
+      className="object-cover"
+      onError={() => setErr(true)}
+    />
+  );
+}
 
 export default function CartDrawer({
   isCartOpen,
@@ -63,6 +85,7 @@ export default function CartDrawer({
   submitOrderToSystem,
   isSubmittingOrder,
   submitResult,
+  onToast,
 }) {
   const cleanPhone = String(customerPhone || "").replace(/\D/g, "");
   const stepClientDone = customerName.trim().length >= 2 && cleanPhone.length >= 9;
@@ -75,15 +98,43 @@ export default function CartDrawer({
   const showDeliveryPaymentReminder =
     orderType === "delivery" && ["yape", "plin", "tarjeta"].includes(paymentMethod);
 
+  const handleClearCart = () => {
+    if (cart.length === 0) return;
+    if (onToast) {
+      onToast({
+        type: "confirm",
+        message: "¿Vaciar todo el carrito?",
+        onConfirm: clearCart,
+      });
+    } else {
+      if (window.confirm("¿Estás seguro de vaciar todo el carrito?")) {
+        clearCart();
+      }
+    }
+  };
+
+  const handleQuantityUp = (item) => {
+    if (item.quantity < MAX_QTY_PER_ITEM) {
+      updateQuantity(item.id, 1);
+    } else if (onToast) {
+      onToast({
+        type: "error",
+        message: `Máximo ${MAX_QTY_PER_ITEM} unidades por producto`,
+      });
+    } else {
+      alert(`La cantidad máxima por producto es de ${MAX_QTY_PER_ITEM} unidades.`);
+    }
+  };
+
   return (
     <div className={`fixed inset-0 z-50 flex justify-end cart-drawer-container ${isCartOpen ? "" : "cart-closed"}`} aria-hidden={!isCartOpen}>
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer cart-drawer-backdrop"
         onClick={() => setIsCartOpen(false)}
         aria-label="Cerrar carrito"
-      ></div>
+      />
 
-      <div 
+      <div
         role="dialog"
         aria-modal="true"
         aria-label="Carrito de compras"
@@ -103,7 +154,7 @@ export default function CartDrawer({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent p-5 space-y-6">
+        <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center space-y-6">
               <div className="space-y-2">
@@ -124,22 +175,15 @@ export default function CartDrawer({
                       onClick={() => openProductModal(item)}
                       className="w-full flex items-center gap-4 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 hover:border-[#FCC900]/50 p-3 rounded-2xl transition-all group text-left"
                     >
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-700 flex-shrink-0 border border-neutral-600">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.src = "https://placehold.co/100x100/222/d99133?text=BJ";
-                          }}
-                        />
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-700 flex-shrink-0 border border-neutral-600 relative">
+                        <ItemThumb src={item.image} name={item.name} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-white group-hover:text-[#FCC900] transition-colors truncate">{item.name}</p>
                         <p className="text-xs text-neutral-400 line-clamp-1">{item.description}</p>
                         <p className="text-[#FCC900] font-black text-sm mt-1">S/ {item.options?.[0]?.price.toFixed(2)}</p>
                       </div>
-                      <div className="w-8 h-8 rounded-full bg-[#FCC900] text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 shadow-lg shadow-[#FCC900]/20">
+                      <div className="w-8 h-8 rounded-full bg-[#FCC900] text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 shadow-lg shadow-[#FCC900]/20">
                         <Plus size={18} />
                       </div>
                     </button>
@@ -152,7 +196,7 @@ export default function CartDrawer({
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs uppercase tracking-[0.18em] text-neutral-400">Productos ({cart.length})</p>
                   <button
-                    onClick={clearCart}
+                    onClick={handleClearCart}
                     className="inline-flex min-h-[34px] items-center justify-center gap-1.5 rounded-lg border border-red-600/50 bg-red-600/10 px-3 text-xs font-semibold text-red-300 transition-colors hover:bg-red-600/20"
                   >
                     <Trash2 size={14} />
@@ -162,15 +206,8 @@ export default function CartDrawer({
 
                 {cart.map((item) => (
                   <div key={item.id} className="flex gap-4 bg-neutral-800/50 p-3 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-colors">
-                    <div className="w-16 h-16 bg-neutral-700 rounded-xl overflow-hidden flex-shrink-0 border border-neutral-700">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = "https://placehold.co/100x100/222/d99133?text=BJ";
-                        }}
-                      />
+                    <div className="w-16 h-16 bg-neutral-700 rounded-xl overflow-hidden flex-shrink-0 border border-neutral-700 relative">
+                      <ItemThumb src={item.image} name={item.name} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-sm mb-1 text-white truncate">{item.name}</h4>
@@ -187,13 +224,7 @@ export default function CartDrawer({
                           </button>
                           <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => {
-                              if (item.quantity < MAX_QTY_PER_ITEM) {
-                                updateQuantity(item.id, 1);
-                              } else {
-                                alert(`La cantidad máxima por producto es de ${MAX_QTY_PER_ITEM} unidades.`);
-                              }
-                            }}
+                            onClick={() => handleQuantityUp(item)}
                             disabled={item.quantity >= MAX_QTY_PER_ITEM}
                             className="w-6 h-6 flex items-center justify-center bg-[#FCC900] hover:bg-[#e2b500] disabled:bg-neutral-800 disabled:text-neutral-600 text-black rounded transition-colors"
                             aria-label="Aumentar cantidad"
@@ -203,8 +234,8 @@ export default function CartDrawer({
                         </div>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => removeFromCart(item.id)} 
+                    <button
+                      onClick={() => removeFromCart(item.id)}
                       className="text-neutral-500 hover:text-red-500 self-start p-1 transition-colors"
                       aria-label="Eliminar del carrito"
                     >
@@ -237,7 +268,7 @@ export default function CartDrawer({
                   </div>
                 </div>
 
-                <div className="bg-neutral-800/60 rounded-2xl border border-neutral-700 p-4 space-y-4 animate-in fade-in">
+                <div className="bg-neutral-800/60 rounded-2xl border border-neutral-700 p-4 space-y-4">
                   <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400">Cliente</p>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
@@ -279,7 +310,7 @@ export default function CartDrawer({
                   </div>
                 </div>
 
-                <div className="bg-neutral-800/60 rounded-2xl border border-neutral-700 p-4 space-y-4 animate-in fade-in">
+                <div className="bg-neutral-800/60 rounded-2xl border border-neutral-700 p-4 space-y-4">
                   <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400">{orderType === "delivery" ? "Entrega" : "Recojo"}</p>
 
                   {orderType === "delivery" ? (
@@ -372,7 +403,7 @@ export default function CartDrawer({
                   )}
                 </div>
 
-                <div className="bg-neutral-800/60 rounded-2xl border border-neutral-700 p-4 space-y-4 animate-in fade-in">
+                <div className="bg-neutral-800/60 rounded-2xl border border-neutral-700 p-4 space-y-4">
                   <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400">Pago</p>
                   <div className="grid grid-cols-2 gap-2">
                     {[
@@ -388,9 +419,7 @@ export default function CartDrawer({
                         <button
                           type="button"
                           key={m.id}
-                          onClick={() => {
-                            if (!disabled) setPaymentMethod(m.id);
-                          }}
+                          onClick={() => { if (!disabled) setPaymentMethod(m.id); }}
                           disabled={disabled}
                           aria-disabled={disabled ? "true" : "false"}
                           className={`min-h-[72px] rounded-xl text-sm font-bold border flex flex-col items-center justify-center gap-1 px-3 text-center transition-all ${isActive ? "bg-[#FCC900] text-black border-[#FCC900]" : "bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500"} ${disabled ? "opacity-45 cursor-not-allowed" : ""}`}
@@ -430,7 +459,7 @@ export default function CartDrawer({
           </div>
           {orderType === "delivery" && (
             <div className="mb-4 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 text-xs text-blue-100">
-              El costo de delivery se coordina con inDrive y puede variar según ubicación, tráfico y hora. Este total no incluye ese envío.
+              El costo de delivery se coordina con inDrive. Este total no incluye el envío.
             </div>
           )}
           <button

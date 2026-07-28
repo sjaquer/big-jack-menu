@@ -1,5 +1,4 @@
-"use client";
-
+import Image from "next/image";
 import { X, Minus, Plus, ShoppingCart } from "lucide-react";
 
 export default function SuggestionModal({
@@ -72,15 +71,14 @@ export default function SuggestionModal({
                   className="bg-neutral-800/50 border-2 border-neutral-700 rounded-2xl p-4 space-y-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-neutral-900 border border-neutral-700 flex-shrink-0">
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-neutral-900 border border-neutral-700 flex-shrink-0">
                       {item?.image ? (
-                        <img
+                        <Image
                           src={item.image}
                           alt={item.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = "https://placehold.co/100x100/222/fcc900?text=BIG+JACK";
-                          }}
+                          fill
+                          sizes="64px"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full grid place-content-center text-xs text-neutral-400">

@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { AlertTriangle, Plus, Check } from "lucide-react";
+import { useState } from "react";
 
 export default function ProductCard({
   item,
@@ -16,6 +18,7 @@ export default function ProductCard({
   const isPrimary = PRIMARY_CATEGORIES.includes(item.category);
   const isUnavailable = item.available === false;
   const isDisabled = complementBlocked || isUnavailable;
+  const [imgError, setImgError] = useState(false);
 
   const optionsToRender = item.options?.length
     ? item.options
@@ -26,14 +29,12 @@ export default function ProductCard({
     optionsToRender[0].price
   );
 
-  // Current quantity of this product in the cart
   const itemQtyInCart = cart
     .filter((c) => c.productId === item.id)
     .reduce((sum, c) => sum + c.quantity, 0);
 
   return (
     <div className="group relative bg-[#1E1E1E] border-2 border-[#C0C0C0]/20 rounded-[2.5rem] overflow-hidden hover:border-[#FCC900]/50 transition-all duration-300 flex flex-col shadow-lg hover:shadow-2xl hover:shadow-[#FCC900]/10 product-card-anim">
-      {/* No disponible badge */}
       {isUnavailable && (
         <div className="absolute top-3 right-3 z-30 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 drop-shadow-lg">
           <AlertTriangle size={14} />
@@ -41,35 +42,32 @@ export default function ProductCard({
         </div>
       )}
 
-      {/* Image Section - BIG & IMMERSIVE */}
       <div className="relative block overflow-hidden bg-black flex-shrink-0 aspect-square sm:aspect-[4/3] w-full">
-        {item.image ? (
-          <img
+        {item.image && !imgError ? (
+          <Image
             src={item.image}
             alt={item.name}
-            className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover transform transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
-            onError={(e) => {
-              e.currentTarget.src = "https://placehold.co/800x600/222/fcc900?text=BIG+JACK";
-            }}
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-neutral-500 font-bold uppercase tracking-widest text-sm bg-neutral-900">
-            Sin foto
+            {imgError ? "Sin foto" : "Sin foto"}
           </div>
         )}
 
-        {/* Dark Gradient Overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1E1E1E] via-[#1e1e1e]/60 to-transparent sm:via-[#1e1e1e]/40" />
         <div className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100 bg-black/10 pointer-events-none" />
 
         {item.popular && (
-          <span className="absolute top-5 left-5 bg-[#FCC900] text-black text-xs font-black uppercase tracking-[0.1em] px-4 py-2 rounded-full shadow-xl border-2 border-black/20 z-10 animate-bounce-slow">
+          <span className="absolute top-5 left-5 bg-[#FCC900] text-black text-xs font-black uppercase tracking-[0.1em] px-4 py-2 rounded-full shadow-xl border-2 border-black/20 z-10">
             HIT DE BARRIO
           </span>
         )}
 
-        {/* Header & Price Tag container layered on image */}
         <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end z-20">
           <div className="flex-1 pr-4">
             <p className="text-[11px] uppercase tracking-[0.2em] text-[#FCC900] font-black mb-1 drop-shadow-md">
@@ -95,13 +93,11 @@ export default function ProductCard({
         </div>
       </div>
 
-      {/* Content Section */}
       <div className="p-6 flex-1 flex flex-col justify-between z-10 relative bg-[#1E1E1E]">
         <p className="text-[#C0C0C0] text-sm sm:text-base leading-relaxed mb-6 font-medium line-clamp-3">
           {item.description}
         </p>
 
-        {/* Actions for easy bulk add */}
         <div className="mt-auto border-t border-[#C0C0C0]/10 pt-5">
           {isPrimary ? (
             <div className="flex items-center gap-3">
@@ -114,13 +110,13 @@ export default function ProductCard({
                     : "bg-[#FCC900] hover:bg-[#e2b500]"
                 }`}
               >
-                <Plus size={20} className="transition-transform group-hover:rotate-90" />
+                <Plus size={20} className="transition-transform duration-300 group-hover:rotate-90" />
                 <span className="hidden sm:inline">Armar combo / Agregar</span>
                 <span className="sm:hidden">Pedir ahora</span>
               </button>
 
               {itemQtyInCart > 0 && (
-                <div className="w-14 h-14 bg-[#B22222]/10 border-2 border-[#B22222] text-[#ffb4b4] rounded-2xl flex items-center justify-center text-xl font-black flex-shrink-0 animate-in pop-in">
+                <div className="w-14 h-14 bg-[#B22222]/10 border-2 border-[#B22222] text-[#ffb4b4] rounded-2xl flex items-center justify-center text-xl font-black flex-shrink-0">
                   x{itemQtyInCart}
                 </div>
               )}

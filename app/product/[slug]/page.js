@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { menuItems, restaurantInfo } from "../../data/menuData";
@@ -77,11 +78,14 @@ export default async function ProductDetail({ params }) {
           {/* Imagen del producto */}
           <div className="relative">
             <div className="absolute inset-0 bg-[#d99133]/20 blur-3xl rounded-full"></div>
-            <div className="relative rounded-[2rem] overflow-hidden border-4 border-neutral-800 shadow-2xl">
-              <img
+            <div className="relative aspect-square w-full rounded-[2rem] overflow-hidden border-4 border-neutral-800 shadow-2xl">
+              <Image
                 src={product.image}
                 alt={product.name}
-                className="w-full aspect-square object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                priority
               />
               {product.popular && (
                 <div className="absolute top-6 left-6 bg-[#d99133] text-black px-4 py-2 rounded-full font-black text-sm flex items-center gap-2 shadow-lg">

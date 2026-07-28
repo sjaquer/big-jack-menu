@@ -35,34 +35,10 @@ body {
   letter-spacing: -0.12em;
 }
 
-/* Sobrescribir utilidades comunes de Tailwind para mantener el diseño sin cambiar HTML */
-.text-yellow-500 { color: var(--bj-accent) !important; }
-.bg-yellow-500 { background-color: var(--bj-accent) !important; }
-.bg-yellow-500\/50 { background-color: rgba(252,201,0,0.5) !important; }
-.text-orange-500 { color: var(--bj-accent) !important; }
-.bg-orange-600 { background-color: var(--bj-accent) !important; }
-.bg-orange-500 { background-color: var(--bj-accent) !important; }
-.text-orange-400 { color: var(--bj-accent) !important; }
-.border-orange-500 { border-color: var(--bj-accent) !important; }
-.shadow-orange-900\/50 { box-shadow: 0 10px 15px -3px rgba(252,201,0,0.5), 0 4px 6px -2px rgba(252,201,0,0.25) !important; }
-
-/* Algunos componentes usan estilos inline de color de texto con clases compuestas */
-.text-yellow-500\.font-bold { color: var(--bj-accent) !important; }
-
-/* Ajuste para badges y bordes con transparencia */
-.bg-yellow-500\.text-black { background-color: var(--bj-accent) !important; color: #000 !important; }
-
-.text-bj-cream { color: var(--potencia-aluminio) !important; }
-.bg-bj-cream { background-color: var(--potencia-aluminio) !important; color: #111 !important; }
-.border-bj-cream { border-color: var(--potencia-aluminio) !important; }
-
-/* Si usas otras utilidades de amarillo/naranja, añádelas aquí siguiendo el mismo patrón */
-
-/* --- CART DRAWER SMOOTH TRANSITIONS --- */
+/* --- CART DRAWER TRANSITIONS --- */
 .cart-drawer-container {
   display: flex;
-  transition: display 0.3s;
-  transition-behavior: allow-discrete;
+  transition: opacity 0.3s ease;
 }
 
 .cart-drawer-panel {
@@ -78,32 +54,23 @@ body {
   transition: opacity 0.3s ease;
 }
 
-@starting-style {
-  .cart-drawer-panel {
-    translate: 100% 0;
-    opacity: 0;
-  }
-  .cart-drawer-backdrop {
-    opacity: 0;
-  }
-}
-
 .cart-drawer-container.cart-closed {
   display: none;
 }
-.cart-drawer-container.cart-closed .cart-drawer-panel {
+
+.cart-closed .cart-drawer-panel {
   translate: 100% 0;
   opacity: 0;
 }
-.cart-drawer-container.cart-closed .cart-drawer-backdrop {
+
+.cart-closed .cart-drawer-backdrop {
   opacity: 0;
 }
 
-/* --- PRODUCT MODAL SMOOTH TRANSITIONS --- */
+/* --- PRODUCT MODAL TRANSITIONS --- */
 .product-modal-container {
   display: flex;
-  transition: display 0.3s;
-  transition-behavior: allow-discrete;
+  transition: opacity 0.3s ease;
 }
 
 .product-modal-panel {
@@ -119,91 +86,42 @@ body {
   transition: opacity 0.3s ease;
 }
 
-@starting-style {
-  .product-modal-panel {
-    scale: 0.95;
-    opacity: 0;
-  }
-  .product-modal-backdrop {
-    opacity: 0;
-  }
-}
-
 .product-modal-container.modal-closed {
   display: none;
 }
-.product-modal-container.modal-closed .product-modal-panel {
+
+.modal-closed .product-modal-panel {
   scale: 0.95;
   opacity: 0;
 }
-.product-modal-container.modal-closed .product-modal-backdrop {
+
+.modal-closed .product-modal-backdrop {
   opacity: 0;
 }
 
 /* --- PRODUCT CARDS SCROLL REVEAL --- */
-@media (prefers-reduced-motion: no-preference) {
-  @supports ((animation-timeline: view()) and (animation-range: entry)) {
-    @keyframes product-reveal {
-      from {
-        opacity: 0;
-        translate: 0 40px;
-        scale: 0.96;
-      }
-      to {
-        opacity: 1;
-        translate: 0 0;
-        scale: 1;
-      }
-    }
-
-    .product-card-anim {
-      animation: product-reveal auto linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 30%;
-    }
+@keyframes product-reveal {
+  from {
+    opacity: 0;
+    translate: 0 40px;
+    scale: 0.96;
   }
-
-  /* Fallback for browsers that don't support view() timeline */
-  @supports not ((animation-timeline: view()) and (animation-range: entry)) {
-    .product-card-anim {
-      opacity: 0;
-      translate: 0 35px;
-      scale: 0.96;
-      transition:
-        opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-        translate 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-        scale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .product-card-anim.reveal-visible {
-      opacity: 1;
-      translate: 0 0;
-      scale: 1;
-    }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
   }
 }
 
-/* --- SHRINKING STICKY HEADER ON SCROLL --- */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: scroll()) {
-    @keyframes shrink-header-padding {
-      to {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-      }
-    }
-
-    header {
-      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    header .header-inner {
-      animation: shrink-header-padding linear both;
-      animation-timeline: scroll();
-      animation-range: 0px 100px;
-    }
-  }
+.product-card-anim {
+  opacity: 0;
+  animation: product-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+.product-card-anim:nth-child(1) { animation-delay: 0s; }
+.product-card-anim:nth-child(2) { animation-delay: 0.08s; }
+.product-card-anim:nth-child(3) { animation-delay: 0.16s; }
+.product-card-anim:nth-child(4) { animation-delay: 0.24s; }
 
 /* --- STAGGERED FADE IN ANIMATIONS --- */
 @keyframes fade-in-up {
@@ -223,3 +141,97 @@ body {
   animation-delay: calc(var(--index, 0) * 0.05s);
 }
 
+/* --- SKELETON LOADING ANIMATION --- */
+@keyframes skeleton-pulse {
+  0% { background-color: rgba(255, 255, 255, 0.04); }
+  50% { background-color: rgba(255, 255, 255, 0.1); }
+  100% { background-color: rgba(255, 255, 255, 0.04); }
+}
+
+.skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* --- TOAST NOTIFICATION --- */
+@keyframes toast-in {
+  from { translate: 100% 0; opacity: 0; }
+  to { translate: 0 0; opacity: 1; }
+}
+
+@keyframes toast-out {
+  from { translate: 0 0; opacity: 1; }
+  to { translate: 100% 0; opacity: 0; }
+}
+
+.toast-enter {
+  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-exit {
+  animation: toast-out 0.2s ease forwards;
+}
+
+/* --- SHRINKING STICKY HEADER ON SCROLL --- */
+@keyframes shrink-header-padding {
+  to {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+header {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+header .header-inner {
+  transition: padding 0.3s ease;
+}
+
+header.scrolled .header-inner {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* --- UTILITY: SCROLLBAR HIDE --- */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- CUSTOM DARK SCROLLBAR --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0c;
+}
+::-webkit-scrollbar-thumb {
+  background: #333339;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d99133;
+}
+
+/* --- ACCESSIBILITY FOCUS RINGS --- */
+:focus-visible {
+  outline: 2px solid #d99133 !important;
+  outline-offset: 2px !important;
+}
+
+/* --- GLASSMORPHISM & UTILITIES --- */
+.glass-panel {
+  background: rgba(18, 18, 22, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gold-glow {
+  box-shadow: 0 0 25px rgba(217, 145, 51, 0.25);
+}

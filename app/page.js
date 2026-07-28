@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
 import {
@@ -276,11 +277,34 @@ export default function BigJackMenu() {
     return () => clearTimeout(timeout);
   }, [customerName, customerPhone, orderType, deliveryAddress, deliveryReference, deliveryDetails, paymentMethod, notes]);
 
-  // Filtrar productos por categoría
+  // Estado de búsqueda y categoría
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const categoryCounts = useMemo(() => {
+    const counts = { TODOS: menuItems.length };
+    categories.forEach((cat) => {
+      counts[cat] = menuItems.filter((i) => i.category === cat).length;
+    });
+    return counts;
+  }, []);
+
+  // Filtrar productos por categoría y búsqueda
   const filteredItems = useMemo(() => {
-    if (selectedCategory === "TODOS") return menuItems;
-    return menuItems.filter((item) => item.category === selectedCategory);
-  }, [selectedCategory]);
+    let items = menuItems;
+    if (selectedCategory !== "TODOS") {
+      items = items.filter((item) => item.category === selectedCategory);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      items = items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(q) ||
+          item.description?.toLowerCase().includes(q) ||
+          item.category?.toLowerCase().includes(q)
+      );
+    }
+    return items;
+  }, [selectedCategory, searchQuery]);
 
   const heroHighlight = menuItems[0];
   const heroPriceRange = useMemo(() => getHeroPriceRange(menuItems), []);
@@ -721,11 +745,16 @@ export default function BigJackMenu() {
             {/* Logo y título */}
             <div className="flex-1">
               <Link href="/" className="block">
-                <img 
-                  src="/images/bigjacktitle.svg" 
-                  alt={restaurantInfo.name} 
-                  className="h-10 sm:h-12 w-auto object-contain hover:scale-105 transition-transform drop-shadow-[0_0_15px_rgba(252,201,0,0.35)]" 
-                />
+                <div className="relative h-10 sm:h-12 w-44 hover:scale-105 transition-transform drop-shadow-[0_0_15px_rgba(252,201,0,0.35)]">
+                  <Image 
+                    src="/images/bigjacktitle.svg" 
+                    alt={restaurantInfo.name} 
+                    fill
+                    sizes="176px"
+                    className="object-contain"
+                    priority
+                  />
+                </div>
                 <p className="text-[10px] text-[#C0C0C0] hidden sm:block mt-1 font-semibold tracking-wide ml-1">Hablamos legal</p>
               </Link>
             </div>
@@ -827,6 +856,9 @@ export default function BigJackMenu() {
         categories={categories}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        categoryCounts={categoryCounts}
       />
 
       <MenuGrid

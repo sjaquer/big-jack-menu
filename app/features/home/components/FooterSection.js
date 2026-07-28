@@ -1,5 +1,4 @@
-"use client";
-
+import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, Instagram, MapPin, Navigation, Clock, Clipboard, Sparkles } from "lucide-react";
 
@@ -16,11 +15,15 @@ export default function FooterSection({
           {/* About us */}
           <div className="space-y-5 lg:col-span-1">
             <div>
-              <img
-                src="/images/bigjacklogotipo.svg"
-                alt={restaurantInfo.name}
-                className="h-16 w-auto object-contain mb-4 drop-shadow-[0_0_15px_rgba(252,201,0,0.24)]"
-              />
+              <div className="relative h-16 w-48 mb-4">
+                <Image
+                  src="/images/bigjacklogotipo.svg"
+                  alt={restaurantInfo.name}
+                  fill
+                  sizes="192px"
+                  className="object-contain drop-shadow-[0_0_15px_rgba(252,201,0,0.24)]"
+                />
+              </div>
               <p className="text-[#C0C0C0] text-sm leading-relaxed">{restaurantInfo.slogan}</p>
               <div className="mt-4 rounded-xl border border-[#FCC900]/45 px-4 py-3 bg-[#1E1E1E]">
                 <p className="text-[11px] uppercase tracking-[0.22em] text-[#FCC900] font-black">
