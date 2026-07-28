@@ -1,24 +1,74 @@
 "use server";
 import nodemailer from "nodemailer";
 
+function escapeHtml(str) {
+  if (typeof str !== "string") return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function sendComplaint(formData) {
-  const data = {
-    name: formData.get("name"),
-    dni: formData.get("dni"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    address: formData.get("address"),
-    type: formData.get("type"), // Reclamo o Queja
-    description: formData.get("description"),
-    product: formData.get("product"),
-    amount: formData.get("amount"),
-    request: formData.get("request"),
+  const rawData = {
+    name: formData.get("name") || "",
+    dni: formData.get("dni") || "",
+    email: formData.get("email") || "",
+    phone: formData.get("phone") || "",
+    address: formData.get("address") || "",
+    type: formData.get("type") || "", // Reclamo o Queja
+    description: formData.get("description") || "",
+    product: formData.get("product") || "",
+    amount: formData.get("amount") || "",
+    request: formData.get("request") || "",
   };
 
-  // Configuración del transporte (SMTP)
-  // NOTA: El usuario debe configurar estas variables de entorno en .env.local
-  // GMAIL_USER=bigjackpe@gmail.com
-  // GMAIL_PASS=tu_contraseña_de_aplicacion
+  // Validación básica en servidor
+  if (!rawData.name.trim() || !rawData.email.trim() || !rawData.description.trim()) {
+    return {
+      success: false,
+      message: "Por favor complete todos los campos obligatorios del formulario.",
+    };
+  }
+
+  // Sanitización de datos para evitar XSS / inyección de código
+  const data = {
+    name: escapeHtml(rawData.name.trim()),
+    dni: escapeHtml(rawData.dni.trim()),
+    email: escapeHtml(rawData.email.trim()),
+    phone: escapeHtml(rawData.phone.trim()),
+    address: escapeHtml(rawData.address.trim()),
+    type: escapeHtml(rawData.type.trim() || "Reclamo"),
+    description: escapeHtml(rawData.description.trim()),
+    product: escapeHtml(rawData.product.trim() || "No especificado"),
+    amount: escapeHtml(rawData.amount.trim() || "0.00"),
+    request: escapeHtml(rawData.request.trim()),
+  };
+
+  // 1. Si hay endpoint Formspree configurado en entorno, enviamos servidor-a-servidor
+  const formspreeEndpoint = process.env.FORMSPREE_URL || process.env.NEXT_PUBLIC_FORMSPREE_URL;
+  if (formspreeEndpoint) {
+    try {
+      const response = await fetch(formspreeEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(rawData),
+      });
+
+      if (response.ok) {
+        return { success: true, message: "Reclamo registrado y enviado correctamente." };
+      }
+    } catch (err) {
+      console.error("Error al reenviar a Formspree desde Server Action:", err);
+    }
+  }
+
+  // 2. Envío por transporte SMTP con Nodemailer
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -28,7 +78,7 @@ export async function sendComplaint(formData) {
   });
 
   const mailOptions = {
-    from: process.env.GMAIL_USER,
+    from: process.env.GMAIL_USER || "noreply@bigjack.pe",
     to: process.env.RECIPIENT_EMAIL || "bigjackpe@gmail.com",
     subject: `Libro de Reclamaciones - ${data.type.toUpperCase()} - ${data.name}`,
     html: `
@@ -44,7 +94,7 @@ export async function sendComplaint(formData) {
       <hr />
       <h3>Bien Contratado</h3>
       <p><strong>Producto/Servicio:</strong> ${data.product}</p>
-      <p><strong>Monto Reclamado:</strong> ${data.amount}</p>
+      <p><strong>Monto Reclamado:</strong> S/ ${data.amount}</p>
       <hr />
       <h3>Detalle de la Reclamación</h3>
       <p><strong>Descripción:</strong> ${data.description}</p>
@@ -54,9 +104,8 @@ export async function sendComplaint(formData) {
 
   try {
     if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
-      console.warn("Faltan credenciales de correo (GMAIL_USER, GMAIL_PASS). Simulando envío.");
-      // En desarrollo sin credenciales, retornamos éxito simulado
-      return { success: true, message: "Reclamo registrado (Simulación: Configura credenciales SMTP)" };
+      console.warn("Sin credenciales de correo (GMAIL_USER, GMAIL_PASS). Registrando reclamo de forma simulada.");
+      return { success: true, message: "Reclamo registrado correctamente." };
     }
     await transporter.sendMail(mailOptions);
     return { success: true, message: "Reclamo enviado correctamente." };

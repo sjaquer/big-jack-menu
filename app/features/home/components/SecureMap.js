@@ -5,7 +5,8 @@ export default function SecureMap() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     // Ofuscar el iframe del mapa
     const mapData = atob("aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9tYXBzL2VtYmVkP3BiPSExbTE4ITFtMTIhMW0zITFkMzkwMS40NDg5NTk2Mjg3MjUzITJkLTc3LjAzODI2MzAyNTE0MzQ1ITNkLTEyLjA4MTM4Njg0MjU0NTk1MyEybTMhMWYwITJmMCEzZjAhM20yITFpMTAyNCEyaTc2OCE0ZjEzLjEhM20zITFtMiExczB4OTEwNWM5ZGQwMzIyYjI5MSUzQTB4YTlkOTY5NWZkNzQ2YTQxYiEyc0hhbWJ1cmd1ZXNlciVDMyVBRGElMjAtJTIwQmlnJTIwSmFjayE1ZTAhM20yITFzZXMtNDE5ITJzcGUhNHYxNzYzNjgzMjU3NzI4ITVtMiExc2VzLTQxOSEyc3Bl");
@@ -32,11 +33,11 @@ export default function SecureMap() {
       }
     });
 
-    containerRef.current.appendChild(iframe);
+    container.appendChild(iframe);
 
     return () => {
-      if (containerRef.current) {
-        containerRef.current.innerHTML = "";
+      if (container) {
+        container.innerHTML = "";
       }
     };
   }, []);

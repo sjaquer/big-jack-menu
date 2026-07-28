@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { restaurantInfo, menuItems } from "../data/menuData";
+import { sendComplaint } from "../actions";
 import { Clipboard, User, CreditCard, Phone, Mail, Home, ShoppingCart, Banknote, Calendar, Lightbulb, Megaphone, MessageSquare, FileText, Target, AlertTriangle, Check } from "lucide-react";
 
 export default function LibroReclamaciones() {
@@ -16,27 +17,21 @@ export default function LibroReclamaciones() {
     const formData = new FormData(form);
     
     try {
-      const response = await fetch("https://formspree.io/f/xeodbbvl", {
-        method: "POST",
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      const res = await sendComplaint(formData);
       
-      if (response.ok) {
+      if (res?.success) {
         setStatus("success");
-        setMessage("Reclamo enviado y registrado correctamente.");
+        setMessage(res.message || "Reclamo enviado y registrado correctamente.");
         form.reset();
         setSelectedProduct("");
       } else {
-        const data = await response.json();
         setStatus("error");
-        setMessage(data.error || "Hubo un problema al enviar el formulario. Por favor intenta nuevamente.");
+        setMessage(res?.message || "Hubo un problema al enviar el formulario. Por favor intenta nuevamente.");
       }
     } catch (error) {
+      console.error("Error al enviar reclamo:", error);
       setStatus("error");
-      setMessage("Error de conexión. Verifica tu internet.");
+      setMessage("Error al conectar con el servidor. Por favor intenta nuevamente.");
     }
   }
 

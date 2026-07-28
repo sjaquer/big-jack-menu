@@ -1,7 +1,7 @@
 # Big Jack Menu 🍔
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Next.js](https://img.shields.io/badge/Next.js-15.1-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-black)](https://nextjs.org/)
 
 **Big Jack Menu** is a modern, responsive digital menu and checkout system designed for Big Jack. It integrates seamlessly with an ERP system via webhooks to handle online orders, real-time catalog management, and customer interactions.
 
@@ -14,7 +14,7 @@
 - **Checkout Inteligente**: Flujo de pedido optimizado con soporte para delivery y recojo.
 - **Integración con ERP**: Envío de pedidos mediante webhooks seguros con soporte para idempotencia.
 - **Página de Enlaces (Linktree Style)**: Centralización de redes sociales y CTAs (Reviews, WhatsApp, etc.).
-- **Libro de Reclamaciones**: Cumplimiento legal con envío automatizado de reclamos por correo.
+- **Libro de Reclamaciones**: Cumplimiento legal con envío automatizado mediante Server Action y sanitización de datos (XSS).
 
 ### Configuración Rápida
 1. **Instalar dependencias**: `npm install`
@@ -30,7 +30,7 @@
 - **Smart Checkout**: Optimized order flow supporting both delivery and pickup.
 - **ERP Integration**: Order submission via secure webhooks with idempotency support.
 - **Links Page (Linktree Style)**: Centralized social media and CTAs (Reviews, WhatsApp, etc.).
-- **Complaints Book**: Legal compliance with automated email notifications for customer claims.
+- **Complaints Book**: Legal compliance with Server Action automated email notifications and XSS sanitization.
 
 ### Quick Start
 1. **Install dependencies**: `npm install`
@@ -48,16 +48,19 @@ Required variables for full functionality:
 - `WEBHOOK_MENU_SECRET`: Secret key for webhook authentication.
 - `GMAIL_USER` & `GMAIL_PASS`: SMTP credentials for the Complaints Book.
 - `RECIPIENT_EMAIL`: Target email for complaint notifications.
+- `FORMSPREE_URL`: Optional server-to-server Formspree endpoint.
 
 ### Project Structure / Estructura del Proyecto
 - `app/data/menuData.js`: Centralized product catalog (SKUs are critical).
 - `app/lib/onlineOrders.js`: Payload builder and checkout logic.
 - `app/api/online-orders/route.js`: Secure proxy for ERP communication.
+- `app/actions.js`: Server Action for Complaints Book processing with HTML sanitization.
 - `app/links/page.js`: High-conversion links landing page.
 - `docs/`: Technical documentation and integration guides.
 
 ### Documentation / Documentación
 For more details, check the `docs/` folder:
+- [Seguridad, Dependencias y Deuda Técnica](docs/SECURITY_AND_TECH_DEBT.md)
 - [Webhook Integration](docs/webhook-pedidos.md)
 - [Links Page Design](docs/LINKS_PAGE.md)
 - [Legacy API Reference](docs/legacy/online-orders-api.md)

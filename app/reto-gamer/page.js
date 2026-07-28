@@ -76,6 +76,10 @@ export default function RetoGamerPage() {
     }
   }, []);
 
+  const goToMenu = useCallback(() => {
+    setGameState('menu');
+  }, []);
+
   // Game Engine
   useEffect(() => {
     if (gameState !== "playing") return;
@@ -146,287 +150,281 @@ export default function RetoGamerPage() {
       HEAL: { color: '#0f0', icon: '❤️', duration: 1, name: 'Vida' }
     };
 
-    // Star class
-    class Star {
-      constructor() {
+    // Star constructor
+    function Star() {
+      this.x = Math.random() * width;
+      this.y = Math.random() * height;
+      this.size = Math.random() * 2 + 0.5;
+      this.speed = Math.random() * 2 + 0.5;
+      this.brightness = Math.random() * 0.5 + 0.3;
+    }
+    Star.prototype.update = function() {
+      this.y += this.speed;
+      if (this.y > height) {
+        this.y = 0;
         this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.size = Math.random() * 2 + 0.5;
-        this.speed = Math.random() * 2 + 0.5;
-        this.brightness = Math.random() * 0.5 + 0.3;
       }
-      update() {
-        this.y += this.speed;
-        if (this.y > height) {
-          this.y = 0;
-          this.x = Math.random() * width;
+    };
+    Star.prototype.draw = function() {
+      ctx.fillStyle = `rgba(255, 200, 100, ${this.brightness})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    // PowerUp constructor
+    function PowerUp(x, y, type) {
+      this.x = x;
+      this.y = y;
+      this.type = type;
+      this.config = POWERUP_TYPES[type];
+      this.radius = 18;
+      this.active = true;
+      this.tick = 0;
+      this.vy = 1.5;
+    }
+    PowerUp.prototype.update = function() {
+      this.y += this.vy;
+      this.tick++;
+      if (this.y > height + 50) this.active = false;
+    };
+    PowerUp.prototype.draw = function() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      
+      // Glow effect
+      ctx.shadowBlur = 20 + Math.sin(this.tick * 0.1) * 5;
+      ctx.shadowColor = this.config.color;
+      
+      // Outer ring
+      ctx.strokeStyle = this.config.color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + Math.sin(this.tick * 0.15) * 3, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Inner circle
+      ctx.fillStyle = this.config.color + '40';
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius - 4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Icon
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(this.config.icon, 0, 0);
+      
+      ctx.restore();
+    };
+
+    // Player constructor
+    function Player() {
+      this.x = width / 2;
+      this.y = height * 0.85;
+      this.radius = isMobile ? 6 : 5;
+      this.baseSpeed = isMobile ? 9 : 11;
+      this.speed = this.baseSpeed;
+      this.hp = 100;
+      this.maxHp = 100;
+      this.lastShot = 0;
+      this.shootDelay = isMobile ? 7 : 5;
+      this.powerUps = {};
+      this.invincible = 0;
+    }
+
+    Player.prototype.update = function() {
+      // Update power-ups
+      Object.keys(this.powerUps).forEach(key => {
+        if (this.powerUps[key] > 0) {
+          this.powerUps[key]--;
+          if (this.powerUps[key] <= 0) {
+            delete this.powerUps[key];
+            updateActivePowerUps();
+          }
         }
-      }
-      draw() {
-        ctx.fillStyle = `rgba(255, 200, 100, ${this.brightness})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+      });
 
-    // PowerUp class
-    class PowerUp {
-      constructor(x, y, type) {
-        this.x = x;
-        this.y = y;
-        this.type = type;
-        this.config = POWERUP_TYPES[type];
-        this.radius = 18;
-        this.active = true;
-        this.tick = 0;
-        this.vy = 1.5;
+      // Speed boost from power-up
+      this.speed = this.powerUps.SPEED ? this.baseSpeed * 1.5 : this.baseSpeed;
+
+      let dx = 0, dy = 0;
+      if (input.keys.w || input.keys.arrowup) dy -= 1;
+      if (input.keys.s || input.keys.arrowdown) dy += 1;
+      if (input.keys.a || input.keys.arrowleft) dx -= 1;
+      if (input.keys.d || input.keys.arrowright) dx += 1;
+
+      if (dx !== 0 || dy !== 0) {
+        const len = Math.sqrt(dx * dx + dy * dy);
+        this.x += (dx / len) * this.speed;
+        this.y += (dy / len) * this.speed;
+        input.active = false;
+      } else if (input.active) {
+        // Smoother mouse/touch following
+        const followSpeed = isMobile ? 0.12 : 0.18;
+        this.x += (input.x - this.x) * followSpeed;
+        this.y += (input.y - this.y) * followSpeed;
       }
-      update() {
-        this.y += this.vy;
-        this.tick++;
-        if (this.y > height + 50) this.active = false;
+
+      this.x = Math.max(25, Math.min(width - 25, this.x));
+      this.y = Math.max(25, Math.min(height - 25, this.y));
+
+      // Invincibility frames
+      if (this.invincible > 0) this.invincible--;
+
+      // Auto-shoot
+      const currentShootDelay = this.powerUps.TRIPLE ? this.shootDelay * 0.6 : this.shootDelay;
+      if (state.frames - this.lastShot > currentShootDelay) {
+        // Base shots
+        bullets.push(new Bullet(this.x - 8, this.y - 15, 0, -22, 'player'));
+        bullets.push(new Bullet(this.x + 8, this.y - 15, 0, -22, 'player'));
+        
+        // Triple shot power-up
+        if (this.powerUps.TRIPLE) {
+          bullets.push(new Bullet(this.x, this.y - 15, -4, -20, 'player'));
+          bullets.push(new Bullet(this.x, this.y - 15, 4, -20, 'player'));
+          bullets.push(new Bullet(this.x, this.y - 20, 0, -24, 'player_strong'));
+        }
+        
+        // Wave bonus shots
+        if (state.wave >= 2) {
+          bullets.push(new Bullet(this.x - 12, this.y - 10, -2, -20, 'player'));
+          bullets.push(new Bullet(this.x + 12, this.y - 10, 2, -20, 'player'));
+        }
+        this.lastShot = state.frames;
       }
-      draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        
-        // Glow effect
-        ctx.shadowBlur = 20 + Math.sin(this.tick * 0.1) * 5;
-        ctx.shadowColor = this.config.color;
-        
-        // Outer ring
-        ctx.strokeStyle = this.config.color;
+    };
+
+    Player.prototype.draw = function() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      
+      // Shield effect
+      if (this.powerUps.SHIELD) {
+        ctx.strokeStyle = '#0ff';
         ctx.lineWidth = 3;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#0ff';
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius + Math.sin(this.tick * 0.15) * 3, 0, Math.PI * 2);
+        ctx.arc(0, 0, 28 + Math.sin(state.frames * 0.1) * 3, 0, Math.PI * 2);
         ctx.stroke();
-        
-        // Inner circle
-        ctx.fillStyle = this.config.color + '40';
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius - 4, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Icon
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(this.config.icon, 0, 0);
-        
-        ctx.restore();
       }
-    }
-
-    // Player class
-    class Player {
-      constructor() {
-        this.x = width / 2;
-        this.y = height * 0.85;
-        this.radius = isMobile ? 6 : 5;
-        this.baseSpeed = isMobile ? 9 : 11;
-        this.speed = this.baseSpeed;
-        this.hp = 100;
-        this.maxHp = 100;
-        this.lastShot = 0;
-        this.shootDelay = isMobile ? 7 : 5;
-        this.powerUps = {};
-        this.invincible = 0;
+      
+      // Speed trail
+      if (this.powerUps.SPEED) {
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = '#ff0';
+        for (let i = 1; i <= 3; i++) {
+          ctx.beginPath();
+          ctx.ellipse(0, 10 * i, 15 - i * 3, 8 - i * 2, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
       }
+      
+      // Invincibility flash
+      if (this.invincible > 0 && Math.floor(this.invincible / 4) % 2 === 0) {
+        ctx.globalAlpha = 0.5;
+      }
+      
+      // Glow
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = this.powerUps.TRIPLE ? '#f0f' : '#ffa500';
 
-      update() {
-        // Update power-ups
-        Object.keys(this.powerUps).forEach(key => {
-          if (this.powerUps[key] > 0) {
-            this.powerUps[key]--;
-            if (this.powerUps[key] <= 0) {
-              delete this.powerUps[key];
-              updateActivePowerUps();
-            }
+      // Ship body (burger style)
+      ctx.fillStyle = '#fa0';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 18, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Top bun
+      ctx.fillStyle = '#f80';
+      ctx.beginPath();
+      ctx.ellipse(0, -5, 15, 8, 0, Math.PI, 0);
+      ctx.fill();
+
+      // Lettuce
+      ctx.strokeStyle = '#0f0';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = -12; i <= 12; i += 4) {
+        ctx.lineTo(i, Math.sin(i * 0.5 + state.frames * 0.1) * 2);
+      }
+      ctx.stroke();
+
+      // Hitbox indicator
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Engine flames
+      const flameHeight = 10 + Math.random() * 10 + (this.powerUps.SPEED ? 8 : 0);
+      ctx.fillStyle = this.powerUps.SPEED ? '#ff0' : '#f00';
+      ctx.beginPath();
+      ctx.moveTo(-8, 10);
+      ctx.lineTo(0, 10 + flameHeight);
+      ctx.lineTo(8, 10);
+      ctx.fill();
+
+      ctx.restore();
+    };
+
+    Player.prototype.hit = function(dmg) {
+      if (this.invincible > 0) return;
+      if (this.powerUps.SHIELD) {
+        delete this.powerUps.SHIELD;
+        updateActivePowerUps();
+        createParticles(this.x, this.y, 15, '#0ff');
+        this.invincible = 30;
+        return;
+      }
+      
+      this.hp -= dmg;
+      state.totalDamageTaken += dmg;
+      state.combo = 0;
+      state.comboTimer = 0;
+      setCombo(0);
+      createParticles(this.x, this.y, 10, '#f00');
+      setHealth(Math.max(0, this.hp));
+      this.invincible = 60;
+      
+      if (this.hp <= 0) {
+        endGame();
+      }
+    };
+
+    Player.prototype.activatePowerUp = function(type) {
+      const config = POWERUP_TYPES[type];
+      
+      if (type === 'BOMB') {
+        // Clear all enemy bullets and damage enemies
+        bullets = bullets.filter(b => b.type === 'player' || b.type === 'player_strong');
+        enemies.forEach(e => {
+          e.hp -= 50;
+          if (e.hp <= 0) {
+            e.active = false;
+            state.score += 100;
+            createParticles(e.x, e.y, 10, '#f00');
           }
         });
-
-        // Speed boost from power-up
-        this.speed = this.powerUps.SPEED ? this.baseSpeed * 1.5 : this.baseSpeed;
-
-        let dx = 0, dy = 0;
-        if (input.keys.w || input.keys.arrowup) dy -= 1;
-        if (input.keys.s || input.keys.arrowdown) dy += 1;
-        if (input.keys.a || input.keys.arrowleft) dx -= 1;
-        if (input.keys.d || input.keys.arrowright) dx += 1;
-
-        if (dx !== 0 || dy !== 0) {
-          const len = Math.sqrt(dx * dx + dy * dy);
-          this.x += (dx / len) * this.speed;
-          this.y += (dy / len) * this.speed;
-          input.active = false;
-        } else if (input.active) {
-          // Smoother mouse/touch following
-          const followSpeed = isMobile ? 0.12 : 0.18;
-          this.x += (input.x - this.x) * followSpeed;
-          this.y += (input.y - this.y) * followSpeed;
+        if (boss && state.bossPhase === 'fighting') {
+          boss.takeDamage(100);
         }
-
-        this.x = Math.max(25, Math.min(width - 25, this.x));
-        this.y = Math.max(25, Math.min(height - 25, this.y));
-
-        // Invincibility frames
-        if (this.invincible > 0) this.invincible--;
-
-        // Auto-shoot
-        const currentShootDelay = this.powerUps.TRIPLE ? this.shootDelay * 0.6 : this.shootDelay;
-        if (state.frames - this.lastShot > currentShootDelay) {
-          // Base shots
-          bullets.push(new Bullet(this.x - 8, this.y - 15, 0, -22, 'player'));
-          bullets.push(new Bullet(this.x + 8, this.y - 15, 0, -22, 'player'));
-          
-          // Triple shot power-up
-          if (this.powerUps.TRIPLE) {
-            bullets.push(new Bullet(this.x, this.y - 15, -4, -20, 'player'));
-            bullets.push(new Bullet(this.x, this.y - 15, 4, -20, 'player'));
-            bullets.push(new Bullet(this.x, this.y - 20, 0, -24, 'player_strong'));
-          }
-          
-          // Wave bonus shots
-          if (state.wave >= 2) {
-            bullets.push(new Bullet(this.x - 12, this.y - 10, -2, -20, 'player'));
-            bullets.push(new Bullet(this.x + 12, this.y - 10, 2, -20, 'player'));
-          }
-          this.lastShot = state.frames;
-        }
+        createParticles(this.x, this.y, 50, '#f00');
+        createParticles(this.x, this.y, 30, '#ff0');
+      } else if (type === 'HEAL') {
+        this.hp = Math.min(this.maxHp, this.hp + 30);
+        setHealth(this.hp);
+        createParticles(this.x, this.y, 20, '#0f0');
+      } else {
+        this.powerUps[type] = config.duration;
       }
-
-      draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        
-        // Shield effect
-        if (this.powerUps.SHIELD) {
-          ctx.strokeStyle = '#0ff';
-          ctx.lineWidth = 3;
-          ctx.shadowBlur = 20;
-          ctx.shadowColor = '#0ff';
-          ctx.beginPath();
-          ctx.arc(0, 0, 28 + Math.sin(state.frames * 0.1) * 3, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-        
-        // Speed trail
-        if (this.powerUps.SPEED) {
-          ctx.globalAlpha = 0.3;
-          ctx.fillStyle = '#ff0';
-          for (let i = 1; i <= 3; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, 10 * i, 15 - i * 3, 8 - i * 2, 0, 0, Math.PI * 2);
-            ctx.fill();
-          }
-          ctx.globalAlpha = 1;
-        }
-        
-        // Invincibility flash
-        if (this.invincible > 0 && Math.floor(this.invincible / 4) % 2 === 0) {
-          ctx.globalAlpha = 0.5;
-        }
-        
-        // Glow
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = this.powerUps.TRIPLE ? '#f0f' : '#ffa500';
-
-        // Ship body (burger style)
-        ctx.fillStyle = '#fa0';
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 18, 10, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Top bun
-        ctx.fillStyle = '#f80';
-        ctx.beginPath();
-        ctx.ellipse(0, -5, 15, 8, 0, Math.PI, 0);
-        ctx.fill();
-
-        // Lettuce
-        ctx.strokeStyle = '#0f0';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        for (let i = -12; i <= 12; i += 4) {
-          ctx.lineTo(i, Math.sin(i * 0.5 + state.frames * 0.1) * 2);
-        }
-        ctx.stroke();
-
-        // Hitbox indicator
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Engine flames
-        const flameHeight = 10 + Math.random() * 10 + (this.powerUps.SPEED ? 8 : 0);
-        ctx.fillStyle = this.powerUps.SPEED ? '#ff0' : '#f00';
-        ctx.beginPath();
-        ctx.moveTo(-8, 10);
-        ctx.lineTo(0, 10 + flameHeight);
-        ctx.lineTo(8, 10);
-        ctx.fill();
-
-        ctx.restore();
-      }
-
-      hit(dmg) {
-        if (this.invincible > 0) return;
-        if (this.powerUps.SHIELD) {
-          delete this.powerUps.SHIELD;
-          updateActivePowerUps();
-          createParticles(this.x, this.y, 15, '#0ff');
-          this.invincible = 30;
-          return;
-        }
-        
-        this.hp -= dmg;
-        state.totalDamageTaken += dmg;
-        state.combo = 0;
-        state.comboTimer = 0;
-        setCombo(0);
-        createParticles(this.x, this.y, 10, '#f00');
-        setHealth(Math.max(0, this.hp));
-        this.invincible = 60;
-        
-        if (this.hp <= 0) {
-          endGame();
-        }
-      }
-
-      activatePowerUp(type) {
-        const config = POWERUP_TYPES[type];
-        
-        if (type === 'BOMB') {
-          // Clear all enemy bullets and damage enemies
-          bullets = bullets.filter(b => b.type === 'player' || b.type === 'player_strong');
-          enemies.forEach(e => {
-            e.hp -= 50;
-            if (e.hp <= 0) {
-              e.active = false;
-              state.score += 100;
-              createParticles(e.x, e.y, 10, '#f00');
-            }
-          });
-          if (boss && state.bossPhase === 'fighting') {
-            boss.takeDamage(100);
-          }
-          createParticles(this.x, this.y, 50, '#f00');
-          createParticles(this.x, this.y, 30, '#ff0');
-        } else if (type === 'HEAL') {
-          this.hp = Math.min(this.maxHp, this.hp + 30);
-          setHealth(this.hp);
-          createParticles(this.x, this.y, 20, '#0f0');
-        } else {
-          this.powerUps[type] = config.duration;
-        }
-        
-        updateActivePowerUps();
-        state.score += 50;
-        setScore(state.score);
-      }
-    }
+      
+      updateActivePowerUps();
+      state.score += 50;
+      setScore(state.score);
+    };
 
     function updateActivePowerUps() {
       const active = {};
@@ -440,27 +438,26 @@ export default function RetoGamerPage() {
       setActivePowerUps(active);
     }
 
-    // Boss class - FIXED movement and improved patterns
-    class Boss {
-      constructor(difficulty) {
-        this.x = width / 2;
-        this.y = -150;
-        this.targetY = height * 0.18;
-        this.radius = isMobile ? 50 : 70;
-        this.hp = 600 + (400 * difficulty);
-        this.maxHp = this.hp;
-        this.tick = 0;
-        this.phase = 0; // Different attack phases
-        this.moveAngle = 0; // For smooth movement
-        this.targetX = width / 2;
-        this.patternTimer = 0;
-        this.currentPattern = 0;
-        this.enraged = false;
-        setBossMaxHealth(this.maxHp);
-        setBossHealth(this.hp);
-      }
+    // Boss constructor
+    function Boss(difficulty) {
+      this.x = width / 2;
+      this.y = -150;
+      this.targetY = height * 0.18;
+      this.radius = isMobile ? 50 : 70;
+      this.hp = 600 + (400 * difficulty);
+      this.maxHp = this.hp;
+      this.tick = 0;
+      this.phase = 0; // Different attack phases
+      this.moveAngle = 0; // For smooth movement
+      this.targetX = width / 2;
+      this.patternTimer = 0;
+      this.currentPattern = 0;
+      this.enraged = false;
+      setBossMaxHealth(this.maxHp);
+      setBossHealth(this.hp);
+    }
 
-      update() {
+    Boss.prototype.update = function() {
         this.tick++;
         
         if (state.bossPhase === 'entering') {
@@ -526,7 +523,7 @@ export default function RetoGamerPage() {
         }
       }
 
-      shootFriesSpray() {
+      Boss.prototype.shootFriesSpray = function() {
         const baseAngle = Math.atan2(player.y - this.y, player.x - this.x);
         const spread = this.enraged ? 5 : 3;
         for (let i = -spread; i <= spread; i++) {
@@ -537,9 +534,9 @@ export default function RetoGamerPage() {
             'enemy_fries'
           ));
         }
-      }
+      };
 
-      shootAimedFries() {
+      Boss.prototype.shootAimedFries = function() {
         const angle = Math.atan2(player.y - this.y, player.x - this.x);
         for (let i = -1; i <= 1; i++) {
           bullets.push(new Bullet(
@@ -549,9 +546,9 @@ export default function RetoGamerPage() {
             'enemy_fries'
           ));
         }
-      }
+      };
 
-      shootPickleSpiral() {
+      Boss.prototype.shootPickleSpiral = function() {
         const count = this.enraged ? 8 : 6;
         for (let i = 0; i < count; i++) {
           const angle = (this.tick * 0.06) + (Math.PI * 2 / count) * i;
@@ -562,9 +559,9 @@ export default function RetoGamerPage() {
             'enemy_pickle'
           ));
         }
-      }
+      };
 
-      shootBurgerWave() {
+      Boss.prototype.shootBurgerWave = function() {
         const count = this.enraged ? 16 : 12;
         for (let i = 0; i < count; i++) {
           const angle = (Math.PI * 2 / count) * i;
@@ -575,9 +572,9 @@ export default function RetoGamerPage() {
             'enemy_burger'
           ));
         }
-      }
+      };
 
-      shootCheeseRain() {
+      Boss.prototype.shootCheeseRain = function() {
         // Random cheese drops from boss position
         for (let i = 0; i < 3; i++) {
           const offsetX = (Math.random() - 0.5) * 120;
@@ -588,9 +585,9 @@ export default function RetoGamerPage() {
             'enemy_cheese'
           ));
         }
-      }
+      };;
 
-      draw() {
+      Boss.prototype.draw = function() {
         ctx.save();
         ctx.translate(this.x, this.y);
         const bob = Math.sin(this.tick * 0.06) * 6;
@@ -683,9 +680,9 @@ export default function RetoGamerPage() {
         ctx.stroke();
 
         ctx.restore();
-      }
+      };
 
-      takeDamage(amt) {
+      Boss.prototype.takeDamage = function(amt) {
         if (state.bossPhase !== 'fighting') return;
         this.hp -= amt;
         setBossHealth(Math.max(0, this.hp));
@@ -722,121 +719,118 @@ export default function RetoGamerPage() {
           spawnPowerUp(this.x + 40, this.y);
           spawnPowerUp(this.x, this.y - 30);
         }
+      };
+
+    // Bullet constructor
+    function Bullet(x, y, vx, vy, type) {
+      this.x = x;
+      this.y = y;
+      this.vx = vx;
+      this.vy = vy;
+      this.type = type;
+      this.active = true;
+      this.tick = 0;
+
+      switch (type) {
+        case 'player':
+          this.radius = 4;
+          this.color = '#fa0';
+          break;
+        case 'player_strong':
+          this.radius = 6;
+          this.color = '#f0f';
+          break;
+        case 'enemy_fries':
+          this.radius = 4;
+          this.color = '#ff0';
+          break;
+        case 'enemy_pickle':
+          this.radius = 6;
+          this.color = '#0f0';
+          break;
+        case 'enemy_burger':
+          this.radius = 10;
+          this.color = '#f00';
+          break;
+        case 'enemy_cheese':
+          this.radius = 8;
+          this.color = '#ff0';
+          break;
+        default:
+          this.radius = 5;
+          this.color = '#f0f';
       }
     }
 
-    // Bullet class - Added cheese type
-    class Bullet {
-      constructor(x, y, vx, vy, type) {
-        this.x = x;
-        this.y = y;
-        this.vx = vx;
-        this.vy = vy;
-        this.type = type;
-        this.active = true;
-        this.tick = 0;
-
-        switch (type) {
-          case 'player':
-            this.radius = 4;
-            this.color = '#fa0';
-            break;
-          case 'player_strong':
-            this.radius = 6;
-            this.color = '#f0f';
-            break;
-          case 'enemy_fries':
-            this.radius = 4;
-            this.color = '#ff0';
-            break;
-          case 'enemy_pickle':
-            this.radius = 6;
-            this.color = '#0f0';
-            break;
-          case 'enemy_burger':
-            this.radius = 10;
-            this.color = '#f00';
-            break;
-          case 'enemy_cheese':
-            this.radius = 8;
-            this.color = '#ff0';
-            break;
-          default:
-            this.radius = 5;
-            this.color = '#f0f';
-        }
+    Bullet.prototype.update = function() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.tick++;
+      
+      // Cheese falls with slight wobble
+      if (this.type === 'enemy_cheese') {
+        this.x += Math.sin(this.tick * 0.1) * 0.5;
       }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.tick++;
-        
-        // Cheese falls with slight wobble
-        if (this.type === 'enemy_cheese') {
-          this.x += Math.sin(this.tick * 0.1) * 0.5;
-        }
-        
-        if (this.x < -30 || this.x > width + 30 || this.y < -30 || this.y > height + 30) {
-          this.active = false;
-        }
+      
+      if (this.x < -30 || this.x > width + 30 || this.y < -30 || this.y > height + 30) {
+        this.active = false;
       }
+    };
 
-      draw() {
-        ctx.save();
+    Bullet.prototype.draw = function() {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = this.color;
+      ctx.fill();
+
+      if (this.type === 'enemy_fries') {
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = this.color;
-        ctx.fill();
-
-        if (this.type === 'enemy_fries') {
-          ctx.strokeStyle = '#fff';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(this.x, this.y);
-          ctx.lineTo(this.x - this.vx * 1.5, this.y - this.vy * 1.5);
-          ctx.stroke();
-        }
-        
-        if (this.type === 'player_strong') {
-          ctx.strokeStyle = '#fff';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius + 2, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-        
-        ctx.restore();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x - this.vx * 1.5, this.y - this.vy * 1.5);
+        ctx.stroke();
       }
+      
+      if (this.type === 'player_strong') {
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius + 2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      ctx.restore();
+    };
+
+    // Particle constructor
+    function Particle(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.vx = (Math.random() - 0.5) * 14;
+      this.vy = (Math.random() - 0.5) * 14;
+      this.life = 1.0;
+      this.color = color;
+      this.size = Math.random() * 5 + 2;
     }
 
-    // Particle class
-    class Particle {
-      constructor(x, y, color) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 14;
-        this.vy = (Math.random() - 0.5) * 14;
-        this.life = 1.0;
-        this.color = color;
-        this.size = Math.random() * 5 + 2;
-      }
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vx *= 0.97;
-        this.vy *= 0.97;
-        this.life -= 0.022;
-      }
-      draw() {
-        ctx.globalAlpha = this.life;
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
-        ctx.globalAlpha = 1;
-      }
-    }
+    Particle.prototype.update = function() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.vx *= 0.97;
+      this.vy *= 0.97;
+      this.life -= 0.022;
+    };
+
+    Particle.prototype.draw = function() {
+      ctx.globalAlpha = this.life;
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+      ctx.globalAlpha = 1;
+    };
 
     // Helper functions
     function createParticles(x, y, count, color) {
@@ -1257,14 +1251,10 @@ export default function RetoGamerPage() {
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchstart', handleTouchMove);
     };
-  }, [gameState, isMobile, highScore]);
+  }, [gameState, isMobile, highScore, goToMenu]);
 
   const startGame = useCallback(() => {
     setGameState('playing');
-  }, []);
-
-  const goToMenu = useCallback(() => {
-    setGameState('menu');
   }, []);
 
   // Función para registrar el score en el leaderboard

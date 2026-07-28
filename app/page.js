@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
 import {
   ShoppingCart,
@@ -569,7 +569,7 @@ export default function BigJackMenu() {
     setTimeout(() => setIsCartOpen(true), 300);
   };
 
-  const getUserLocation = ({ silent = false } = {}) => {
+  const getUserLocation = useCallback(({ silent = false } = {}) => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       if (!silent) alert("Tu navegador no soporta geolocalización.");
       return;
@@ -600,7 +600,7 @@ export default function BigJackMenu() {
         maximumAge: 0,
       }
     );
-  };
+  }, [deliveryReference]);
 
   const handleSelectOrderType = (type) => {
     if (type === "delivery" && !deliveryAvailable) {
@@ -623,7 +623,7 @@ export default function BigJackMenu() {
     if (locationLink || autoLocationAttempted || isLocating) return;
     setAutoLocationAttempted(true);
     getUserLocation({ silent: true });
-  }, [orderType, locationLink, autoLocationAttempted, isLocating]);
+  }, [orderType, locationLink, autoLocationAttempted, isLocating, getUserLocation]);
 
   const submitOrderToSystem = async () => {
     try {

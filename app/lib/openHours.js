@@ -87,8 +87,10 @@ export function formatMsToCountdown(ms) {
   return `${seconds}s`;
 }
 
-export default {
+const openHoursUtils = {
   isOpenNow,
   getNextOpenDate,
   formatMsToCountdown,
 };
+
+export default openHoursUtils;
