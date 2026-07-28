@@ -34,7 +34,7 @@ export default function LocationSection({
                 href={PEDIDOSYA_LINK}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-3 bg-[#ea004b] hover:bg-[#d60044] text-white font-bold px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95"
+                className="flex items-center justify-center gap-3 bg-[#c80040] hover:bg-[#b00038] text-white font-bold px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95"
               >
                 <span className="font-black text-xl leading-none mr-1">Pe</span> PedidosYa
               </a>
@@ -42,7 +42,7 @@ export default function LocationSection({
                 href={RAPPI_LINK}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-3 bg-[#ff441f] hover:bg-[#e13c1b] text-white font-bold px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95"
+                className="flex items-center justify-center gap-3 bg-[#c33316] hover:bg-[#a92b12] text-white font-bold px-6 py-4 rounded-2xl transition-all shadow-lg active:scale-95"
               >
                 <span className="font-black text-xl leading-none mr-1">R</span> Rappi
               </a>

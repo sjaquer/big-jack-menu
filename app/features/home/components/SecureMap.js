@@ -13,6 +13,8 @@ export default function SecureMap() {
 
     const iframe = document.createElement("iframe");
     iframe.src = mapData;
+    iframe.title = "Ubicación del restaurante Big Jack en Google Maps";
+    iframe.setAttribute("aria-label", "Mapa interactivo con la ubicación de Big Jack");
     iframe.className = "w-full h-full";
     iframe.style.border = "0";
     iframe.allowFullscreen = true;
