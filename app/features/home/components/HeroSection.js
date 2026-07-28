@@ -23,16 +23,16 @@ export default function HeroSection({
         <div className="space-y-6 text-center md:text-left order-2 md:order-1">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FCC900]/10 border border-[#FCC900]/25 text-[#FCC900] text-xs font-black uppercase tracking-widest mx-auto md:mx-0">
             <Flame size={14} className="text-[#B22222]" />
-            Tu Vecino Confiable
+            Centro de Lima & Lince
           </div>
 
-          <h1 className="font-anton text-6xl md:text-7xl lg:text-8xl leading-[0.85] text-white tracking-[-0.04em] uppercase drop-shadow-lg">
-            POTENCIA <br/>
-            <span className="text-[#FCC900]">HONESTA</span>
+          <h1 className="font-anton text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.88] text-white tracking-[-0.04em] uppercase drop-shadow-lg">
+            HAMBURGUESAS <br/>
+            <span className="text-[#FCC900]">ARTESANALES</span>
           </h1>
 
           <p className="text-[#C0C0C0] text-base md:text-lg font-semibold max-w-md mx-auto md:mx-0 leading-snug">
-            Sin relleno corporativo. Solo carne gruesa, fuego y técnica. Hamburguesas reales que calman tu hambre, al toque.
+            Carne 100% de res jugosa y gruesa, queso derretido en su punto y salsas de la casa. Pide online con delivery o pasa a recoger al toque.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">

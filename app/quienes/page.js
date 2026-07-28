@@ -29,17 +29,17 @@ export default function QuienesPage() {
             
             <div className="relative z-10 space-y-6">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FCC900]/15 border border-[#FCC900]/35 text-[#FCC900] text-xs font-black tracking-[0.18em] uppercase">
-                Manifiesto de barrio
+                Nuestra Esencia
               </span>
               <h1 className="font-anton text-5xl md:text-7xl leading-[0.9] tracking-[-0.04em]">
-                POTENCIA
+                HAMBURGUESAS
                 <br />
-                <span className="text-[#FCC900]">HONESTA</span>
+                <span className="text-[#FCC900]">ARTESANALES Y GRUESAS</span>
               </h1>
               <p className="max-w-3xl text-[#C0C0C0] text-base md:text-lg leading-relaxed">
-                No vendemos humo. Vendemos carne, fuego y barrio. Operamos desde Centro de Lima con cocina tecnica, procesos claros y servicio directo. El vecino confiable que entrega producto real, sin pretensiones innecesarias.
+                Aquí no hay misterios ni rodeos. Preparamos hamburguesas con carne 100% de res a la plancha, queso derretido en su punto y salsas de la casa hechas a diario. Desde Centro de Lima para todo aquel que busca comer rico, al toque y sin floros.
               </p>
-              <p className="font-signature text-xl text-white">Central de Potencia</p>
+              <p className="font-signature text-xl text-white">Sabor Real Limeño</p>
             </div>
           </section>
 
@@ -48,9 +48,9 @@ export default function QuienesPage() {
               <div className="w-12 h-12 bg-[#FCC900]/15 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Flame className="text-[#FCC900]" size={24} />
               </div>
-              <h2 className="font-anton text-3xl tracking-[-0.03em] mb-4">Mision</h2>
+              <h2 className="font-anton text-3xl tracking-[-0.03em] mb-4">Misión</h2>
               <p className="text-[#C0C0C0] leading-relaxed">
-                Democratizar la hamburguesa de alta calidad tecnica para los que sudan la calle. Menos carton innecesario y mas producto real.
+                Servir hamburguesas gruesas, jugosas y bien despachadas con ingredientes frescos y atención rápida. Menos cajas bonitas vacías y más sabor real.
               </p>
             </article>
 
@@ -58,9 +58,9 @@ export default function QuienesPage() {
               <div className="w-12 h-12 bg-[#B22222]/15 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Zap className="text-[#ffb4b4]" size={24} />
               </div>
-              <h2 className="font-anton text-3xl tracking-[-0.03em] mb-4">Vision</h2>
+              <h2 className="font-anton text-3xl tracking-[-0.03em] mb-4">Visión</h2>
               <p className="text-[#C0C0C0] leading-relaxed">
-                Ser referencia de hamburguesa de barrio en Centro de Lima y expandirnos sin perder la esencia: cocina firme, trato legal y tiempos eficientes.
+                Ser la hamburguesería preferida de Centro de Lima y crecer manteniendo lo que nos caracteriza: buena carne, trato directo y entregas a tiempo.
               </p>
             </article>
           </section>

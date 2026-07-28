@@ -72,16 +72,21 @@ export function buildRestaurantSchema({
 }) {
   return {
     "@context": "https://schema.org",
-    "@type": "Restaurant",
+    "@type": ["Restaurant", "FastFoodRestaurant"],
     "@id": siteUrl,
     name: restaurantInfo.name,
-    description: marketingDescription,
-    image: ["/images/baconjack.webp", "/images/royaljack.webp", "/images/grilljack.webp"],
-    logo: restaurantInfo.logo,
+    description: "Hamburguesas artesanales gruesas en Centro de Lima. Carne 100% de res, pan suave artesanal y salsas caseras. Pide online con delivery rápido o recojo al toque.",
+    image: [
+      `${siteUrl}/images/og-bigjack.png`,
+      `${siteUrl}/images/baconjack.webp`,
+      `${siteUrl}/images/royaljack.webp`,
+      `${siteUrl}/images/grilljack.webp`
+    ],
+    logo: `${siteUrl}/images/bigjacktitle.svg`,
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Centro de Lima",
-      addressLocality: "Centro de Lima",
+      streetAddress: "Jr. Bartolomé Herrera 133",
+      addressLocality: "Lince",
       addressRegion: "Lima",
       addressCountry: "PE",
       postalCode: "15046",
@@ -91,6 +96,7 @@ export function buildRestaurantSchema({
       latitude: "-12.081387",
       longitude: "-77.038263",
     },
+    hasMap: restaurantInfo.contact.googleMapsLink,
     telephone: `+${restaurantInfo.contact.whatsapp}`,
     url: siteUrl,
     sameAs: [
@@ -100,14 +106,14 @@ export function buildRestaurantSchema({
       restaurantInfo.contact.googleMapsLink,
     ],
     priceRange: computedPriceRange,
-    servesCuisine: ["Hamburguesas", "Fast Food", "Comida peruana casual"],
+    servesCuisine: ["Hamburguesas Artesanales", "Fast Food", "Comida Rápida Peruana"],
     areaServed,
     openingHoursSpecification,
     hasMenu: {
       "@type": "Menu",
       hasMenuSection: menuSections,
     },
-    paymentAccepted: ["Efectivo", "Yape", "Plin"],
+    paymentAccepted: ["Efectivo", "Yape", "Plin", "Tarjeta"],
     acceptsReservations: false,
     delivery: true,
     takeaway: true,
@@ -121,26 +127,34 @@ export function buildFaqSchema() {
     mainEntity: [
       {
         "@type": "Question",
-        name: "¿Hacen smash burger?",
+        name: "¿Dónde comer buenas hamburguesas en Centro de Lima y Lince?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "No hacemos smash. Usamos medallones gruesos estilo fast food de barrio con salsas propias.",
+          text: "Big Jack sirve hamburguesas artesanales y gruesas con carne 100% de res, queso derretido y salsas de la casa en Centro de Lima. Puedes pedir por WhatsApp o recoger en tienda.",
         },
       },
       {
         "@type": "Question",
-        name: "¿Tienen delivery en Centro de Lima?",
+        name: "¿Hacen smash burger o hamburguesas gruesas?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Sí. Delivery rápido en zonas cercanas a Centro de Lima y recojo en tienda en 15-20 minutos.",
+          text: "En Big Jack preparamos hamburguesas gruesas y jugosas (no smash), con buena carne a la plancha, insumos frescos y papas crujientes.",
         },
       },
       {
         "@type": "Question",
-        name: "¿Qué medios de pago aceptan?",
+        name: "¿Cómo pedir delivery o recojo en tienda?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Aceptamos efectivo, Yape y Plin para pedidos directos.",
+          text: "Puedes pedir directamente a través de nuestro menú web o WhatsApp con delivery cercano y recojo listo en 15 a 20 minutos.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "¿Qué medios de pago aceptan en Big Jack?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Aceptamos Yape, Plin, tarjetas de crédito/débito y efectivo.",
         },
       },
     ],

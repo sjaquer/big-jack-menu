@@ -31,19 +31,19 @@ const parkinsans = Parkinsans({
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://bigjack.vercel.app'),
   title: {
-    default: 'BIG JACK | Hamburguesas Brutales en Centro de Lima',
+    default: 'BIG JACK | Hamburguesas Artesanales en Centro de Lima',
     template: '%s | BIG JACK'
   },
-  description: 'Hamburguesas gruesas (no smash) estilo fast food de barrio en Centro de Lima. Pide online o recoge en tienda. Delivery rápido en zonas cercanas.',
+  description: 'Hamburguesas artesanas gruesas con carne 100% de res, queso derretido y salsas de la casa en Centro de Lima. Delivery rápido y recojo al toque.',
   keywords: [
+    'hamburguesas artesanales lima',
     'hamburguesas centro de lima',
-    'hamburguesas lima',
-    'comida rápida centro de lima',
-    'fast food barrio',
-    'no smash burger',
-    'delivery centro de lima',
-    'big jack',
-    'hamburguesas con queso'
+    'hamburguesas lince',
+    'delivery de hamburguesas lima',
+    'big jack lima',
+    'hamburguesas gruesas',
+    'fast food artesanal lima',
+    'mejores hamburguesas lima centro'
   ],
   authors: [{ name: 'BIG JACK Perú' }],
   creator: 'BIG JACK Perú S.A.C.',
@@ -54,26 +54,26 @@ export const metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'BIG JACK | Hamburguesas Brutales en Centro de Lima',
-    description: 'Hamburguesas gruesas, no smash. Fast food de barrio en Centro de Lima con delivery cercano y recojo rápido.',
+    title: 'BIG JACK | Hamburguesas Artesanales en Centro de Lima',
+    description: 'Hamburguesas gruesas con carne 100% de res, queso derretido y salsas de la casa. Pide online con delivery o recojo rápido.',
     url: 'https://bigjack.vercel.app',
     siteName: 'BIG JACK',
     locale: 'es_PE',
     type: 'website',
     images: [
       {
-        url: '/images/baconjack.webp',
+        url: '/images/og-bigjack.png',
         width: 1200,
         height: 630,
-        alt: 'BIG JACK - Hamburguesas Brutales',
+        alt: 'BIG JACK - Hamburguesas Artesanales en Centro de Lima',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BIG JACK | Hamburguesas Brutales',
-    description: 'Hamburguesas gruesas y rápidas en Centro de Lima. Pide por WhatsApp o recoge en tienda.',
-    images: ['/images/baconjack.webp'],
+    title: 'BIG JACK | Hamburguesas Artesanales en Centro de Lima',
+    description: 'Hamburguesas gruesas y jugosas en Centro de Lima. Pide por WhatsApp o recoge en tienda al toque.',
+    images: ['/images/og-bigjack.png'],
   },
   robots: {
     index: true,

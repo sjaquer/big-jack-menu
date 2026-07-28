@@ -1,31 +1,27 @@
-import { menuItems, restaurantInfo } from "./data/menuData";
+import { menuItems } from "./data/menuData";
 
-export default function sitemap() {
+export default async function sitemap() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://bigjack.vercel.app";
 
-  // Páginas estáticas
-  const routes = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/libro-de-reclamaciones`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-  ];
+  const staticRoutes = [
+    "",
+    "/quienes",
+    "/links",
+    "/libro-de-reclamaciones",
+    "/reto-gamer",
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: route === "" ? 1.0 : 0.8,
+  }));
 
-  // Páginas de productos dinámicas
-  const productPages = menuItems.map((item) => ({
+  const productRoutes = menuItems.map((item) => ({
     url: `${baseUrl}/product/${item.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
-    priority: 0.8,
+    priority: 0.9,
   }));
 
-  return [...routes, ...productPages];
+  return [...staticRoutes, ...productRoutes];
 }
