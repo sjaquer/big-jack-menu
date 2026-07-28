@@ -26,6 +26,7 @@ const parkinsans = Parkinsans({
   variable: "--font-parkinsans",
   weight: ["700", "800"],
   subsets: ["latin"],
+  adjustFontFallback: false,
 });
 
 export const metadata = {

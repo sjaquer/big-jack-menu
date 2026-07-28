@@ -395,12 +395,14 @@ export default function BigJackMenu() {
 
   const closeProductModal = () => {
     setModalProduct(null);
+    setActiveModalProduct(null);
     setModalOptionId(null);
   };
 
   const confirmModalAdd = () => {
-    if (!modalProduct || !modalSelectedOption) return;
-    handleAddProduct(modalProduct, modalSelectedOption.id);
+    const targetProduct = modalProduct || activeModalProduct;
+    if (!targetProduct || !modalSelectedOption) return;
+    handleAddProduct(targetProduct, modalSelectedOption.id);
     closeProductModal();
   };
 

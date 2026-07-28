@@ -56,8 +56,12 @@ export default function ProductModal({
             </p>
           </div>
           <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-white p-1"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 hover:text-white transition-colors flex-shrink-0"
             aria-label="Cerrar modal"
           >
             <X size={20} />
@@ -111,12 +115,17 @@ export default function ProductModal({
           </div>
           <div className="grid grid-cols-2 gap-3 pt-2">
             <button
-              onClick={onClose}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
               className="min-h-[56px] rounded-2xl border-2 border-neutral-700 bg-neutral-900 text-white font-bold hover:bg-neutral-800 transition-all active:scale-95 text-sm"
             >
               Cancelar
             </button>
             <button
+              type="button"
               onClick={onConfirm}
               disabled={!selectedOption}
               className="min-h-[56px] rounded-2xl bg-[#FCC900] text-black font-black text-base disabled:bg-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed transition-all active:scale-95 disabled:active:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-[#FCC900]/20 hover:bg-[#e2b500]"
