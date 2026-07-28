@@ -13,85 +13,82 @@ export default function HeroSection({
   const [imgError, setImgError] = useState(false);
 
   return (
-    <section className="relative overflow-hidden bg-[#0F0F12] py-12 md:py-20 border-b-3 border-neutral-800">
-      <div className="relative z-10 max-w-6xl mx-auto px-4 grid gap-10 md:grid-cols-2 items-center">
+    <section className="relative overflow-hidden bg-[#0F0F12] py-10 sm:py-16 md:py-20 border-b-3 border-neutral-800">
+      {/* Halo dorado centrado detrás de la hamburguesa */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(252,201,0,0.14),_transparent_65%)] pointer-events-none" />
 
-        <div className="space-y-6 text-center md:text-left order-2 md:order-1">
-          <div className="inline-flex items-center gap-2">
-            <span className="tag-streetwear">
-              [ LIMA CENTRO & LINCE ]
-            </span>
-            <span className="tag-streetwear hidden sm:inline-block">
-              [ 100% RES ]
-            </span>
-          </div>
-
-          <h1 className="font-anton text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-white uppercase tracking-tight">
-            HAMBURGUESAS <br/>
-            <span className="text-[#FCC900]">ARTESANALES</span>
-          </h1>
-
-          <p className="text-neutral-400 text-base md:text-lg font-medium max-w-md mx-auto md:mx-0 leading-relaxed">
-            Carne 100% de res jugosa y gruesa, queso derretido en su punto y salsas de la casa. Pide online con delivery o pasa a recoger al toque.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
-            <button
-              onClick={scrollToMenu}
-              className="btn-streetwear h-14 px-8 rounded-xl text-lg flex items-center justify-center gap-3 shadow-lg"
-            >
-              <ShoppingCart size={22} className="stroke-[3]" />
-              HACER PEDIDO
-            </button>
-            <a
-              href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
-              target="_blank"
-              rel="noreferrer"
-              className="h-14 px-8 rounded-xl bg-[#1F1F24] border-2 border-neutral-700 hover:border-[#FCC900] text-white font-bold text-base flex items-center justify-center gap-3 transition-colors"
-            >
-              <MessageCircle size={20} className="text-green-400" />
-              WhatsApp Directo
-            </a>
-          </div>
-
-          <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs font-bold text-neutral-400 pt-2">
-            <span className="flex items-center gap-2 bg-[#1F1F24] border border-neutral-800 px-3 py-1.5 rounded-lg">
-              <Truck size={14} className="text-[#FCC900]" /> Delivery directo
-            </span>
-            <span className="flex items-center gap-2 bg-[#1F1F24] border border-neutral-800 px-3 py-1.5 rounded-lg">
-              <Clock size={14} className="text-[#FCC900]" /> Recojo en 15-20 min
-            </span>
-          </div>
+      <div className="relative z-10 max-w-4xl mx-auto px-4 text-center space-y-6">
+        {/* Tags superiores */}
+        <div className="flex items-center justify-center gap-3">
+          <span className="tag-streetwear">
+            [ LIMA CENTRO & LINCE ]
+          </span>
+          <span className="tag-streetwear">
+            [ CARNE 100% RES ]
+          </span>
         </div>
 
-        <div className="relative order-1 md:order-2">
-          {/* Framed Hero Image */}
-          <div className="relative aspect-square md:aspect-[4/3] rounded-3xl overflow-hidden border-3 border-neutral-800 hover:border-[#FCC900] shadow-2xl transition-all duration-300 group">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 pointer-events-none" />
-            
-            {heroHighlight && !imgError ? (
-              <Image
-                src={heroHighlight.image}
-                alt="Hamburguesa real Big Jack"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transform transition-transform duration-500 group-hover:scale-105"
-                priority
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <div className="w-full h-full bg-neutral-900 flex items-center justify-center">
-                <Flame size={48} className="text-[#FCC900]" />
-              </div>
-            )}
+        {/* Titular Principal Centrado */}
+        <h1 className="font-anton text-5xl sm:text-7xl md:text-8xl leading-[0.9] text-white uppercase tracking-tight drop-shadow-2xl">
+          HAMBURGUESAS <br className="hidden sm:inline" />
+          <span className="text-[#FCC900]">ARTESANALES</span> Y GRUESAS
+        </h1>
 
-            {heroPriceRange && heroPriceRange.length > 0 && (
-              <div className="absolute bottom-6 right-6 z-20 block-yellow text-2xl shadow-xl">
-                <span className="text-xs font-black mr-1 opacity-80">DESDE</span>
-                <span>S/ {heroPriceRange[0].toFixed(2)}</span>
-              </div>
-            )}
+        {/* Subtítulo Claro */}
+        <p className="text-neutral-300 text-base sm:text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+          Carne 100% de res jugosa, queso cheddar derretido y salsas caseras de la casa. Pide online directo con delivery o recojo en tienda.
+        </p>
+
+        {/* PROTAGONISTA CENTRAL: burger_hero.png */}
+        <div className="relative w-full max-w-lg mx-auto aspect-square sm:aspect-[4/3] my-4 group">
+          <div className="relative w-full h-full">
+            <Image
+              src="/images/burger_hero.png"
+              alt="Hamburguesa artesanal Big Jack con queso derretido"
+              fill
+              sizes="(max-width: 768px) 100vw, 600px"
+              className="object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.9)] transform transition-transform duration-700 group-hover:scale-108"
+              priority
+            />
           </div>
+
+          {/* Badge de Precio Flotante */}
+          {heroPriceRange && heroPriceRange.length > 0 && (
+            <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-6 z-20 block-yellow text-xl sm:text-2xl shadow-2xl">
+              <span className="text-[10px] sm:text-xs font-black mr-1 opacity-80">DESDE</span>
+              <span>S/ {heroPriceRange[0].toFixed(2)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Botones de Acción Centrados */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+          <button
+            onClick={scrollToMenu}
+            className="btn-streetwear w-full sm:w-auto h-14 px-8 rounded-xl text-lg flex items-center justify-center gap-3 shadow-xl"
+          >
+            <ShoppingCart size={22} className="stroke-[3]" />
+            HACER PEDIDO / VER MENÚ
+          </button>
+          <a
+            href={`https://wa.me/${restaurantInfo.contact.whatsapp}`}
+            target="_blank"
+            rel="noreferrer"
+            className="w-full sm:w-auto h-14 px-8 rounded-xl bg-[#1F1F24] border-2 border-neutral-700 hover:border-[#FCC900] text-white font-bold text-base flex items-center justify-center gap-3 transition-colors"
+          >
+            <MessageCircle size={20} className="text-green-400" />
+            Pedir por WhatsApp
+          </a>
+        </div>
+
+        {/* Métricas e Indicadores Rápidos */}
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-bold text-neutral-400 pt-4">
+          <span className="flex items-center gap-2 bg-[#131317] border border-neutral-800 px-3.5 py-2 rounded-xl">
+            <Truck size={15} className="text-[#FCC900]" /> Delivery directo en tu zona
+          </span>
+          <span className="flex items-center gap-2 bg-[#131317] border border-neutral-800 px-3.5 py-2 rounded-xl">
+            <Clock size={15} className="text-[#FCC900]" /> Recojo en local (15 min)
+          </span>
         </div>
       </div>
     </section>

@@ -46,20 +46,20 @@ export default function CategoryFilter({
   return (
     <div className="sticky top-[73px] z-40 bg-[#0F0F12]/95 backdrop-blur-md border-b-3 border-neutral-800 py-4 shadow-xl overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 space-y-4">
-        {/* Buscador en Tiempo Real & Título */}
+        {/* Buscador en Tiempo Real & Título Explicativo */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <span className="tag-streetwear self-start sm:self-auto">
-            [ CATÁLOGO DE HAMBURGUESAS ]
+            [ MENÚ & FILTRAR EN LA CARTA ]
           </span>
 
           {onSearchChange && (
-            <div className="relative w-full sm:w-72">
+            <div className="relative w-full sm:w-80">
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Buscar burger, papas, bebida..."
+                placeholder="Buscar ingrediente (smash, tocino, queso)..."
                 aria-label="Buscar productos por nombre o ingrediente"
                 className="w-full bg-[#131317] border-2 border-neutral-700 focus:border-[#FCC900] rounded-xl pl-10 pr-9 py-2 text-xs font-bold text-white placeholder:text-neutral-500 outline-none transition-all"
               />
