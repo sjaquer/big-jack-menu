@@ -35,6 +35,99 @@ body {
   letter-spacing: -0.12em;
 }
 
+/* --- CINTA DE ADVERTENCIA (WARNING STRIPE) --- */
+.warning-stripe {
+  background: repeating-linear-gradient(
+    45deg,
+    #fcc900 0px,
+    #fcc900 8px,
+    #1e1e1e 8px,
+    #1e1e1e 16px
+  );
+}
+
+.warning-stripe-vertical {
+  background: repeating-linear-gradient(
+    -45deg,
+    #fcc900 0px,
+    #fcc900 8px,
+    #1e1e1e 8px,
+    #1e1e1e 16px
+  );
+}
+
+.warning-border {
+  border: 3px solid #fcc900;
+  outline: 2px solid #1e1e1e;
+  outline-offset: -5px;
+}
+
+.warning-border-light {
+  border: 2px solid #fcc900;
+  outline: 1px solid #1e1e1e;
+  outline-offset: -3px;
+}
+
+/* --- BADGE ESTILO LETRERO DE OBRA / CUIDADO --- */
+.cuidado-badge {
+  background: #fcc900;
+  color: #1e1e1e;
+  font-family: var(--font-anton), Impact, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border: 2px solid #1e1e1e;
+  box-shadow: 4px 4px 0px #1e1e1e;
+}
+
+.cuidado-badge-sm {
+  background: #fcc900;
+  color: #1e1e1e;
+  font-weight: 900;
+  text-transform: uppercase;
+  border: 2px solid #1e1e1e;
+}
+
+/* --- SELLO / STAMP --- */
+.sello-stamp {
+  background: transparent;
+  color: #fcc900;
+  border: 2px dashed #fcc900;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  transform: rotate(-3deg);
+}
+
+/* --- ESQUINAS DECORATIVAS --- */
+.corner-accent::before,
+.corner-accent::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #fcc900;
+}
+.corner-accent::before {
+  top: -1px;
+  left: -1px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.corner-accent::after {
+  bottom: -1px;
+  right: -1px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* --- GLOW AMARILLO UNIFICADO --- */
+.glow-yellow {
+  box-shadow: 0 0 25px rgba(252, 201, 0, 0.25);
+}
+
+.glow-yellow-strong {
+  box-shadow: 0 0 30px rgba(252, 201, 0, 0.4);
+}
+
 /* --- CART DRAWER TRANSITIONS --- */
 .cart-drawer-container {
   display: flex;
@@ -215,12 +308,12 @@ header.scrolled .header-inner {
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d99133;
+  background: #fcc900;
 }
 
 /* --- ACCESSIBILITY FOCUS RINGS --- */
 :focus-visible {
-  outline: 2px solid #d99133 !important;
+  outline: 2px solid #fcc900 !important;
   outline-offset: 2px !important;
 }
 
@@ -233,5 +326,5 @@ header.scrolled .header-inner {
 }
 
 .gold-glow {
-  box-shadow: 0 0 25px rgba(217, 145, 51, 0.25);
+  box-shadow: 0 0 25px rgba(252, 201, 0, 0.25);
 }
