@@ -49,7 +49,7 @@ export default function CategoryFilter({
         {/* Buscador en Tiempo Real & Título Explicativo */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <span className="tag-streetwear self-start sm:self-auto">
-            [ MENÚ & FILTRAR EN LA CARTA ]
+            [ NUESTRA CARTA ]
           </span>
 
           {onSearchChange && (

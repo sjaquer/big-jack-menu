@@ -64,7 +64,7 @@ export default async function ProductDetail({ params }) {
             <span className="text-xs sm:text-sm text-neutral-400 hidden sm:block">Ver tu carrito</span>
             <Link
               href="/?openCart=true"
-              className="p-3 sm:p-4 bg-[#d99133] text-black rounded-2xl hover:bg-[#eeb055] transition-all active:scale-95 shadow-lg shadow-[#d99133]/20"
+              className="p-3 sm:p-4 bg-[#FCC900] text-black font-black rounded-2xl hover:bg-[#e2b500] transition-all active:scale-95 shadow-lg shadow-[#FCC900]/20"
             >
               <ShoppingCart size={22} />
             </Link>

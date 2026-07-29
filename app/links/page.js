@@ -170,98 +170,61 @@ export default function LinksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F0F12] text-white border-t-3 border-[#FCC900]">
-      {/* Background Pattern */}
+    <div className="min-h-screen bg-[#0F0F12] text-white selection:bg-[#FCC900] selection:text-black">
+      {/* Background Pattern & Glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(252,201,0,0.08),transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(252,201,0,0.12),transparent_60%)]"></div>
+        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
       </div>
 
-      <div className="relative z-10 max-w-md mx-auto px-4 py-10">
-        
-        {/* Header - Logo y Marca */}
-        <header className="flex flex-col items-center mb-10">
-          {/* Logo Title */}
-          <div className="relative w-64 h-32 mb-2">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-20 bg-[#FCC900] blur-[60px] opacity-20 rounded-full pointer-events-none"></div>
-             <Image 
-               src="/images/bigjacktitle.webp" 
-               alt="Big Jack"
-               fill
-               className="object-contain drop-shadow-2xl"
-               priority
-             />
-          </div>
+      <div className="relative z-10 max-w-md mx-auto px-4 py-8 space-y-6">
+        {/* Header - Branding Streetwear */}
+        <header className="flex flex-col items-center text-center pt-4">
+          <Link href="/" className="group mb-2">
+            <h1 className="font-anton text-5xl sm:text-6xl text-white tracking-wider uppercase group-hover:scale-105 transition-transform drop-shadow-lg">
+              BIG <span className="text-[#FCC900]">JACK</span>
+            </h1>
+          </Link>
           
-          {/* Slogan */}
-          <p className="text-neutral-400 text-sm mb-5 font-medium tracking-wide">
-            {restaurantInfo.slogan}
+          <p className="text-[#FCC900] text-xs font-black uppercase tracking-[0.2em] mb-4">
+            [ HAMBURGUESAS ARTESANALES ]
           </p>
 
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-full px-4 py-2 text-sm">
+          <div className="inline-flex items-center gap-2 bg-[#131317] border-2 border-neutral-800 rounded-full px-4 py-1.5 text-xs font-bold shadow-md">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            <span className="text-neutral-300">Abierto</span>
+            <span className="text-white">ABIERTO</span>
             <span className="text-neutral-600">|</span>
-            <MapPin size={14} className="text-[#FCC900]" />
-            <span className="text-neutral-400">Centro de Lima</span>
+            <MapPin size={13} className="text-[#FCC900]" />
+            <span className="text-neutral-400">CENTRO DE LIMA</span>
           </div>
         </header>
 
-        {/* Intro SEO/Misión */}
-        <section className="mb-8 text-center space-y-3">
-          <h1 className="text-xl font-black text-white leading-tight">
-            Hamburguesas Artesanales en Centro de Lima
-          </h1>
-          <p className="text-neutral-400 text-sm leading-relaxed">
-            Carne 100% de res jugosa y gruesa, queso derretido en su punto y salsas de la casa. Pide online con delivery o pasa a recoger al toque.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link
-              href="/"
-              className="px-4 py-2.5 rounded-xl bg-[#FCC900] text-black font-black hover:bg-[#e2b500] transition-all"
-            >
-              Ver menú y pedir
-            </Link>
-            <a
-              href={restaurantInfo.contact.googleMapsLink}
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2.5 rounded-xl border border-neutral-700 text-white font-semibold hover:border-[#FCC900]/60 hover:text-[#FCC900] transition-all"
-            >
-              Estamos en Centro de Lima
-            </a>
-          </div>
-        </section>
-
         {/* Google Review CTA */}
-        <section className="mb-8">
+        <section>
           <a
             href="https://g.page/r/CRukRtdfadmpEAE/review"
             target="_blank"
             rel="noreferrer"
             className="group block"
           >
-            <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl p-5 hover:border-[#d99133]/50 transition-all overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#d99133]/5 rounded-full blur-2xl"></div>
-              
-              <div className="relative flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
+            <div className="relative bg-[#131317] border-2 border-neutral-800 rounded-2xl p-4 hover:border-[#FCC900] transition-all overflow-hidden shadow-lg active:scale-[0.98]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
                   <GoogleIcon />
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1 mb-1">
+                  <div className="flex items-center gap-1 mb-0.5">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={12} className="text-[#FBBC05]" fill="currentColor" />
+                      <Star key={i} size={11} className="text-[#FBBC05]" fill="currentColor" />
                     ))}
-                    <span className="text-neutral-500 text-xs ml-1">4.9</span>
+                    <span className="text-neutral-400 text-[10px] font-bold ml-1">4.9</span>
                   </div>
-                  <p className="text-white font-bold text-sm">Deja tu reseña en Google</p>
-                  <p className="text-neutral-500 text-xs">Tu opinión nos ayuda a mejorar</p>
+                  <p className="text-white font-bold text-xs">Deja tu reseña en Google</p>
                 </div>
                 
-                <ChevronRight size={20} className="text-neutral-600 group-hover:text-[#d99133] group-hover:translate-x-1 transition-all flex-shrink-0" />
+                <ChevronRight size={18} className="text-neutral-500 group-hover:text-[#FCC900] group-hover:translate-x-1 transition-all flex-shrink-0" />
               </div>
             </div>
           </a>
@@ -269,10 +232,10 @@ export default function LinksPage() {
 
         {/* Links por Categoría */}
         {categories.map((category) => (
-          <section key={category.id} className="mb-8">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-3 px-1">
-              {category.title}
-            </h2>
+          <section key={category.id} className="space-y-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FCC900] px-1">
+              [ {category.title} ]
+            </p>
             
             <div className="space-y-2">
               {category.links.map((link) => {
@@ -285,18 +248,18 @@ export default function LinksPage() {
                     href={link.href}
                     target={isExternal ? "_blank" : undefined}
                     rel={isExternal ? "noreferrer" : undefined}
-                    className={`group flex items-center gap-4 w-full p-4 rounded-xl transition-all active:scale-[0.98] ${getButtonStyle(link.style)}`}
+                    className={`group flex items-center gap-3.5 w-full p-3.5 rounded-2xl transition-all active:scale-[0.98] border-2 shadow-md ${getButtonStyle(link.style)}`}
                   >
-                    <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                      {link.iconType === "svg" ? <Icon /> : <Icon size={22} />}
+                    <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                      {link.iconType === "svg" ? <Icon /> : <Icon size={20} />}
                     </div>
                     
                     <div className="flex-1 min-w-0 text-left">
-                      <p className="font-bold text-sm">{link.title}</p>
-                      <p className="text-xs opacity-70 truncate">{link.subtitle}</p>
+                      <p className="font-bold text-xs uppercase tracking-wide">{link.title}</p>
+                      <p className="text-[11px] opacity-80 truncate font-medium">{link.subtitle}</p>
                     </div>
                     
-                    <ChevronRight size={18} className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    <ChevronRight size={16} className="opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                   </a>
                 );
               })}
@@ -305,39 +268,34 @@ export default function LinksPage() {
         ))}
 
         {/* Horarios */}
-        <section className="mb-8">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-[#d99133]/10 flex items-center justify-center">
-                <Clock size={20} className="text-[#d99133]" />
-              </div>
-              <h3 className="font-bold text-white">Horarios</h3>
+        <section>
+          <div className="bg-[#131317] border-2 border-neutral-800 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <Clock size={16} className="text-[#FCC900]" />
+              <h3 className="font-anton text-lg text-white uppercase tracking-wide">HORARIOS DE ATENCIÓN</h3>
             </div>
             
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Lun - Jue</span>
-                <span className="text-white font-medium">4:00 PM - 1:00 AM</span>
+            <div className="space-y-2 text-xs font-bold">
+              <div className="flex justify-between items-center text-neutral-300">
+                <span>Lun - Jue:</span>
+                <span className="text-white">4:00 PM - 1:00 AM</span>
               </div>
               <div className="h-px bg-neutral-800"></div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Vie - Dom</span>
-                <span className="text-[#d99133] font-bold">5:00 PM - 1:00 AM</span>
+              <div className="flex justify-between items-center text-neutral-300">
+                <span>Vie - Dom:</span>
+                <span className="text-[#FCC900]">5:00 PM - 1:00 AM</span>
               </div>
             </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="text-center pt-6 border-t border-neutral-800">
-          <p className="text-neutral-600 text-xs mb-2">
-            Hamburguesas brutales desde 2025
+        <footer className="text-center pt-4 border-t border-neutral-800/80 space-y-1">
+          <p className="text-[#FCC900] text-[10px] font-black uppercase tracking-widest">
+            BIG JACK — HAMBURGUESAS ARTESANALES
           </p>
-          <p className="text-neutral-700 text-xs">
-            RUC: {restaurantInfo.ruc}
-          </p>
-          <p className="text-neutral-700 text-xs mt-1">
-            © {new Date().getFullYear()} Big Jack
+          <p className="text-neutral-500 text-[10px] font-bold">
+            RUC: {restaurantInfo.ruc} | © {new Date().getFullYear()}
           </p>
         </footer>
       </div>

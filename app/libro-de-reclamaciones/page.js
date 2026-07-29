@@ -39,7 +39,7 @@ export default function LibroReclamaciones() {
     <div className="min-h-screen bg-[#020204] text-white font-sans">
       <header className="border-b-2 border-neutral-800 bg-gradient-to-r from-[#020204] to-[#0a0a0c] backdrop-blur-sm sticky top-0 z-50 shadow-xl shadow-black/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl sm:text-3xl font-black tracking-tighter text-[#d99133] hover:text-[#eeb055] transition">
+          <Link href="/" className="text-2xl sm:text-3xl font-black tracking-tighter text-[#FCC900] hover:text-[#eeb055] transition">
             {restaurantInfo.name}
           </Link>
           <Link
@@ -53,8 +53,8 @@ export default function LibroReclamaciones() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="text-center mb-8 sm:mb-12 space-y-4">
-          <div className="inline-block bg-[#d99133]/10 border-2 border-[#d99133]/30 rounded-2xl px-6 py-2 mb-2">
-            <span className="flex items-center gap-2 text-[#d99133] text-xs sm:text-sm font-black uppercase tracking-wider">
+          <div className="inline-block bg-[#FCC900]/10 border-2 border-[#FCC900]/30 rounded-2xl px-6 py-2 mb-2">
+            <span className="flex items-center gap-2 text-[#FCC900] text-xs sm:text-sm font-black uppercase tracking-wider">
               <Clipboard className="w-4 h-4" /> Oficial
             </span>
           </div>
@@ -64,9 +64,9 @@ export default function LibroReclamaciones() {
           </p>
           <div className="bg-neutral-900/80 border border-neutral-800 rounded-xl p-4 sm:p-5 max-w-2xl mx-auto">
             <p className="text-neutral-400 text-xs sm:text-sm">
-              <span className="font-bold text-[#d99133]">Razón Social:</span> {restaurantInfo.name}<br />
-              <span className="font-bold text-[#d99133]">RUC:</span> {restaurantInfo.ruc}<br />
-              <span className="font-bold text-[#d99133]">Dirección:</span> {restaurantInfo.contact.address}
+              <span className="font-bold text-[#FCC900]">Razón Social:</span> {restaurantInfo.name}<br />
+              <span className="font-bold text-[#FCC900]">RUC:</span> {restaurantInfo.ruc}<br />
+              <span className="font-bold text-[#FCC900]">Dirección:</span> {restaurantInfo.contact.address}
             </p>
           </div>
         </div>
@@ -75,21 +75,21 @@ export default function LibroReclamaciones() {
           
           {/* 1. Identificación del Consumidor */}
           <section className="space-y-5 sm:space-y-6">
-            <div className="flex items-center gap-3 bg-[#020204] border-2 border-[#d99133]/20 rounded-xl p-4">
-              <span className="w-8 h-8 sm:w-10 sm:h-10 bg-[#d99133] text-black rounded-full flex items-center justify-center font-black text-lg sm:text-xl">1</span>
+            <div className="flex items-center gap-3 bg-[#020204] border-2 border-[#FCC900]/20 rounded-xl p-4">
+              <span className="w-8 h-8 sm:w-10 sm:h-10 bg-[#FCC900] text-black rounded-full flex items-center justify-center font-black text-lg sm:text-xl">1</span>
               <h2 className="text-base sm:text-lg font-black text-white">Identificación del Consumidor Reclamante</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
               <div className="space-y-2">
                 <label className="text-xs sm:text-sm text-neutral-300 font-bold flex items-center gap-2">
-                  <User className="w-4 h-4 text-[#d99133]" /> Nombre Completo
+                  <User className="w-4 h-4 text-[#FCC900]" /> Nombre Completo
                 </label>
                 <input 
                   required 
                   name="name" 
                   type="text" 
                   placeholder="Ej: Juan Pérez García"
-                  className="w-full bg-[#020204] border-2 border-neutral-700 rounded-xl p-4 text-sm sm:text-base text-white placeholder:text-neutral-600 focus:border-[#d99133] focus:ring-2 focus:ring-[#d99133]/20 outline-none transition-all" 
+                  className="w-full bg-[#020204] border-2 border-neutral-700 rounded-xl p-4 text-sm sm:text-base text-white placeholder:text-neutral-600 focus:border-[#FCC900] focus:ring-2 focus:ring-[#FCC900]/20 outline-none transition-all" 
                 />
               </div>
               <div className="space-y-2">

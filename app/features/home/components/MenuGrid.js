@@ -42,12 +42,12 @@ export default function MenuGrid({
             {filteredItems.length} {filteredItems.length === 1 ? "OPCIÓN DISPONIBLE" : "OPCIONES DISPONIBLES"}
           </p>
         </div>
-        <div className="bg-[#131317] border-2 border-neutral-800 rounded-2xl p-4 max-w-md">
-          <p className="text-xs text-neutral-300 leading-relaxed flex items-start gap-2.5">
-            <Sparkles size={16} className="text-[#FCC900] flex-shrink-0 mt-0.5" />
+        <div className="hidden sm:block bg-[#131317] border-2 border-neutral-800 rounded-2xl p-3.5 max-w-md">
+          <p className="text-xs text-neutral-300 leading-relaxed flex items-center gap-2">
+            <Sparkles size={15} className="text-[#FCC900] flex-shrink-0" />
             <span>
-              <span className="font-black text-white uppercase mr-1">TIP MÓVIL:</span>
-              Desliza horizontalmente cada sección para explorar todas nuestras alternativas.
+              <span className="font-black text-white uppercase mr-1">TIP:</span>
+              Desliza horizontalmente para explorar todas nuestras alternativas.
             </span>
           </p>
         </div>

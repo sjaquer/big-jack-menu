@@ -18,25 +18,22 @@ export default function HeroSection({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(252,201,0,0.14),_transparent_65%)] pointer-events-none" />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center space-y-6">
-        {/* Tags superiores */}
-        <div className="flex items-center justify-center gap-3">
+        {/* Tag Superior Compacto */}
+        <div className="flex items-center justify-center">
           <span className="tag-streetwear">
-            [ LIMA CENTRO & LINCE ]
-          </span>
-          <span className="tag-streetwear">
-            [ CARNE 100% RES ]
+            [ CARNE 100% RES • CENTRO DE LIMA ]
           </span>
         </div>
 
         {/* Titular Principal Centrado */}
-        <h1 className="font-anton text-5xl sm:text-7xl md:text-8xl leading-[0.9] text-white uppercase tracking-tight drop-shadow-2xl">
+        <h1 className="font-anton text-4xl sm:text-7xl md:text-8xl leading-[0.9] text-white uppercase tracking-tight drop-shadow-2xl">
           HAMBURGUESAS <br className="hidden sm:inline" />
           <span className="text-[#FCC900]">ARTESANALES</span> Y GRUESAS
         </h1>
 
-        {/* Subtítulo Claro */}
-        <p className="text-neutral-300 text-base sm:text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-          Carne 100% de res jugosa, queso cheddar derretido y salsas caseras de la casa. Pide online directo con delivery o recojo en tienda.
+        {/* Subtítulo Corto y Directo */}
+        <p className="text-neutral-300 text-sm sm:text-lg font-medium max-w-xl mx-auto leading-snug">
+          100% Carne de res a la plancha. Pide online directo con delivery o recojo al instante.
         </p>
 
         {/* PROTAGONISTA CENTRAL: burger_hero.png */}
