@@ -23,16 +23,34 @@ body {
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 28px 28px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- MEJORES PRÁCTICAS DE TIPOGRAFÍA MODERNA --- */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p, blockquote, li {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 3px solid #FCC900 !important;
+  outline-offset: 2px !important;
 }
 
 .font-anton {
   font-family: var(--font-anton), Impact, sans-serif !important;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.02em;
 }
 
 .font-signature {
   font-family: var(--font-parkinsans), var(--font-poppins), sans-serif;
-  letter-spacing: -0.12em;
+  letter-spacing: -0.05em;
 }
 
 /* --- ESTILO STREETWEAR / BRUTALISMO URBANO (BERLIN / TOKYO) --- */
