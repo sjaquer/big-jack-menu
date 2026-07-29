@@ -20,13 +20,21 @@ function CategoryCarousel({
 
   const handleScroll = (e) => {
     const container = e.currentTarget;
-    const firstItem = container.children[0];
-    if (!firstItem) return;
-    const itemWidth = firstItem.offsetWidth + 16; // width + gap
-    const newIndex = Math.round(container.scrollLeft / itemWidth);
-    const clampedIndex = Math.min(Math.max(0, newIndex), items.length - 1);
-    if (clampedIndex !== activeIndex) {
-      setActiveIndex(clampedIndex);
+    if (!container.children.length) return;
+    const scrollLeft = container.scrollLeft;
+    let closestIndex = 0;
+    let minDiff = Infinity;
+    
+    Array.from(container.children).forEach((child, i) => {
+      const diff = Math.abs(child.offsetLeft - container.offsetLeft - scrollLeft);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIndex = i;
+      }
+    });
+
+    if (closestIndex !== activeIndex) {
+      setActiveIndex(closestIndex);
     }
   };
 
@@ -35,7 +43,8 @@ function CategoryCarousel({
     if (!container) return;
     const targetItem = container.children[idx];
     if (targetItem) {
-      targetItem.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      const targetLeft = targetItem.offsetLeft - container.offsetLeft;
+      container.scrollTo({ left: targetLeft, behavior: "smooth" });
       setActiveIndex(idx);
     }
   };
@@ -48,7 +57,7 @@ function CategoryCarousel({
   };
 
   return (
-    <section className="space-y-4 w-full overflow-hidden">
+    <section className="space-y-4 w-full">
       {/* Header de Categoría + Paginador Móvil */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-neutral-800 pb-3">
         <div className="flex items-center gap-3">
@@ -127,7 +136,7 @@ function CategoryCarousel({
           return (
             <div
               key={item.id}
-              className="carousel-snap-item w-[84vw] max-w-[310px] sm:w-[340px] flex-shrink-0"
+              className="carousel-snap-item w-[280px] sm:w-[320px] flex-shrink-0"
             >
               <ProductCard
                 item={item}

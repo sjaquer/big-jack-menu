@@ -317,14 +317,10 @@ header.scrolled .header-inner {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x proximity;
-  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   width: 100%;
 }
 
 .carousel-snap-item {
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
   flex-shrink: 0;
 }
