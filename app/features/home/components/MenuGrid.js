@@ -201,18 +201,56 @@ export default function MenuGrid({
             if (!itemsInCategory.length) return null;
 
             return (
-              <CategoryCarousel
-                key={category}
-                category={category}
-                items={itemsInCategory}
-                cart={cart}
-                onAdd={onAdd}
-                onOpenModal={onOpenModal}
-                recentlyAdded={recentlyAdded}
-                hasPrimaryProduct={hasPrimaryProduct}
-                PRIMARY_CATEGORIES={PRIMARY_CATEGORIES}
-                COMPLEMENT_CATEGORIES={COMPLEMENT_CATEGORIES}
-              />
+              <div key={category} className="space-y-6">
+                {/* VISTA MÓVIL (grid vertical limpio) */}
+                <section className="sm:hidden space-y-4">
+                  <div className="flex items-center gap-3 border-b-2 border-neutral-800 pb-3">
+                    <span className="w-3 h-3 rounded-full bg-[#FCC900]" />
+                    <h3 className="font-anton text-2xl text-white uppercase tracking-wider">
+                      {category}
+                    </h3>
+                    <span className="text-xs font-bold text-neutral-500">
+                      ({itemsInCategory.length})
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-5">
+                    {itemsInCategory.map((item) => {
+                      const isComplement = COMPLEMENT_CATEGORIES.includes(item.category);
+                      const complementBlocked = isComplement && !hasPrimaryProduct;
+
+                      return (
+                        <ProductCard
+                          key={item.id}
+                          item={item}
+                          cart={cart}
+                          onAdd={onAdd}
+                          onOpenModal={onOpenModal}
+                          recentlyAdded={recentlyAdded}
+                          complementBlocked={complementBlocked}
+                          PRIMARY_CATEGORIES={PRIMARY_CATEGORIES}
+                          COMPLEMENT_CATEGORIES={COMPLEMENT_CATEGORIES}
+                        />
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* VISTA COMPUTADORA (carrusel horizontal) */}
+                <div className="hidden sm:block">
+                  <CategoryCarousel
+                    category={category}
+                    items={itemsInCategory}
+                    cart={cart}
+                    onAdd={onAdd}
+                    onOpenModal={onOpenModal}
+                    recentlyAdded={recentlyAdded}
+                    hasPrimaryProduct={hasPrimaryProduct}
+                    PRIMARY_CATEGORIES={PRIMARY_CATEGORIES}
+                    COMPLEMENT_CATEGORIES={COMPLEMENT_CATEGORIES}
+                  />
+                </div>
+              </div>
             );
           })}
         </div>
