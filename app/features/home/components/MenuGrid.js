@@ -101,7 +101,7 @@ export default function MenuGrid({
                     const complementBlocked = isComplement && !hasPrimaryProduct;
 
                     return (
-                      <div key={item.id} className="carousel-snap-item w-[84vw] max-w-[310px] sm:w-[340px] touch-pan-x flex-shrink-0">
+                      <div key={item.id} className="carousel-snap-item w-[84vw] max-w-[310px] sm:w-[340px] flex-shrink-0">
                         <ProductCard
                           item={item}
                           cart={cart}
