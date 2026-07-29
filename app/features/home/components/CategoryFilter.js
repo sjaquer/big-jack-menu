@@ -91,7 +91,7 @@ export default function CategoryFilter({
 
           <div
             ref={categoryScrollerRef}
-            className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 items-center"
+            className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide w-full px-0.5 items-center"
           >
             <div
               ref={leftSentinelRef}

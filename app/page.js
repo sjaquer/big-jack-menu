@@ -737,7 +737,7 @@ export default function BigJackMenu() {
   const displayProduct = modalProduct || activeModalProduct;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0F0F12] text-white font-sans w-full relative">
+    <div className="flex flex-col min-h-screen bg-[#0F0F12] text-white font-sans overflow-x-hidden">
       {/* HEADER */}
       <header className="sticky top-0 z-50 bg-[#0F0F12]/95 backdrop-blur-md border-b-3 border-[#FCC900] shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
