@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Flame, ShoppingCart, MessageCircle, Truck, Clock } from "lucide-react";
-import { useState } from "react";
+import { ShoppingCart, MessageCircle, Truck, Clock } from "lucide-react";
 
 export default function HeroSection({
   heroHighlight,
@@ -10,8 +9,6 @@ export default function HeroSection({
   restaurantInfo,
   scrollToMenu,
 }) {
-  const [imgError, setImgError] = useState(false);
-
   return (
     <section className="relative overflow-hidden bg-[#0F0F12] py-10 sm:py-16 md:py-20 border-b-3 border-neutral-800">
       {/* Halo dorado centrado detrás de la hamburguesa */}

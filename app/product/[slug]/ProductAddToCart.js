@@ -4,7 +4,19 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Plus, Minus, Check } from "lucide-react";
 import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "../../lib/openHours";
-import { buildCartItem, migrateLegacyCartItems } from "../../lib/cartModel";
+import {
+  addItem,
+  buildCartItem,
+  migrateLegacyCartItems,
+} from "../../lib/cartModel";
+import { readJson, writeJson } from "../../lib/safeStorage";
+import {
+  COMPLEMENT_CATEGORIES,
+  MAX_CART_ITEMS,
+  MAX_QTY_PER_ITEM,
+  PRIMARY_CATEGORIES,
+} from "../../features/home/constants";
+import { applyComplementRules } from "../../features/home/cartRules";
 import { menuItems } from "../../data/menuData";
 
 export default function ProductAddToCart({ product }) {
@@ -12,43 +24,57 @@ export default function ProductAddToCart({ product }) {
   const [selectedOption, setSelectedOption] = useState(product.options?.[0] || null);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [notice, setNotice] = useState("");
 
   const addToCart = () => {
-    if (!selectedOption) return;
+    if (!selectedOption) return false;
 
-    // Obtener carrito actual
-    const saved = JSON.parse(localStorage.getItem("cart") || "[]");
+    const saved = readJson("cart", []);
     const cart = migrateLegacyCartItems(saved, menuItems);
-    
-    // Crear ID único que coincida con el formato de la página principal
-    const uniqueId = `${product.id}-${selectedOption.id}`;
-    
-    // Buscar si ya existe este item exacto usando el ID único
-    const existingIndex = cart.findIndex((item) => item.id === uniqueId);
-    
-    if (existingIndex >= 0) {
-      // Incrementar cantidad
-      cart[existingIndex].quantity += quantity;
-    } else {
-      cart.push(buildCartItem(product, selectedOption, quantity));
+
+    const isComplement = COMPLEMENT_CATEGORIES.includes(product.category);
+    const hasPrimary = cart.some((item) => PRIMARY_CATEGORIES.includes(item.category));
+    if (isComplement && !hasPrimary) {
+      setNotice("Para agregar bebidas primero agrega una hamburguesa.");
+      return false;
     }
 
-    // Guardar en localStorage
-    localStorage.setItem("cart", JSON.stringify(cart));
-    if (!isOpen) {
-      localStorage.setItem("bj_preorder", JSON.stringify(true));
+    const result = addItem(
+      cart,
+      buildCartItem(product, selectedOption, quantity),
+      quantity,
+      { maxPerItem: MAX_QTY_PER_ITEM, maxItems: MAX_CART_ITEMS }
+    );
+
+    if (result.added === 0) {
+      setNotice(
+        result.reason === "max_items"
+          ? `Tu pedido no puede tener más de ${MAX_CART_ITEMS} productos en total.`
+          : `La cantidad máxima por producto es de ${MAX_QTY_PER_ITEM} unidades.`
+      );
+      return false;
     }
-    
-    // Mostrar feedback
+
+    const nextCart = applyComplementRules(
+      result.items,
+      PRIMARY_CATEGORIES,
+      COMPLEMENT_CATEGORIES
+    ).items;
+
+    writeJson("cart", nextCart);
+    if (!isOpen) {
+      writeJson("bj_preorder", true);
+    }
+
+    setNotice("");
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
-
-    // Disparar evento personalizado para actualizar el carrito en la página principal
     window.dispatchEvent(new Event("storage"));
+    return true;
   };
 
   const goToCartAndCheckout = () => {
-    addToCart();
+    if (!addToCart()) return;
     setTimeout(() => {
       router.push("/?openCart=true");
     }, 300);
@@ -87,22 +113,24 @@ export default function ProductAddToCart({ product }) {
                 onClick={() => setSelectedOption(option)}
                 className={`flex items-center justify-between rounded-2xl p-5 border-2 transition-all ${
                   selectedOption?.id === option.id
-                    ? "border-[#d99133] bg-[#d99133]/10 text-white shadow-lg shadow-[#d99133]/20"
-                    : "bg-neutral-900 border-neutral-700 text-white hover:border-[#d99133]/50"
+                    ? "border-[#FCC900] bg-[#FCC900]/10 text-white shadow-lg shadow-[#FCC900]/20"
+                    : "bg-neutral-900 border-neutral-700 text-white hover:border-[#FCC900]/50"
                 }`}
               >
                 <div className="text-left">
                   <p className="font-black text-lg">{option.label}</p>
-                  <p className={`text-xs ${selectedOption?.id === option.id ? "text-[#d99133]" : "text-neutral-500"}`}>
-                    {option.id === 'simple' ? 'Hamburguesa + Papas' : 'Hamburguesa Doble + Papas + Gaseosa'}
-                  </p>
+                  {option.description && (
+                    <p className={`text-xs ${selectedOption?.id === option.id ? "text-[#FCC900]" : "text-neutral-500"}`}>
+                      {option.description}
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-2xl font-black ${selectedOption?.id === option.id ? "text-[#d99133]" : "text-white"}`}>
+                  <span className={`text-2xl font-black ${selectedOption?.id === option.id ? "text-[#FCC900]" : "text-white"}`}>
                     S/ {option.price.toFixed(2)}
                   </span>
                   {selectedOption?.id === option.id && (
-                    <div className="w-6 h-6 bg-[#d99133] rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-[#FCC900] rounded-full flex items-center justify-center">
                       <Check size={16} className="text-black" />
                     </div>
                   )}
@@ -126,7 +154,7 @@ export default function ProductAddToCart({ product }) {
           >
             <Minus size={20} className={quantity <= 1 ? "text-neutral-600" : "text-white"} />
           </button>
-          <span className="text-3xl font-black text-[#d99133]">{quantity}</span>
+          <span className="text-3xl font-black text-[#FCC900]">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
             className="w-12 h-12 bg-neutral-800 hover:bg-neutral-700 rounded-xl flex items-center justify-center transition"
@@ -140,7 +168,7 @@ export default function ProductAddToCart({ product }) {
       <div className="bg-neutral-900 border-2 border-neutral-800 rounded-2xl p-5 space-y-4">
         <div className="flex justify-between items-center">
           <span className="text-neutral-400 text-sm font-semibold">Subtotal:</span>
-          <span className="text-3xl font-black text-[#d99133]">
+          <span className="text-3xl font-black text-[#FCC900]">
             S/ {(selectedOption ? selectedOption.price * quantity : 0).toFixed(2)}
           </span>
         </div>
@@ -152,7 +180,7 @@ export default function ProductAddToCart({ product }) {
             className={`w-full min-h-[64px] rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all shadow-xl ${
               added
                 ? "bg-green-600 text-white"
-                : "bg-[#d99133] hover:bg-[#eeb055] text-black active:scale-[0.98]"
+                : "bg-[#FCC900] hover:bg-[#eeb055] text-black active:scale-[0.98]"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {added ? (
@@ -178,6 +206,12 @@ export default function ProductAddToCart({ product }) {
           </button>
         </div>
       </div>
+
+      {notice && (
+        <div role="status" className="rounded-xl border-2 border-[#FCC900]/40 bg-[#FCC900]/10 p-3 text-center text-sm text-[#FCC900]">
+          {notice}
+        </div>
+      )}
 
       {!isOpen ? (
         <div className="bg-red-500/10 border-2 border-red-500/30 rounded-xl p-3 text-center text-sm text-red-200">

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 html {
   scroll-behavior: smooth;
@@ -48,26 +49,7 @@ p, blockquote, li {
   letter-spacing: 0.02em;
 }
 
-.font-signature {
-  font-family: var(--font-parkinsans), var(--font-poppins), sans-serif;
-  letter-spacing: -0.05em;
-}
-
 /* --- ESTILO STREETWEAR / BRUTALISMO URBANO (BERLIN / TOKYO) --- */
-.border-streetwear {
-  border: 3px solid #1F1F24;
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.border-streetwear:hover {
-  border-color: #FCC900;
-  box-shadow: 0 0 20px rgba(252, 201, 0, 0.2);
-}
-
-.border-streetwear-gold {
-  border: 3px solid #FCC900;
-}
-
 .btn-streetwear {
   background-color: #FCC900;
   color: #000000;
@@ -199,36 +181,6 @@ p, blockquote, li {
 .product-card-anim:nth-child(3) { animation-delay: 0.16s; }
 .product-card-anim:nth-child(4) { animation-delay: 0.24s; }
 
-/* --- STAGGERED FADE IN ANIMATIONS --- */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in-stagger {
-  opacity: 0;
-  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--index, 0) * 0.05s);
-}
-
-/* --- SKELETON LOADING ANIMATION --- */
-@keyframes skeleton-pulse {
-  0% { background-color: rgba(255, 255, 255, 0.04); }
-  50% { background-color: rgba(255, 255, 255, 0.1); }
-  100% { background-color: rgba(255, 255, 255, 0.04); }
-}
-
-.skeleton {
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-  border-radius: 0.5rem;
-}
-
 /* --- TOAST NOTIFICATION --- */
 @keyframes toast-in {
   from { translate: 100% 0; opacity: 0; }
@@ -246,27 +198,6 @@ p, blockquote, li {
 
 .toast-exit {
   animation: toast-out 0.2s ease forwards;
-}
-
-/* --- SHRINKING STICKY HEADER ON SCROLL --- */
-@keyframes shrink-header-padding {
-  to {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-}
-
-header {
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-header .header-inner {
-  transition: padding 0.3s ease;
-}
-
-header.scrolled .header-inner {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
 }
 
 /* --- UTILITY: SCROLLBAR HIDE --- */
@@ -292,24 +223,6 @@ header.scrolled .header-inner {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #fcc900;
-}
-
-/* --- ACCESSIBILITY FOCUS RINGS --- */
-:focus-visible {
-  outline: 2px solid #fcc900 !important;
-  outline-offset: 2px !important;
-}
-
-/* --- GLASSMORPHISM & UTILITIES --- */
-.glass-panel {
-  background: rgba(18, 18, 22, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.gold-glow {
-  box-shadow: 0 0 25px rgba(252, 201, 0, 0.25);
 }
 
 /* --- CAROUSEL HORIZONTAL SCROLL SNAP --- */

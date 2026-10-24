@@ -78,8 +78,7 @@ export default async function ProductDetail({ params }) {
           {/* Imagen del producto */}
           <div className="relative">
             <div className="absolute inset-0 bg-[#FCC900]/20 blur-3xl rounded-full"></div>
-            <div className="relative aspect-square w-full rounded-[2.5rem] overflow-hidden border-4 border-[#FCC900] shadow-2xl warning-border">
-              <div className="tape-corner-tr" />
+            <div className="relative aspect-square w-full rounded-[2.5rem] overflow-hidden border-4 border-[#FCC900] shadow-2xl">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -89,7 +88,7 @@ export default async function ProductDetail({ params }) {
                 priority
               />
               {product.popular && (
-                <div className="absolute top-6 left-6 cuidado-badge px-4 py-2 rounded-xl text-xs sm:text-sm shadow-xl z-20">
+                <div className="absolute top-6 left-6 bg-[#FCC900] text-black font-black uppercase tracking-widest px-4 py-2 rounded-xl text-xs sm:text-sm shadow-xl z-20">
                   HIT LIMEÑO
                 </div>
               )}
@@ -108,12 +107,8 @@ export default async function ProductDetail({ params }) {
           <div className="space-y-6">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <div className="inline-flex items-center gap-2 bg-[#d99133]/10 border-2 border-[#d99133]/30 rounded-full px-4 py-2">
-                  <span className="text-xl">🔥</span>
-                  <p className="text-[#d99133] text-sm font-black uppercase tracking-wider">Premium</p>
-                </div>
                 {product.popular && (
-                  <div className="inline-flex items-center gap-2 bg-[#d99133] text-white rounded-full px-4 py-2 shadow-lg shadow-[#d99133]/20">
+                  <div className="inline-flex items-center gap-2 bg-[#FCC900] text-white rounded-full px-4 py-2 shadow-lg shadow-[#FCC900]/20">
                     <span className="text-xl">⭐</span>
                     <p className="text-sm font-black uppercase tracking-wider">Lo + Pedido</p>
                   </div>
@@ -125,7 +120,7 @@ export default async function ProductDetail({ params }) {
               </p>
 
               <div className="flex items-baseline gap-3">
-                <span className="text-5xl font-black text-[#d99133]">
+                <span className="text-5xl font-black text-[#FCC900]">
                   S/ {minPrice.toFixed(2)}
                 </span>
                 {minPrice !== maxPrice && (
@@ -145,7 +140,7 @@ export default async function ProductDetail({ params }) {
       {/* Características */}
       <section className="max-w-6xl mx-auto px-4 py-12 sm:py-16 border-t-2 border-neutral-900">
         <div className="text-center mb-10 space-y-2">
-          <p className="text-xs uppercase tracking-widest text-[#d99133] font-bold">¿Por qué elegirnos?</p>
+          <p className="text-xs uppercase tracking-widest text-[#FCC900] font-bold">¿Por qué elegirnos?</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white">Lo que hace especial a {product.name}</h2>
           <p className="text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto">Cada detalle cuenta para ofrecerte la mejor experiencia</p>
         </div>

@@ -103,7 +103,7 @@ export default function FooterSection({
                   href={restaurantInfo.contact.googleMapsLink}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-white font-semibold transition-all active:scale-95 animate-pulse-slow"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-white font-semibold transition-all active:scale-95 animate-pulse"
                 >
                   <Navigation size={16} />
                   Abrir en Google Maps

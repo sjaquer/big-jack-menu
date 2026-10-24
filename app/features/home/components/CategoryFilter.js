@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, X, Flame } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 export default function CategoryFilter({
   categories = [],

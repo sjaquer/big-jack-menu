@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Shield, Zap, Target, Bomb, Trophy, Send, X } from "lucide-react";
-import { saveToLeaderboard, generateHash, getPlayerRank, getRankingByCategory, getStats, CATEGORIES } from "./leaderboard";
+import { saveToLeaderboard, generateHash, getRankingByCategory, getStats } from "./leaderboard";
 
 export default function RetoGamerPage() {
   const canvasRef = useRef(null);
