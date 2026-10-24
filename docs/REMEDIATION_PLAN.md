@@ -23,7 +23,7 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 | 3 | Bugs de carrito y checkout | 1–2 días | Fase 2 (módulo de reglas compartido) |
 | 4 | Datos únicos y consistentes (horario, legal, contacto, assets) | 1 día | Decisiones D1, D2, D3 |
 | 5 | Base de calidad: tests, CI, tooling | 1–2 días | — (puede ir en paralelo desde Fase 1) |
-| 6 | Refactor de arquitectura del home | 3–5 días | Fase 5 (tests como red) |
+| 6 | Romper monolitos (refactor de arquitectura) | 5–8 días | Fase 5 (tests como red); 6.12 bloqueada por D7 |
 | 7 | Accesibilidad, SEO y rendimiento | 2–3 días | Fase 6 recomendable |
 | 8 | Limpieza de código muerto y documentación | 0.5–1 día | Al final de cada fase anterior |
 
@@ -31,13 +31,16 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 
 ## Fase 0 — Parches urgentes (hacer ya)
 
-- [ ] **0.1** Actualizar `next` y `eslint-config-next` a `^16.4.3`; `npm audit fix` (sin `--force`). [SEC-01]
+- [x] **0.1** Actualizar `next` y `eslint-config-next` a `^16.4.3`; `npm audit fix` (sin `--force`). [SEC-01]
   - *Aceptación:* `npm audit --omit=dev` sin críticas/altas; `npm run build` OK; navegar `/`, `/product/la-bacon`, enviar un reclamo de prueba en local.
-- [ ] **0.2** Quitar `placehold.co` e `images.unsplash.com` de `remotePatterns`. [SEC-08]
-- [ ] **0.3** `sendComplaint`: en producción, si no hay canal de entrega (SMTP ni Formspree) devolver `success:false` y loguear error. Mantener modo simulado **solo** con `NODE_ENV !== "production"`. [LEG-01]
-- [ ] **0.4** Eliminar la descripción hardcodeada de opciones en `ProductAddToCart.js:97` (mostrar nada o `option.description` si existe). [LEG-03]
-- [ ] **0.5** Cambiar la URL por defecto del script PS1 a `http://localhost:3000/api/online-orders` o exigir `-WebhookUrl` explícito; advertencia en cabecera del script. [OPS-01]
-- [ ] **0.6** Copiar `public/images/sincomprimir/og-bigjack.png` (optimizada, 1200×630) a `public/images/og-bigjack.png`. [SEO-01, DEAD-01]
+  - *Hecho:* `next@16.4.3`, `eslint-config-next@16.4.3`, `nodemailer@10.2.1`; `npm audit --omit=dev` = 0 vulnerabilidades. La regla nueva `react-hooks/set-state-in-effect` se desactiva temporalmente hasta extraer los hooks (Fase 6).
+- [x] **0.2** Quitar `placehold.co` e `images.unsplash.com` de `remotePatterns`. [SEC-08]
+- [x] **0.3** `sendComplaint`: en producción, si no hay canal de entrega (SMTP ni Formspree) devolver `success:false` y loguear error. Mantener modo simulado **solo** con `NODE_ENV !== "production"`. [LEG-01]
+  - También se eliminó el fallback `NEXT_PUBLIC_FORMSPREE_URL`.
+- [x] **0.4** Eliminar la descripción hardcodeada de opciones en `ProductAddToCart.js:97` (mostrar nada o `option.description` si existe). [LEG-03]
+- [x] **0.5** Cambiar la URL por defecto del script PS1 a `http://localhost:3000/api/online-orders` o exigir `-WebhookUrl` explícito; advertencia en cabecera del script. [OPS-01]
+- [x] **0.6** Copiar `public/images/sincomprimir/og-bigjack.png` (optimizada, 1200×630) a `public/images/og-bigjack.png`. [SEO-01, DEAD-01]
+  - Generada a 1200×630 (269 KB) con fondo desenfocado; reemplaza el archivo inexistente.
 
 ## Fase 1 — Libro de Reclamaciones conforme 🔒 (D2, D5)
 
@@ -66,14 +69,15 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 
 ## Fase 3 — Bugs de carrito y checkout
 
-- [ ] **3.1** `ClientSearchParams`: abrir el carrito una sola vez y limpiar `?openCart` con `router.replace`. [BUG-01]
-- [ ] **3.2** `lib/cartModel.js#addItem` con tope por ítem y total; usarlo en tarjeta, modal, upsell y página de producto. [BUG-02, QLT-02]
-- [ ] **3.3** Aplicar reglas de complementos al **quitar** ítems y en la página de producto, con mensaje al usuario cuando se retire algo. [BUG-03]
-- [ ] **3.4** Constantes de categoría (corrige `"GUARNICION"`). [BUG-04, QLT-07]
-- [ ] **3.5** `getNextOpenDate` coherente con `isOpenNow` + tests de bordes horarios. [BUG-06]
+- [x] **3.1** `ClientSearchParams`: abrir el carrito una sola vez y limpiar `?openCart` con `router.replace`. [BUG-01]
+- [x] **3.2** `lib/cartModel.js#addItem` con tope por ítem y total; usarlo en tarjeta, modal, upsell y página de producto. [BUG-02, QLT-02]
+- [x] **3.3** Aplicar reglas de complementos al **quitar** ítems y en la página de producto, con mensaje al usuario cuando se retire algo. [BUG-03]
+- [x] **3.4** Constantes de categoría (corrige `"GUARNICION"`). [BUG-04, QLT-07]
+- [x] **3.5** `getNextOpenDate` coherente con `isOpenNow` + tests de bordes horarios. [BUG-06]
+  - Cálculo migrado a hora de Lima; casos 18:59/19:00/23:59/00:30/01:00 verificados. Tests automatizados quedan en 5.1.
 - [ ] **3.6** Definir obligatoriedad del teléfono (D6) y alinear UI/cliente/servidor. [BUG-07]
-- [ ] **3.7** `safeStorage` (try/catch) y limpiar el carrito **antes** de cualquier operación que pueda lanzar tras un pedido exitoso. [BUG-10, QLT-04]
-- [ ] **3.8** Instalar `tw-animate-css` o reemplazar clases `animate-in/*`. [BUG-08]
+- [x] **3.7** `safeStorage` (try/catch) y limpiar el carrito **antes** de cualquier operación que pueda lanzar tras un pedido exitoso. [BUG-10, QLT-04]
+- [x] **3.8** Instalar `tw-animate-css` o reemplazar clases `animate-in/*`. [BUG-08]
 - *Aceptación:* tests de `cartModel`/`orderRules` verdes; flujo manual: producto → `/?openCart=true` → cerrar carrito funciona; no se puede pasar de 10 unidades por ninguna vía.
 
 ## Fase 4 — Datos únicos y consistentes 🔒 (D1, D2, D3)
@@ -81,26 +85,56 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 - [ ] **4.1** `restaurantInfo` como única fuente: `hours`, `legalName`, `ruc`, `address{street,district,city}`, `geo`, `whatsapp`, `prepTimeMinutes`, `siteUrl`. [DATA-01..06]
 - [ ] **4.2** Formateador `formatSchedule(hours)` usado por header, footer, `/links` y JSON-LD. [DATA-01]
 - [ ] **4.3** Estado "ABIERTO/CERRADO" real en `/links`; quitar o justificar rating "4.9" y badge "Premium". [DATA-05]
-- [ ] **4.4** Generar íconos PWA (192/512) y logo; corregir `manifest.json` y `restaurantInfo.logo`. [DEAD-01]
+- [x] **4.4** Generar íconos PWA (192/512) y logo; corregir `manifest.json` y `restaurantInfo.logo`. [DEAD-01]
+  - Íconos generados desde `app/icon0.svg` sobre fondo `#FCC900`; `purpose: "any maskable"`; logo apunta a `bigjacktitle.svg`.
 - [ ] **4.5** Código real de Google Search Console o quitar `verification`. [SEO-03]
 - [ ] **4.6** Corregir comentarios y textos sin tildes. [DATA-07, QLT-10]
 
 ## Fase 5 — Base de calidad (puede empezar en paralelo)
 
 - [ ] **5.1** Vitest + tests unitarios de `openHours`, `cartModel`, `cartRules`, `onlineOrders`, `orderRules`, `catalog`. [QLT-06]
-- [ ] **5.2** GitHub Actions: `npm ci`, `lint`, `test`, `build`, `npm audit --omit=dev --audit-level=high`. [OPS-02]
-- [ ] **5.3** `engines.node` + `.nvmrc` (LTS). [OPS-04]
+  - Hecho: Vitest instalado, `npm test` con 34 tests de `openHours`, `cartModel`, `cartRules` y `onlineOrders`. Pendiente: `orderRules` y `catalog`, que aún no existen.
+- [x] **5.2** GitHub Actions: `npm ci`, `lint`, `test`, `build`, `npm audit --omit=dev --audit-level=high`. [OPS-02]
+- [x] **5.3** `engines.node` + `.nvmrc` (LTS). [OPS-04]
 - [ ] **5.4** Script de prueba del webhook en Node (multiplataforma) contra staging/mock. [OPS-01]
 - [ ] **5.5** (Opcional) JSDoc con `// @ts-check` en `lib/`, o migración incremental a TypeScript.
 
-## Fase 6 — Refactor del home
+## Fase 6 — Romper monolitos (refactor de arquitectura) [QLT-01, QLT-11]
 
-- [ ] **6.1** Extraer hooks: `useCart`, `useCheckoutForm`, `useOpenStatus` (intervalo de 30–60 s, sin escribir `localStorage`). [QLT-01, PERF-01, DEAD-06]
-- [ ] **6.2** Mover builders puros (mensaje WhatsApp, recordatorio de pago, errores amigables) a `features/home/checkout/`. [QLT-01]
+Objetivo: que ningún archivo junte UI, estado, reglas de negocio y datos. Cada pieza se puede leer, testear y cambiar sola. Hacerlo **por archivo, un PR cada uno**, sin cambiar comportamiento visible (refactor puro: mismo HTML resultante, mismos textos).
+
+**Regla de capas** (aplica a todo el repo a partir de esta fase):
+
+| Capa | Dónde | Contiene | No contiene |
+| :--- | :--- | :--- | :--- |
+| Dominio puro | `app/lib/`, `app/features/<f>/*.js` | Reglas, cálculos, builders de mensajes, formateadores. Funciones puras con tests. | React, `window`, `fetch` |
+| Estado | `app/features/<f>/hooks/` | Hooks (`useCart`, `useCheckoutForm`…) que usan el dominio. | Markup |
+| Presentación | `app/features/<f>/components/` | Componentes que reciben datos y callbacks. | Reglas de negocio, `localStorage` |
+| Compartido | `app/components/` | UI usada por varias rutas: íconos, `Dialog`, `Toast`, `SiteHeader`, `SiteFooter`. | Lógica de una feature concreta |
+| Página | `app/**/page.js` | Composición + `metadata`. Server Component siempre que se pueda. | Lógica de negocio |
+
+**Presupuesto de tamaño:** componente ≤ 250 líneas, página ≤ 150, hook ≤ 150, módulo de dominio ≤ 200. Pasarse es señal de que hay que dividir, no una prohibición absoluta (justificar en el PR).
+
+- [x] **6.0** Agregar regla ESLint `max-lines` (300, `skipBlankLines`, `skipComments`) como **error**, con un override temporal que lista los archivos pendientes de esta fase. Cada PR de la fase saca su archivo de la lista; la fase termina cuando la lista está vacía. (Así `npm run lint` sigue en 0 errores/0 warnings durante la transición.)
+  - Excepción actual: `reto-gamer/page.js`, `page.js`, `CartDrawer.js`, `libro-de-reclamaciones/page.js` y `links/page.js`.
+- [x] **6.1** Extraer hooks: `useCart`, `useCheckoutForm`, `useOpenStatus` (intervalo de 30–60 s, sin escribir `localStorage`). [QLT-01, PERF-01, DEAD-06]
+  - `page.js`: 996 → 888 líneas; el intervalo de apertura pasó de 1 s a 30 s y se actualiza al volver a la pestaña.
+- [x] **6.2** Mover builders puros (mensaje WhatsApp, recordatorio de pago, errores amigables, `normalizePhoneForDisplay`) a `features/home/checkout/`. [QLT-01]
+  - En `checkout/orderMessages.js`, con 9 tests nuevos. `page.js`: 784 líneas.
 - [ ] **6.3** Contexto o store para el carrito; `CartDrawer` con < 10 props. [QLT-01]
-- [ ] **6.4** Reemplazar `alert/confirm` por sistema de toasts (reutilizar CSS existente). [QLT-03, DEAD-04]
-- [ ] **6.5** `MenuGrid`: un solo árbol responsive. [QLT-09]
+- [ ] **6.4** Reemplazar `alert/confirm` por sistema de toasts en `app/components/Toast` (reutilizar CSS existente). [QLT-03, DEAD-04]
+- [ ] **6.5** `MenuGrid`: un solo árbol responsive; `CategoryCarousel` a su propio archivo. [QLT-09, QLT-11]
 - [ ] **6.6** Unificar diseño de `/product/[slug]` con el sistema (dorado `#FCC900`, sin clases inexistentes). [DEAD-02, ver `DESIGN.md`]
+- [x] **6.7** `app/page.js` (968 → ≤ 150 líneas): página server que compone `HomeClient`; el header pasa a `SiteHeader` (compartido con `/product/[slug]`), y lo que quede de estado vive en los hooks de 6.1. [QLT-01, QLT-11]
+  - `app/page.js`: 5 líneas (Server Component). `HomeClient.js`: 686 líneas. `SiteHeader` compartido en home y producto.
+- [ ] **6.8** `CartDrawer.js` (494): dividir en `CartItemList`, `CustomerStep`, `DeliveryStep`, `PaymentStep`, `CartSummary`, `ItemThumb`; el drawer solo orquesta el paso actual. [QLT-11]
+- [ ] **6.9** `api/online-orders/route.js` (243): el handler solo orquesta; mover rate-limit a `lib/rateLimit.js`, cliente del ERP a `lib/erpClient.js` y validación a `lib/orderRules.js` (se apoya en 2.1–2.3 y 2.7). [QLT-11]
+- [ ] **6.10** `links/page.js` (304): íconos de marca a `app/components/icons/` (compartidos con `FooterSection`), datos desde `restaurantInfo`, página server + isla cliente para el estado abierto/cerrado (se combina con 7.4). [QLT-11, QLT-05]
+- [ ] **6.11** `libro-de-reclamaciones/page.js` (315): página server con `metadata` + `ComplaintForm` cliente dividido por secciones (`ConsumerFieldset`, `ProductFieldset`, `ClaimFieldset`). Coordinar con Fase 1 para no hacer el trabajo dos veces. [QLT-11, QLT-05]
+- [ ] **6.12** 🔒 `reto-gamer/page.js` (1.670): **primero resolver D7** — si el juego se simplifica o se quita, no refactorizar código que se va a borrar. Si se queda: motor en `app/reto-gamer/game/` (módulos puros `player.js`, `boss.js`, `bullets.js`, `collisions.js`, `waves.js`, `powerUps.js`, `loop.js`) y UI en `components/` (`Hud`, `MenuScreen`, `GameOverScreen`, `RegisterModal`, `LeaderboardModal`). [QLT-11, PERF-04, DEAD-10]
+- [ ] **6.13** `SiteHeader`/`SiteFooter` compartidos (o layout de grupo de rutas) para que home, producto, `/quienes` y `/links` no tengan cada uno su propio header/footer. [QLT-11, DEAD-02]
+  - Hecho: `SiteHeader` compartido entre home y producto (modo `compact`). Pendiente: footer y rutas `/quienes`, `/links`.
+- *Aceptación:* lista de excepciones de `max-lines` vacía; `npm run lint` y `npm run build` OK; flujo completo (agregar → carrito → 3 pasos → confirmación) igual que antes en 360 px y desktop; tests de Fase 5 verdes sin modificarlos.
 
 ## Fase 7 — Accesibilidad, SEO y rendimiento
 
@@ -114,12 +148,13 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 
 ## Fase 8 — Limpieza
 
-- [ ] **8.1** Borrar `MenuGridSkeleton`/`ProductCardSkeleton` (o usarlos de verdad). [DEAD-03]
-- [ ] **8.2** Borrar CSS sin uso y `:focus-visible` duplicado. [DEAD-07]
-- [ ] **8.3** Borrar lógica muerta e imports sin uso. [DEAD-08]
-- [ ] **8.4** Sacar `public/images/sincomprimir/` del directorio público (mover a `design-assets/` o fuera del repo); quitar `choripan.webp`/`grilljack.webp` si no se usarán. [DEAD-09]
+- [x] **8.1** Borrar `MenuGridSkeleton`/`ProductCardSkeleton` (o usarlos de verdad). [DEAD-03]
+- [x] **8.2** Borrar CSS sin uso y `:focus-visible` duplicado. [DEAD-07]
+- [x] **8.3** Borrar lógica muerta e imports sin uso. [DEAD-08]
+- [x] **8.4** Sacar `public/images/sincomprimir/` del directorio público (mover a `design-assets/` o fuera del repo); quitar `choripan.webp`/`grilljack.webp` si no se usarán. [DEAD-09]
+  - `sincomprimir/` movido a `design-assets/` (ignorado por git); eliminados `choripan.webp`, `grilljack.webp` y `bigjacklogotipo.png`. El schema usa `lamisia.webp`.
 - [ ] **8.5** Simplificar Reto Gamer según D7. [BUG-09, DEAD-10]
-- [ ] **8.6** Marcar docs históricos y corregir rutas absolutas. [DOC-01, DOC-02]
+- [x] **8.6** Marcar docs históricos y corregir rutas absolutas. [DOC-01, DOC-02]
 
 ---
 

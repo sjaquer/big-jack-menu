@@ -4,6 +4,8 @@
 
 ## 1. Concepto
 
+> La identidad de marca (concepto, voz, fotografía, uso del logo) está en [`marca/MANUAL_DE_MARCA.md`](./marca/MANUAL_DE_MARCA.md) (v3, "el vecino que nunca falla"). Este documento cubre cómo se implementa en la web; ante conflicto de marca, manda el manual.
+
 **"Potencia honesta" · Streetwear / brutalismo urbano.** Fondo casi negro con retícula sutil, amarillo de marca a plena saturación, tipografía condensada en mayúsculas, bordes gruesos y etiquetas tipo `[ CORCHETES ]`. Tono de voz directo, limeño y sin adornos ("al toque", "sin floro", "No vendemos humo").
 
 Principios:
@@ -97,7 +99,7 @@ Escala habitual: H1 hero `text-4xl → sm:text-7xl → md:text-8xl`; títulos de
 
 1. Usar los tokens de §2 (migrar a `@theme` de Tailwind v4 para obtener `bg-bj-yellow`, `text-bj-silver`, etc.).
 2. No introducir nuevos tonos de amarillo/dorado; `#D99133` queda prohibido.
-3. No usar clases que no existan (verificar en `globals.css` o en Tailwind). Las utilidades `animate-in`, `zoom-in-*`, `slide-in-from-*` requieren `tw-animate-css` (no instalado).
+3. No usar clases que no existan (verificar en `globals.css` o en Tailwind). Las utilidades `animate-in`, `zoom-in-*`, `slide-in-from-*` vienen de `tw-animate-css`, instalado e importado en `globals.css`.
 4. Reutilizar `.btn-streetwear`, `.block-yellow`, `.tag-streetwear` antes de crear estilos nuevos.
 5. Mensajes al usuario en español con tildes; tono directo.
 6. Probar en 360 px de ancho y en desktop.

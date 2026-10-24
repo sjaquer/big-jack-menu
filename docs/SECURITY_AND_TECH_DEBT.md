@@ -19,7 +19,7 @@ Este documento recopila la auditoría completa de seguridad, las lecciones apren
 - **Vulnerabilidades en Nodemailer**: Versiones anteriores de `nodemailer` contención 6 avisos de alta severidad relacionados con inyección de comandos SMTP, evasión de validación de certificados TLS y restricciones de archivos mediante caracteres CRLF.
 
 ### 2.2 Solución Aplicada
-- Se actualizaron las dependencias directas en [package.json](file:///home/sjaquer/Proyects/big-jack-menu/package.json):
+- Se actualizaron las dependencias directas en [package.json](../package.json):
   - `next`: `^16.2.12` (mantiene compatibilidad completa con App Router y React 19).
   - `eslint-config-next`: `^16.2.12`.
   - `nodemailer`: `^9.0.3` (elimina todas las vulnerabilidades severas de transporte SMTP).
@@ -32,7 +32,7 @@ Este documento recopila la auditoría completa de seguridad, las lecciones apren
 ### 3.1 Libro de Reclamaciones (`app/actions.js` y `app/libro-de-reclamaciones/page.js`)
 - **Problema previo**: La interfaz del Libro de Reclamaciones realizaba una llamada `fetch` directamente desde el navegador cliente a un endpoint externo de Formspree (`https://formspree.io/f/xeodbbvl`), exponiendo URLs sensibles y enviando datos personales (Nombre, DNI, Teléfono, Correo, Dirección) sin validación ni sanitización en backend. El Server Action `sendComplaint` carecía de sanitización de cadenas HTML, siendo vulnerable a XSS e inyección en plantillas de correo.
 - **Solución implementada**:
-  1. Se migró el envío del formulario cliente para utilizar exclusivamente el Server Action `sendComplaint(formData)` en [actions.js](file:///home/sjaquer/Proyects/big-jack-menu/app/actions.js).
+  1. Se migró el envío del formulario cliente para utilizar exclusivamente el Server Action `sendComplaint(formData)` en [actions.js](../app/actions.js).
   2. Se añadió la función helper `escapeHtml` para sanitizar todos los campos de texto contra inyección HTML y XSS antes de armar la plantilla de correo.
   3. Se incorporó validación de servidor para asegurar que los campos requeridos no estén vacíos.
   4. Se habilitó el soporte dual: si existe `FORMSPREE_URL` en las variables de entorno, se reenvía servidor-a-servidor de forma segura; en caso contrario, se envía por transporte SMTP seguro con Nodemailer.

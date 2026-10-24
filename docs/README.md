@@ -11,6 +11,7 @@
 | [REMEDIATION_PLAN.md](./REMEDIATION_PLAN.md) | Plan por fases para corregir la auditoría + decisiones de negocio pendientes. |
 | [webhook-pedidos.md](./webhook-pedidos.md) | Contrato vigente con el webhook de pedidos del ERP. |
 | [LINKS_PAGE.md](./LINKS_PAGE.md) | Página `/links` (parcialmente desactualizado, ver nota en el archivo). |
+| [marca/MANUAL_DE_MARCA.md](./marca/MANUAL_DE_MARCA.md) | Manual de marca v3: identidad, voz y tono, visual, redes, atención, empaque. Índice de marketing en [`marca/`](./marca/README.md). |
 | [../AGENTS.md](../AGENTS.md) | Reglas para agentes de IA y colaboradores. |
 
 ## Histórico (no usar como fuente de verdad)

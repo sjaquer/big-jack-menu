@@ -65,9 +65,9 @@
 | ID | Requisito | Estado |
 | :--- | :--- | :-: |
 | RF-2.1 | El carrito persiste en `localStorage` y se sincroniza entre pestañas y con `/product/*`. | ✅ |
-| RF-2.2 | Máximo **10 unidades por producto** y **30 unidades por pedido**. | ⚠️ solo se aplica en el drawer (BUG-02) |
-| RF-2.3 | **Regla de complementos:** las BEBIDAS solo pueden pedirse si hay al menos una hamburguesa. Si se retira la última hamburguesa, se retiran las bebidas **avisando al usuario**. | ⚠️ (BUG-03) |
-| RF-2.4 | Tras agregar una hamburguesa, sugerir guarnición y bebidas que aún no estén en el carrito. | ⚠️ siempre sugiere guarnición (BUG-04) |
+| RF-2.2 | Máximo **10 unidades por producto** y **30 unidades por pedido**. | ✅ |
+| RF-2.3 | **Regla de complementos:** las BEBIDAS solo pueden pedirse si hay al menos una hamburguesa. Si se retira la última hamburguesa, se retiran las bebidas **avisando al usuario**. | ✅ |
+| RF-2.4 | Tras agregar una hamburguesa, sugerir guarnición y bebidas que aún no estén en el carrito. | ✅ |
 | RF-2.5 | Barra flotante en móvil con total y cantidad. | ✅ |
 
 ### RF-3 Checkout
@@ -84,7 +84,7 @@
 ### RF-4 Horario y pre-órdenes
 | ID | Requisito | Estado |
 | :--- | :--- | :-: |
-| RF-4.1 | Calcular abierto/cerrado con el horario de `restaurantInfo.hours` **en hora de Lima**, incluyendo cierres después de medianoche. | ⚠️ usa hora del dispositivo (BUG-05) |
+| RF-4.1 | Calcular abierto/cerrado con el horario de `restaurantInfo.hours` **en hora de Lima**, incluyendo cierres después de medianoche. | ✅ |
 | RF-4.2 | Cerrado: aviso con cuenta regresiva; se puede ver la carta. | ✅ |
 | RF-4.3 | Cerrado: agregar productos convierte el pedido en **pre-orden**, solo para **recojo**. | ✅ (solo cliente) |
 | RF-4.4 | El servidor rechaza pedidos inmediatos fuera de horario. | ❌ (SEC-05) |
@@ -105,8 +105,8 @@ Contrato detallado: [`webhook-pedidos.md`](./webhook-pedidos.md) y [`ARCHITECTUR
 | ID | Requisito | Estado |
 | :--- | :--- | :-: |
 | RF-6.1 | Página estática por producto con metadata propia (SEO), elección de versión y cantidad. | ✅ |
-| RF-6.2 | Agregar al carrito respetando las mismas reglas que el home. | ⚠️ (BUG-02, BUG-03) |
-| RF-6.3 | La información mostrada de cada versión debe ser veraz. | ❌ (LEG-03) |
+| RF-6.2 | Agregar al carrito respetando las mismas reglas que el home. | ✅ |
+| RF-6.3 | La información mostrada de cada versión debe ser veraz. | ✅ |
 
 ### RF-7 Libro de Reclamaciones (`/libro-de-reclamaciones`)
 | ID | Requisito | Estado |
@@ -114,7 +114,7 @@ Contrato detallado: [`webhook-pedidos.md`](./webhook-pedidos.md) y [`ARCHITECTUR
 | RF-7.1 | Formulario con identificación del consumidor, bien contratado, monto, fecha del incidente, tipo (reclamo/queja), detalle y pedido. | ⚠️ fecha se descarta (LEG-02) |
 | RF-7.2 | Envío por Server Action, con sanitización HTML. | ✅ |
 | RF-7.3 | Número correlativo, constancia al consumidor por email, persistencia. | ❌ (LEG-02) |
-| RF-7.4 | Nunca confirmar un reclamo que no se entregó. | ❌ (LEG-01) |
+| RF-7.4 | Nunca confirmar un reclamo que no se entregó. | ✅ |
 | RF-7.5 | Datos del proveedor (razón social, RUC, dirección) correctos. | ❌ (DATA-02) |
 
 ### RF-8 Enlaces (`/links`)
@@ -129,11 +129,11 @@ Juego canvas "Neon Burger Hell" (shooter con oleadas y jefe) como gancho de marc
 ### RF-11 SEO y PWA
 | ID | Requisito | Estado |
 | :--- | :--- | :-: |
-| RF-11.1 | Metadata global, Open Graph y Twitter con imagen 1200×630. | ⚠️ imagen inexistente (SEO-01) |
+| RF-11.1 | Metadata global, Open Graph y Twitter con imagen 1200×630. | ✅ |
 | RF-11.2 | JSON-LD `Restaurant` (menú, horario, dirección, geo) y `FAQPage`. | ✅ ⚠️ datos inconsistentes |
 | RF-11.3 | `sitemap.xml` (páginas + productos) y `robots.txt` (bloquea `/api/`). | ✅ |
 | RF-11.4 | Metadata propia por página. | ⚠️ solo home y productos (SEO-02) |
-| RF-11.5 | Manifest PWA instalable. | ❌ íconos inexistentes (DEAD-01) |
+| RF-11.5 | Manifest PWA instalable. | ✅ |
 
 ## 6. Reglas de negocio (fuente: código actual)
 

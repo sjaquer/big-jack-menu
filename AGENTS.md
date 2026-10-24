@@ -8,7 +8,8 @@ Instrucciones operativas para trabajar en **Big Jack Menu** (carta digital + che
 | :--- | :--- |
 | Qué hace el producto y sus reglas de negocio | [`docs/PRD.md`](docs/PRD.md) |
 | Cómo está construido (rutas, datos, flujo, API, env) | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| Colores, tipografía, componentes de marca | [`docs/DESIGN.md`](docs/DESIGN.md) |
+| Identidad de marca, voz y tono, textos al cliente, redes | [`docs/marca/MANUAL_DE_MARCA.md`](docs/marca/MANUAL_DE_MARCA.md) |
+| Colores, tipografía, componentes de marca (en código) | [`docs/DESIGN.md`](docs/DESIGN.md) |
 | Problemas conocidos (con IDs `SEC-01`, `BUG-03`…) | [`docs/AUDIT.md`](docs/AUDIT.md) |
 | Qué arreglar y en qué orden | [`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md) |
 | Contrato con el ERP | [`docs/webhook-pedidos.md`](docs/webhook-pedidos.md) |
@@ -19,11 +20,12 @@ Instrucciones operativas para trabajar en **Big Jack Menu** (carta digital + che
 npm install
 npm run dev        # http://localhost:3000
 npm run lint       # debe quedar en 0 errores / 0 warnings
+npm test           # Vitest (unitarios de dominio)
 npm run build      # debe compilar antes de dar por terminado un cambio
 npm audit --omit=dev
 ```
 
-No hay tests automatizados todavía (ver Fase 5 del plan). Si agregas lógica en `app/lib/` o `app/features/home/checkout/`, agrega tests cuando exista Vitest.
+Hay tests con Vitest (`*.test.js` junto al módulo). Si agregas lógica en `app/lib/` o `app/features/home/`, agrega o actualiza los tests correspondientes.
 
 ## Stack y convenciones
 
@@ -33,6 +35,8 @@ No hay tests automatizados todavía (ver Fase 5 del plan). Si agregas lógica en
 - Estilos con utilidades Tailwind + clases de marca de `app/globals.css` (`.btn-streetwear`, `.block-yellow`, `.tag-streetwear`). Sigue `docs/DESIGN.md`: amarillo `#FCC900`, **no** `#D99133`.
 - Imágenes con `next/image`; assets en `public/images/` en WebP.
 - Prefiere Server Components; usa `"use client"` solo en el componente que necesita estado/efectos.
+- **Nada de monolitos:** separa dominio puro (`lib/`), hooks, componentes de presentación y página. Presupuesto orientativo: componente ≤ 250 líneas, página ≤ 150. No agregues lógica a los archivos grandes listados en `AUDIT.md` QLT-11; extrae primero (ver Fase 6 del plan).
+- Textos visibles al usuario con la voz de marca de `docs/marca/MANUAL_DE_MARCA.md` (§5 y §11), sin sacrificar claridad.
 
 ## Invariantes — no romper
 

@@ -21,24 +21,29 @@
 ```text
 app/
 ├── layout.js                 # Root layout: fuentes, metadata global, JSON-LD (Restaurant + FAQ)
-├── page.js                   # "/" — carta + carrito + checkout (Client Component, ~970 líneas)
+├── page.js                   # "/" — Server Component que compone HomeClient
+├── components/SiteHeader.js  # Header compartido (home completo / producto compacto)
 ├── globals.css               # Tailwind + tokens + utilidades de marca + animaciones
 ├── actions.js                # Server Action: sendComplaint (Libro de Reclamaciones)
 ├── api/online-orders/route.js# POST proxy al webhook del ERP (validación, rate-limit, timeout)
 ├── data/menuData.js          # ⭐ Fuente de verdad: restaurantInfo, categories, menuItems (SKUs, precios)
 ├── lib/
-│   ├── cartModel.js          # Forma del ítem de carrito, migración de carritos legacy
+│   ├── cartModel.js          # Ítem de carrito, addItem con topes, migración legacy
+│   ├── safeStorage.js        # Lectura/escritura de localStorage con try/catch
 │   ├── onlineOrders.js       # Construcción del payload + fetch al proxy
-│   └── openHours.js          # isOpenNow, getNextOpenDate, formatMsToCountdown
+│   └── openHours.js          # Horario en America/Lima: isOpenNow, getNextOpenDate
 ├── features/home/
+│   ├── HomeClient.js         # Isla cliente del home: estado, modales, checkout
 │   ├── constants.js          # Límites, categorías, links de apps, URL del sitio
-│   ├── cartRules.js          # enforceComplementRules
+│   ├── cartRules.js          # applyComplementRules (bebidas requieren hamburguesa)
+│   ├── hooks/                # useCart, useCheckoutForm, useOpenStatus
 │   ├── seo.js                # Builders de JSON-LD y rangos de precio
 │   ├── checkout/submitOrder.js # Validaciones de checkout (cliente) + envío
+│   ├── checkout/orderMessages.js # Builders puros: WhatsApp, errores, recordatorios
 │   └── components/           # UI del home (CartDrawer, MenuGrid, ProductCard, modales, etc.)
 ├── product/[slug]/
 │   ├── page.js               # Detalle de producto (Server Component, SSG)
-│   └── ProductAddToCart.js   # Isla cliente: opción, cantidad, agregar (escribe localStorage)
+│   └── ProductAddToCart.js   # Isla cliente: opción, cantidad, reglas de carrito
 ├── links/page.js             # Linktree (Client)
 ├── quienes/page.js           # Quiénes somos (Client)
 ├── libro-de-reclamaciones/page.js # Formulario (Client) → sendComplaint
@@ -53,7 +58,7 @@ scripts/test-webhook-orders.ps1# Prueba manual del webhook del ERP (⚠️ ver O
 
 | Ruta | Tipo | Render | Notas |
 | :--- | :--- | :--- | :--- |
-| `/` | Client Component | Estático (○) | Carta, carrito, checkout, modales. |
+| `/` | Server Component + `HomeClient` | Estático (○) | Carta, carrito, checkout, modales. |
 | `/product/[slug]` | Server + isla cliente | SSG (●) vía `generateStaticParams` | `generateMetadata` por producto. |
 | `/links` | Client | Estático | Spinner hasta montar. |
 | `/quienes` | Client | Estático | |
@@ -101,25 +106,28 @@ menuItems[] = {
   optionId, optionLabel, sku, price, image, quantity }
 ```
 
+`addItem(items, item, quantity, { maxPerItem, maxItems })` devuelve
+`{ items, added, reason }` con `reason: "max_per_item" | "max_items" | null`.
+Es el único punto que aplica los topes de 10 por producto y 30 por pedido.
+
 ### 4.3 Claves de `localStorage`
 
 | Clave | Contenido | Escrita por |
 | :--- | :--- | :--- |
-| `cart` | Array de ítems de carrito | `page.js`, `ProductAddToCart.js` |
-| `bj_checkout` | Nombre, teléfono, dirección, referencia, pago, notas (**PII**) | `page.js` (debounce 400 ms) |
-| `bj_preorder` | `true` si el carrito es pre-orden | `page.js`, `ProductAddToCart.js` |
-| `bj_isOpen` | `{ isOpen, nextOpen }` — **sin lectores** (DEAD-06) | `page.js` cada 1 s |
+| `cart` | Array de ítems de carrito | `useCart`, `ProductAddToCart.js` |
+| `bj_checkout` | Nombre, teléfono, dirección, referencia, pago, notas (**PII**) | `useCheckoutForm` (debounce 400 ms) |
+| `bj_preorder` | `true` si el carrito es pre-orden | `HomeClient`, `ProductAddToCart.js` |
 | `bj_game_data` | Récord del juego + checksum | `reto-gamer/page.js` |
 | `bj_local_record_v1` | Mejor partida (nombre, WhatsApp, código) | `reto-gamer/leaderboard.js` |
 
-La sincronización entre `/product/*` y `/` usa el evento `storage` (y un `dispatchEvent(new Event("storage"))` manual en la misma pestaña).
+Las lecturas/escrituras pasan por `lib/safeStorage.js` (try/catch). La sincronización entre `/product/*` y `/` usa el evento `storage` (y un `dispatchEvent(new Event("storage"))` manual en la misma pestaña).
 
 ## 5. Flujo de pedido
 
 ```mermaid
 sequenceDiagram
   actor C as Cliente
-  participant UI as "/" (page.js + CartDrawer)
+  participant UI as "/" (HomeClient + CartDrawer)
   participant SO as submitOrder.js
   participant API as /api/online-orders
   participant ERP as ERP webhook

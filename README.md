@@ -1,7 +1,7 @@
 # Big Jack Menu 🍔
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Next.js](https://img.shields.io/badge/Next.js-16.2-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.4-black)](https://nextjs.org/)
 
 **Big Jack Menu** is a modern, responsive digital menu and checkout system designed for Big Jack. It registers online orders in the Big Jack ERP via a webhook and hands the order off to WhatsApp. The catalog is a static file (`app/data/menuData.js`).
 
