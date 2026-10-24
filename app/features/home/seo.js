@@ -80,7 +80,7 @@ export function buildRestaurantSchema({
       `${siteUrl}/images/og-bigjack.png`,
       `${siteUrl}/images/baconjack.webp`,
       `${siteUrl}/images/royaljack.webp`,
-      `${siteUrl}/images/grilljack.webp`
+      `${siteUrl}/images/lamisia.webp`
     ],
     logo: `${siteUrl}/images/bigjacktitle.svg`,
     address: {

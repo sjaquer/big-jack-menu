@@ -16,7 +16,7 @@ export const restaurantInfo = {
     5: { open: "19:00", close: "01:00" }, // Viernes
     6: { open: "19:00", close: "01:00" }, // Sábado
   },
-  logo: "/images/big-jack-logo.png", // opcional: coloca tu logo en public/images
+  logo: "/images/bigjacktitle.svg",
   contact: {
     whatsapp: "51997722704",
     instagram: "@bigjackpe",
