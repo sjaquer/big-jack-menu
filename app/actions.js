@@ -48,7 +48,7 @@ export async function sendComplaint(formData) {
   };
 
   // 1. Si hay endpoint Formspree configurado en entorno, enviamos servidor-a-servidor
-  const formspreeEndpoint = process.env.FORMSPREE_URL || process.env.NEXT_PUBLIC_FORMSPREE_URL;
+  const formspreeEndpoint = process.env.FORMSPREE_URL;
   if (formspreeEndpoint) {
     try {
       const response = await fetch(formspreeEndpoint, {
@@ -69,6 +69,32 @@ export async function sendComplaint(formData) {
   }
 
   // 2. Envío por transporte SMTP con Nodemailer
+  const hasSmtpConfig = Boolean(process.env.GMAIL_USER && process.env.GMAIL_PASS);
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Sin canal de entrega no se puede afirmar que el reclamo quedó registrado.
+  // En desarrollo se permite el modo simulado para no bloquear el trabajo local.
+  if (!hasSmtpConfig) {
+    if (isProduction) {
+      console.error(
+        "Libro de Reclamaciones: no hay canal de entrega configurado (FORMSPREE_URL o GMAIL_USER/GMAIL_PASS). El reclamo no se registró."
+      );
+      return {
+        success: false,
+        message:
+          "No pudimos registrar tu reclamo. Escríbenos por WhatsApp para atenderte de inmediato.",
+      };
+    }
+
+    console.warn(
+      "Sin credenciales de correo (GMAIL_USER, GMAIL_PASS). Registrando reclamo de forma simulada (desarrollo)."
+    );
+    return {
+      success: true,
+      message: "Reclamo registrado de forma simulada (entorno de desarrollo).",
+    };
+  }
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -103,10 +129,6 @@ export async function sendComplaint(formData) {
   };
 
   try {
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
-      console.warn("Sin credenciales de correo (GMAIL_USER, GMAIL_PASS). Registrando reclamo de forma simulada.");
-      return { success: true, message: "Reclamo registrado correctamente." };
-    }
     await transporter.sendMail(mailOptions);
     return { success: true, message: "Reclamo enviado correctamente." };
   } catch (error) {

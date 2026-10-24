@@ -1,3 +1,7 @@
+# ADVERTENCIA: este script crea pedidos reales. Apunta por defecto a un entorno
+# local (http://localhost:3000/api/online-orders). Para usar otro entorno elegí
+# explícitamente -WebhookUrl o WEBHOOK_ORDERS_URL. Nunca lo ejecutes contra el
+# ERP de producción para "probar": descuenta inventario y registra ventas.
 param(
   [int]$Attempts = 1,
   [string]$WebhookUrl,
@@ -25,8 +29,8 @@ function Get-WebhookUrl {
   if ($ExplicitUrl) { return $ExplicitUrl }
   if ($env:WEBHOOK_ORDERS_URL) { return $env:WEBHOOK_ORDERS_URL }
 
-  $baseUrl = if ($env:ERP_BASE_URL) { $env:ERP_BASE_URL } else { "https://bigjack-rp.vercel.app" }
-  return ($baseUrl.TrimEnd("/")) + "/api/webhooks/orders"
+  $baseUrl = if ($env:ERP_BASE_URL) { $env:ERP_BASE_URL } else { "http://localhost:3000" }
+  return ($baseUrl.TrimEnd("/")) + "/api/online-orders"
 }
 
 function Get-WebhookSecret {
