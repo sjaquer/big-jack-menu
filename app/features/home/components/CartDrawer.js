@@ -56,7 +56,6 @@ export default function CartDrawer({
   removeFromCart,
   orderType,
   handleSelectOrderType,
-  deliveryAvailable,
   customerName,
   setCustomerName,
   customerPhone,
@@ -85,6 +84,8 @@ export default function CartDrawer({
   submitOrderToSystem,
   isSubmittingOrder,
   submitResult,
+  cartNotice,
+  onDismissCartNotice,
   onToast,
 }) {
   const cleanPhone = String(customerPhone || "").replace(/\D/g, "");
@@ -160,6 +161,23 @@ export default function CartDrawer({
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          {cartNotice && (
+            <div
+              role="status"
+              className="flex items-start gap-2 rounded-xl border border-[#FCC900]/40 bg-[#FCC900]/10 px-3 py-2 text-xs text-[#FCC900]"
+            >
+              <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+              <span className="flex-1">{cartNotice}</span>
+              <button
+                type="button"
+                onClick={onDismissCartNotice}
+                className="shrink-0 rounded p-0.5 hover:bg-[#FCC900]/20"
+                aria-label="Cerrar aviso"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center space-y-6">
               <div className="space-y-2">
@@ -307,7 +325,7 @@ export default function CartDrawer({
                     <button
                       type="button"
                       onClick={() => handleSelectOrderType("delivery")}
-                      className={`min-h-[88px] rounded-xl text-sm font-bold border flex flex-col items-center justify-center gap-1.5 px-3 text-center transition-all ${deliveryAvailable && orderType === "delivery" ? "bg-[#FCC900] text-black border-[#FCC900]" : "bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500"}`}
+                      className={`min-h-[88px] rounded-xl text-sm font-bold border flex flex-col items-center justify-center gap-1.5 px-3 text-center transition-all ${orderType === "delivery" ? "bg-[#FCC900] text-black border-[#FCC900]" : "bg-neutral-950 border-neutral-700 text-white hover:border-neutral-500"}`}
                     >
                       <Truck size={18} />
                       Delivery

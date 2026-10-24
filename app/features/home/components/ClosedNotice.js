@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export default function ClosedNotice({
   isOpen,
   closedNoticeHidden,
@@ -8,6 +10,8 @@ export default function ClosedNotice({
   onCloseAviso,
   formatMsToCountdown,
 }) {
+  const router = useRouter();
+
   if (isOpen) return null;
 
   return (
@@ -63,9 +67,7 @@ export default function ClosedNotice({
                 Ver Menú
               </button>
               <button
-                onClick={() => {
-                  window.location.href = "/libro-de-reclamaciones";
-                }}
+                onClick={() => router.push("/libro-de-reclamaciones")}
                 className="px-4 py-3 rounded-2xl bg-[#FCC900] hover:bg-[#e2b500] text-black font-black active:scale-95"
               >
                 Libro de Reclamaciones

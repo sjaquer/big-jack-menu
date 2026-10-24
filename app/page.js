@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from "react";
 import { menuItems, restaurantInfo, categories } from "./data/menuData";
 import {
   ShoppingCart,
@@ -11,19 +11,31 @@ import {
   User,
   MessageCircle,
 } from "lucide-react";
-import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "./lib/openHours";
-import { buildCartItem, migrateLegacyCartItems } from "./lib/cartModel";
+import { formatMsToCountdown } from "./lib/openHours";
+import { readJson, removeItem, writeJson } from "./lib/safeStorage";
 import ClientSearchParams from "./features/home/components/ClientSearchParams";
 import CartDrawer from "./features/home/components/CartDrawer";
 import { submitOnlineOrder } from "./features/home/checkout/submitOrder";
 import {
+  buildDeliveryPaymentReminder,
+  buildFriendlyOrderError,
+  buildWhatsappOrderMessage,
+  normalizePhoneForDisplay,
+  PAYMENT_LABELS,
+} from "./features/home/checkout/orderMessages";
+import {
   COMPLEMENT_CATEGORIES,
+  MAX_CART_ITEMS,
+  MAX_QTY_PER_ITEM,
   PEDIDOSYA_LINK,
   RAPPI_LINK,
   PRIMARY_CATEGORIES,
+  SIDES_CATEGORY,
 } from "./features/home/constants";
-import { enforceComplementRules } from "./features/home/cartRules";
 import { getHeroPriceRange } from "./features/home/seo";
+import useCart from "./features/home/hooks/useCart";
+import useCheckoutForm from "./features/home/hooks/useCheckoutForm";
+import useOpenStatus from "./features/home/hooks/useOpenStatus";
 
 // Componentes refactorizados
 import HeroSection from "./features/home/components/HeroSection";
@@ -38,133 +50,44 @@ import FloatingCartBar from "./features/home/components/FloatingCartBar";
 import ClosedNotice from "./features/home/components/ClosedNotice";
 
 export default function BigJackMenu() {
-  const PAYMENT_LABELS = {
-    efectivo: "Efectivo",
-    yape: "Yape",
-    plin: "Plin",
-    tarjeta: "Tarjeta",
-  };
-
-  const normalizePhoneForDisplay = (value) => {
-    const digits = String(value || "").replace(/\D/g, "");
-    if (!digits) return "";
-    return digits.startsWith("+") ? digits : `+${digits}`;
-  };
-
-  const buildDeliveryPaymentReminder = (selectedMethod, businessNumber) => {
-    if (!["yape", "plin", "tarjeta"].includes(selectedMethod)) return null;
-
-    if (selectedMethod === "tarjeta") {
-      return {
-        title: "Pago por tarjeta",
-        body: "Recuerda solicitar por WhatsApp el link de pago para completar tu delivery.",
-      };
-    }
-
-    const methodLabel = selectedMethod === "yape" ? "Yape" : "Plin";
-    return {
-      title: `Pago por ${methodLabel}`,
-      body: `Recuerda realizar el pago al numero oficial de BIG JACK: ${businessNumber}.`,
-    };
-  };
-
-  const buildFriendlyOrderError = (rawMessage) => {
-    const fallback = "No se pudo registrar tu pedido. Intenta nuevamente en unos minutos.";
-    if (!rawMessage || typeof rawMessage !== "string") return fallback;
-
-    if (/webhook/i.test(rawMessage)) {
-      return "No pudimos registrar tu pedido por un problema temporal. Intenta nuevamente en unos minutos.";
-    }
-
-    return rawMessage;
-  };
-
-  const buildWhatsappOrderMessage = ({
-    migratedCart,
+  const {
+    cart,
+    total,
+    itemsCount,
+    hasPrimaryProduct,
+    addToCart: addCartItem,
+    addMany,
+    removeFromCart: removeCartItem,
+    updateQuantity: updateCartQuantity,
+    clearCart: clearCartState,
+  } = useCart({ menuItems });
+  const { isOpen, nextOpenMs } = useOpenStatus();
+  const {
     orderType,
     customerName,
     customerPhone,
-    paymentMethod,
-    total,
     deliveryAddress,
     deliveryReference,
     deliveryDetails,
     locationLink,
+    paymentMethod,
     notes,
-    paymentReminder,
-  }) => {
-    const cartLines = migratedCart
-      .map((item) => `• *${item.quantity}x* ${item.name} _(${item.optionLabel})_`)
-      .join("\n");
-    const orderMode = orderType === "delivery" ? "🛵 Delivery" : "🏪 Recojo en Tienda";
+    setOrderType,
+    setCustomerName,
+    setCustomerPhone,
+    setDeliveryAddress,
+    setDeliveryReference,
+    setDeliveryDetails,
+    setLocationLink,
+    setPaymentMethod,
+    setNotes,
+    resetAfterOrder,
+  } = useCheckoutForm();
 
-    const paymentIcons = {
-      efectivo: "💵 Efectivo",
-      yape: "📱 Yape",
-      plin: "📱 Plin",
-      tarjeta: "💳 Tarjeta",
-    };
-    const paymentLabel = paymentIcons[paymentMethod] || paymentMethod;
-
-    const referenceText = [deliveryReference, deliveryDetails]
-      .map((value) => (value || "").trim())
-      .filter(Boolean)
-      .join(" | ");
-
-    const deliveryBlock =
-      orderType === "delivery"
-        ? `\n📍 *DATOS DE ENTREGA*\n• *Dirección:* ${deliveryAddress || "No especificada"}\n• *Referencia:* ${referenceText || "No especificada"}\n• *Ubicación GPS:* ${locationLink || "No compartida"}`
-        : "";
-
-    const notesBlock = notes?.trim() ? `\n📝 *NOTAS DEL PEDIDO*\n• _${notes.trim()}_` : "";
-
-    const paymentReminderBlock = paymentReminder
-      ? `\n⚠️ *${paymentReminder.title.toUpperCase()}*\n• ${paymentReminder.body}`
-      : "";
-
-    const lines = [
-      "🍔 *¡NUEVO PEDIDO REGISTRADO!* 🍔",
-      "",
-      "¡Hola *BIG JACK*! Acabo de registrar mi pedido desde el menú digital. Aquí tienes el detalle:",
-      "",
-      "━━━━━━━━━━━━━━━━━━━",
-      "📝 *DETALLE DEL PEDIDO*",
-      "━━━━━━━━━━━━━━━━━━━",
-      cartLines,
-      "",
-      "👤 *DATOS DEL CLIENTE*",
-      `• *Nombre:* ${customerName}`,
-      `• *Teléfono:* ${customerPhone || "No especificado"}`,
-      `• *Tipo de pedido:* ${orderMode}`,
-      `• *Método de pago:* ${paymentLabel}`,
-      `• *Total:* *S/ ${total.toFixed(2)}*${orderType === "delivery" ? " _(sin costo de envío)_" : ""}`,
-    ];
-
-    if (deliveryBlock) lines.push(deliveryBlock);
-    if (notesBlock) lines.push(notesBlock);
-    if (paymentReminderBlock) lines.push(paymentReminderBlock);
-
-    lines.push("", "━━━━━━━━━━━━━━━━━━━", "_Quedo atento(a) a su confirmación por este WhatsApp._");
-
-    return lines.join("\n");
-  };
-
-  const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("TODOS");
   const [isCartOpen, setIsCartOpen] = useState(false);
-  
-  // Estados para el Checkout
-  const [orderType, setOrderType] = useState("pickup"); // 'pickup' | 'delivery'
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [deliveryReference, setDeliveryReference] = useState("");
-  const [deliveryDetails, setDeliveryDetails] = useState("");
-  const [locationLink, setLocationLink] = useState(""); // Link de Google Maps del usuario
   const [isLocating, setIsLocating] = useState(false);
   const [autoLocationAttempted, setAutoLocationAttempted] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("efectivo"); // efectivo | yape | plin | tarjeta (tarjeta deshabilitada)
-  const [notes, setNotes] = useState(""); // notas adicionales
   const [recentlyAdded, setRecentlyAdded] = useState(null); // resaltar última acción
   const [modalProduct, setModalProduct] = useState(null);
   const [activeModalProduct, setActiveModalProduct] = useState(null);
@@ -186,96 +109,23 @@ export default function BigJackMenu() {
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [submitResult, setSubmitResult] = useState(null);
   const [orderConfirmation, setOrderConfirmation] = useState(null);
+  const [cartNotice, setCartNotice] = useState("");
+  const cartNoticeTimerRef = useRef(null);
 
-  // Cargar estado desde localStorage al iniciar
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("bj_checkout"));
-      if (saved) {
-        setCustomerName(saved.customerName || "");
-        setCustomerPhone(saved.customerPhone || "");
-        const persistedOrderType =
-          saved.orderType && saved.orderType !== "pickup"
-            ? "pickup"
-            : saved.orderType || "pickup";
-        setOrderType(persistedOrderType);
-        setDeliveryAddress(saved.deliveryAddress || "");
-        setDeliveryReference(saved.deliveryReference || "");
-        setDeliveryDetails(saved.deliveryDetails || "");
-        setPaymentMethod(saved.paymentMethod || "efectivo");
-        setNotes(saved.notes || "");
-      }
-    } catch {}
+  const showCartNotice = useCallback((message) => {
+    setCartNotice(message);
+    if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
+    cartNoticeTimerRef.current = setTimeout(() => setCartNotice(""), 6000);
   }, []);
 
-  // Cargar y sincronizar carrito desde localStorage
-  useEffect(() => {
-    try {
-      const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      if (Array.isArray(savedCart) && savedCart.length > 0) {
-        setCart(
-          enforceComplementRules(
-            migrateLegacyCartItems(savedCart, menuItems),
-            PRIMARY_CATEGORIES,
-            COMPLEMENT_CATEGORIES
-          )
-        );
-      }
-      const pj = JSON.parse(localStorage.getItem("bj_preorder") || "false");
-      if (pj) setIsPreOrder(true);
-    } catch (e) {}
-
-    const handleStorage = () => {
-      try {
-        const latest = JSON.parse(localStorage.getItem("cart") || "[]");
-        const migrated = migrateLegacyCartItems(Array.isArray(latest) ? latest : [], menuItems);
-        setCart(enforceComplementRules(migrated, PRIMARY_CATEGORIES, COMPLEMENT_CATEGORIES));
-      } catch (e) {}
-    };
-
-    window.addEventListener("storage", handleStorage);
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-    };
+  const clearCartNotice = useCallback(() => {
+    if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
+    setCartNotice("");
   }, []);
 
-  // Estado de abierto/cerrado y temporizador
-  const [isOpen, setIsOpen] = useState(true);
-  const [nextOpenMs, setNextOpenMs] = useState(null);
-
   useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      const open = isOpenNow(now);
-      setIsOpen(Boolean(open));
-      const next = getNextOpenDate(now);
-      if (next) setNextOpenMs(next.getTime() - now.getTime());
-      else setNextOpenMs(null);
-      
-      try { localStorage.setItem("bj_isOpen", JSON.stringify({ isOpen: !!open, nextOpen: next ? next.getTime() : null })); } catch(e){}
-    };
-    update();
-    const t = setInterval(update, 1000);
-    return () => clearInterval(t);
+    if (readJson("bj_preorder", false)) setIsPreOrder(true);
   }, []);
-
-  // Guardar estado del formulario en localStorage
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const data = {
-        customerName,
-        customerPhone,
-        orderType,
-        deliveryAddress,
-        deliveryReference,
-        deliveryDetails,
-        paymentMethod,
-        notes,
-      };
-      localStorage.setItem("bj_checkout", JSON.stringify(data));
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, [customerName, customerPhone, orderType, deliveryAddress, deliveryReference, deliveryDetails, paymentMethod, notes]);
 
   // Estado de búsqueda y categoría
   const [searchQuery, setSearchQuery] = useState("");
@@ -308,7 +158,6 @@ export default function BigJackMenu() {
 
   const heroHighlight = menuItems[0];
   const heroPriceRange = useMemo(() => getHeroPriceRange(menuItems), []);
-  const deliveryAvailable = true;
 
   // Sugerencias: solo productos activos para evitar agregar items no vendibles.
   const suggestedGuarn = menuItems.find((it) => (it.category === "GUARNICIONES" || it.slug === "papas-fritas") && it.available !== false);
@@ -345,21 +194,11 @@ export default function BigJackMenu() {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Calcular total memoizado
-  const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
-  const hasPrimaryProduct = useMemo(
-    () => cart.some((item) => PRIMARY_CATEGORIES.includes(item.category)),
-    [cart]
-  );
-  
   const modalSelectedOption = useMemo(() => {
     const product = modalProduct || activeModalProduct;
     if (!product) return null;
     return product.options?.find((opt) => opt.id === modalOptionId) || product.options?.[0] || null;
   }, [modalProduct, activeModalProduct, modalOptionId]);
-
-  const applyComplementRules = (items) =>
-    enforceComplementRules(items, PRIMARY_CATEGORIES, COMPLEMENT_CATEGORIES);
 
   const isProductAvailable = (product) => {
     if (!product) return false;
@@ -369,18 +208,6 @@ export default function BigJackMenu() {
     if (product.available === false) return false;
     return true;
   };
-
-  // Persistir carrito en localStorage cuando cambia
-  useEffect(() => {
-    try {
-      const payload = JSON.stringify(cart || []);
-      localStorage.setItem("cart", payload);
-      if (!cart || cart.length === 0) {
-        setIsPreOrder(false);
-        localStorage.removeItem("bj_preorder");
-      }
-    } catch (e) {}
-  }, [cart]);
 
   const openProductModal = (product, optionId) => {
     if (!isProductAvailable(product)) {
@@ -406,7 +233,7 @@ export default function BigJackMenu() {
     closeProductModal();
   };
 
-  const addToCart = (product, option, showSuggestion = true) => {
+  const addToCart = (product, option, showSuggestion = true, quantity = 1) => {
     const addingAsPreorder = !isOpen;
     if (!option) {
       alert("No encontramos una presentacion valida para este producto.");
@@ -423,38 +250,34 @@ export default function BigJackMenu() {
     }
     const isComplementProduct = COMPLEMENT_CATEGORIES.includes(product.category);
     if (isComplementProduct && !hasPrimaryProduct) {
-      alert("Para añadir acompañamientos primero agrega una hamburguesa.");
+      alert("Para añadir bebidas primero agrega una hamburguesa.");
       return;
     }
     const uniqueId = `${product.id}-${validOption.id || "default"}`;
-    const newItem = buildCartItem(product, validOption, 1);
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === uniqueId);
-      if (existing) {
-        return applyComplementRules(
-          prev.map((item) =>
-            item.id === uniqueId
-              ? {
-                  ...item,
-                  category: item.category || product.category,
-                  quantity: item.quantity + 1,
-                }
-              : item
-          )
-        );
-      }
-      return applyComplementRules([
-        ...prev,
-        newItem,
-      ]);
-    });
+    const result = addCartItem(product, validOption, quantity);
+
+    if (result.added === 0) {
+      showCartNotice(
+        result.reason === "max_items"
+          ? `Tu pedido no puede tener más de ${MAX_CART_ITEMS} productos en total.`
+          : `La cantidad máxima por producto es de ${MAX_QTY_PER_ITEM} unidades.`
+      );
+      return;
+    }
+
+    if (result.added < quantity) {
+      showCartNotice(
+        `Agregamos ${result.added} unidad(es): llegaste al máximo de ${MAX_QTY_PER_ITEM} por producto.`
+      );
+    }
+
     setSubmitResult(null);
     setRecentlyAdded(uniqueId);
-    
+
     // Lógica inteligente de sugerencias (Smart Upselling)
     if (showSuggestion) {
-      const willHaveFries = cart.some(i => i.category === "GUARNICION") || product.category === "GUARNICION";
-      const willHaveDrink = cart.some(i => i.category === "BEBIDAS") || product.category === "BEBIDAS";
+      const willHaveFries = cart.some((i) => i.category === SIDES_CATEGORY) || product.category === SIDES_CATEGORY;
+      const willHaveDrink = cart.some((i) => i.category === "BEBIDAS") || product.category === "BEBIDAS";
       const isBurger = PRIMARY_CATEGORIES.includes(product.category);
 
       if (isBurger && (!willHaveFries || !willHaveDrink)) {
@@ -465,7 +288,7 @@ export default function BigJackMenu() {
 
     if (addingAsPreorder) {
       setIsPreOrder(true);
-      try { localStorage.setItem("bj_preorder", JSON.stringify(true)); } catch(e){}
+      writeJson("bj_preorder", true);
       setClosedNoticeHidden(true);
     }
     setTimeout(() => {
@@ -483,34 +306,41 @@ export default function BigJackMenu() {
   };
 
   const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    const result = removeCartItem(id);
+
+    if (result.removed.length > 0) {
+      const names = [...new Set(result.removed.map((item) => item.name))].join(", ");
+      showCartNotice(
+        `Quitamos ${names} porque el pedido debe incluir una hamburguesa.`
+      );
+    }
+    if (result.items.length === 0) {
+      setIsPreOrder(false);
+      removeItem("bj_preorder");
+    }
     setSubmitResult(null);
     setOrderConfirmation(null);
   };
 
   const clearCart = () => {
-    setCart([]);
+    clearCartState();
     setSubmitResult(null);
     setOrderConfirmation(null);
     setIsPreOrder(false);
-    try {
-      localStorage.removeItem("cart");
-      localStorage.removeItem("bj_preorder");
-    } catch (e) {}
+    removeItem("bj_preorder");
   };
 
   const updateQuantity = (id, delta) => {
-    setCart((prev) =>
-      applyComplementRules(
-        prev.map((item) => {
-          if (item.id === id) {
-            const newQuantity = Math.max(1, item.quantity + delta);
-            return { ...item, quantity: newQuantity };
-          }
-          return item;
-        })
-      )
-    );
+    const result = updateCartQuantity(id, delta);
+    if (!result.updated) {
+      showCartNotice(
+        result.reason === "max_items"
+          ? `Tu pedido no puede tener más de ${MAX_CART_ITEMS} productos en total.`
+          : `La cantidad máxima por producto es de ${MAX_QTY_PER_ITEM} unidades.`
+      );
+      return;
+    }
+
     setSubmitResult(null);
     setOrderConfirmation(null);
   };
@@ -544,33 +374,26 @@ export default function BigJackMenu() {
   };
 
   const handleConfirmSuggestions = () => {
-    if (suggestedPapasQty > 0 && suggestedGuarn) {
-      const option = suggestedGuarn.options?.[0];
-      if (option) {
-        for (let i = 0; i < suggestedPapasQty; i++) {
-          addToCart(suggestedGuarn, option, false);
-        }
-      }
+    const entries = [
+      { product: suggestedGuarn, quantity: suggestedPapasQty },
+      { product: suggestedInka, quantity: suggestedInkaQty },
+      { product: suggestedCoca, quantity: suggestedCocaQty },
+    ]
+      .filter(({ product, quantity }) => product && quantity > 0)
+      .map(({ product, quantity }) => ({
+        product,
+        option: product.options?.[0],
+        quantity,
+      }));
+
+    const { limitReached } = addMany(entries);
+
+    if (limitReached) {
+      showCartNotice(
+        `No pudimos agregar todo: el límite es ${MAX_QTY_PER_ITEM} por producto y ${MAX_CART_ITEMS} en total.`
+      );
     }
-    
-    if (suggestedInkaQty > 0 && suggestedInka) {
-      const option = suggestedInka.options?.[0];
-      if (option) {
-        for (let i = 0; i < suggestedInkaQty; i++) {
-          addToCart(suggestedInka, option, false);
-        }
-      }
-    }
-    
-    if (suggestedCocaQty > 0 && suggestedCoca) {
-      const option = suggestedCoca.options?.[0];
-      if (option) {
-        for (let i = 0; i < suggestedCocaQty; i++) {
-          addToCart(suggestedCoca, option, false);
-        }
-      }
-    }
-    
+
     setSuggestedPapasQty(0);
     setSuggestedInkaQty(0);
     setSuggestedCocaQty(0);
@@ -624,15 +447,9 @@ export default function BigJackMenu() {
         maximumAge: 0,
       }
     );
-  }, [deliveryReference]);
+  }, [deliveryReference, setDeliveryReference, setLocationLink]);
 
   const handleSelectOrderType = (type) => {
-    if (type === "delivery" && !deliveryAvailable) {
-      if (typeof window !== "undefined") {
-        window.open(PEDIDOSYA_LINK, "_blank");
-      }
-      return;
-    }
     setOrderType(type);
     if (type === 'delivery' && paymentMethod === 'efectivo') {
       setPaymentMethod('yape');
@@ -715,13 +532,11 @@ export default function BigJackMenu() {
         saleId: response?.saleId || null,
       });
 
-      setCart([]);
+      clearCartState();
+      resetAfterOrder();
       setIsPreOrder(false);
-      setNotes("");
-      setLocationLink("");
-      setDeliveryDetails("");
-      localStorage.removeItem("cart");
-      localStorage.removeItem("bj_preorder");
+      removeItem("cart");
+      removeItem("bj_preorder");
     } catch (error) {
       const friendlyError = buildFriendlyOrderError(error?.message);
       alert(friendlyError);
@@ -741,7 +556,7 @@ export default function BigJackMenu() {
       {/* HEADER */}
       <header className="sticky top-0 z-50 bg-[#0F0F12]/95 backdrop-blur-md border-b-3 border-[#FCC900] shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex justify-between items-center py-3 sm:py-4 header-inner">
+          <div className="flex justify-between items-center py-3 sm:py-4">
             {/* Logo y título */}
             <div className="flex-1 flex items-center gap-3">
               <Link href="/" className="block">
@@ -795,9 +610,9 @@ export default function BigJackMenu() {
               aria-label="Abrir carrito"
             >
               <ShoppingCart size={24} />
-              {cart.length > 0 && (
+              {itemsCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-[#B22222] text-white text-xs font-black w-6 h-6 flex items-center justify-center rounded-full shadow-lg animate-pulse">
-                  {cart.reduce((acc, item) => acc + item.quantity, 0)}
+                  {itemsCount}
                 </span>
               )}
             </button>
@@ -900,7 +715,6 @@ export default function BigJackMenu() {
         removeFromCart={removeFromCart}
         orderType={orderType}
         handleSelectOrderType={handleSelectOrderType}
-        deliveryAvailable={deliveryAvailable}
         customerName={customerName}
         setCustomerName={setCustomerName}
         customerPhone={customerPhone}
@@ -929,6 +743,8 @@ export default function BigJackMenu() {
         submitOrderToSystem={submitOrderToSystem}
         isSubmittingOrder={isSubmittingOrder}
         submitResult={submitResult}
+        cartNotice={cartNotice}
+        onDismissCartNotice={clearCartNotice}
       />
 
       <SuggestionModal
