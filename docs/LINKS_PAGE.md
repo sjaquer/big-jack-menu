@@ -1,3 +1,5 @@
+> ⚠️ **Parcialmente desactualizado (revisado 2026-10-24).** La página actual no tiene "Programa de Lealtad", el WhatsApp vigente es el de `restaurantInfo.contact.whatsapp` (`51997722704`, a confirmar — decisión D3), y los enlaces se editan en el array `categories` de `app/links/page.js`. Ver DATA-03 y DATA-05 en [`AUDIT.md`](./AUDIT.md).
+
 # Página de Links - Big Jack
 
 ## 📍 Acceso

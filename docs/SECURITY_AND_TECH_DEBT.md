@@ -1,3 +1,5 @@
+> ⚠️ **Documento histórico (julio 2026).** Varias afirmaciones no se cumplen en el código actual (p. ej. el proxy no verifica idempotencia; solo exige `eventId`). La fuente vigente es [`AUDIT.md`](./AUDIT.md) y el plan en [`REMEDIATION_PLAN.md`](./REMEDIATION_PLAN.md).
+
 # Reporte de Auditoría de Seguridad, Dependencias y Deuda Técnica
 **Proyecto:** Big Jack Menu (Sistema de Menú Digital y Checkout)  
 **Fecha de actualización:** 28 de Julio, 2026  

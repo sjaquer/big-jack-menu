@@ -1,3 +1,5 @@
+> ⚠️ **Documento histórico (julio 2026).** Los skeleton loaders mencionados no están integrados y el diseño actual se documenta en [`DESIGN.md`](./DESIGN.md). Problemas conocidos: [`AUDIT.md`](./AUDIT.md).
+
 # Walkthrough: Remodelación Frontend UI/UX (7 Fases Completa)
 
 Se ha completado con éxito la remodelación integral de la interfaz de usuario (UI), la experiencia de usuario (UX), el rendimiento de imágenes, la accesibilidad y el flujo de ventas para **Big Jack Menu**.

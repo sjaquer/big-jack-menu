@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2-black)](https://nextjs.org/)
 
-**Big Jack Menu** is a modern, responsive digital menu and checkout system designed for Big Jack. It integrates seamlessly with an ERP system via webhooks to handle online orders, real-time catalog management, and customer interactions.
+**Big Jack Menu** is a modern, responsive digital menu and checkout system designed for Big Jack. It registers online orders in the Big Jack ERP via a webhook and hands the order off to WhatsApp. The catalog is a static file (`app/data/menuData.js`).
 
 ---
 
@@ -42,13 +42,12 @@
 ## 🛠️ Technical Details / Detalles Técnicos
 
 ### Environment Variables / Variables de Entorno
-Required variables for full functionality:
-- `ERP_BASE_URL`: Base URL of the ERP system.
-- `WEBHOOK_ORDERS_URL`: Specific endpoint for order webhooks.
-- `WEBHOOK_MENU_SECRET`: Secret key for webhook authentication.
-- `GMAIL_USER` & `GMAIL_PASS`: SMTP credentials for the Complaints Book.
-- `RECIPIENT_EMAIL`: Target email for complaint notifications.
-- `FORMSPREE_URL`: Optional server-to-server Formspree endpoint.
+See `.env.example` and [docs/ARCHITECTURE.md §7](docs/ARCHITECTURE.md#7-variables-de-entorno):
+- `WEBHOOK_ORDERS_URL` (or `ERP_BASE_URL`): ERP order webhook.
+- `WEBHOOK_MENU_SECRET`: sent as `x-webhook-secret`.
+- `GMAIL_USER` & `GMAIL_PASS`, `RECIPIENT_EMAIL`: SMTP for the Complaints Book.
+- `FORMSPREE_URL`: optional server-to-server Formspree endpoint.
+- `NEXT_PUBLIC_BASE_URL`: public site URL (metadata, sitemap, robots).
 
 ### Project Structure / Estructura del Proyecto
 - `app/data/menuData.js`: Centralized product catalog (SKUs are critical).
@@ -59,11 +58,14 @@ Required variables for full functionality:
 - `docs/`: Technical documentation and integration guides.
 
 ### Documentation / Documentación
-For more details, check the `docs/` folder:
-- [Seguridad, Dependencias y Deuda Técnica](docs/SECURITY_AND_TECH_DEBT.md)
-- [Webhook Integration](docs/webhook-pedidos.md)
-- [Links Page Design](docs/LINKS_PAGE.md)
-- [Legacy API Reference](docs/legacy/online-orders-api.md)
+Start at [docs/README.md](docs/README.md). Key documents:
+- [PRD](docs/PRD.md) — product requirements and business rules.
+- [Architecture](docs/ARCHITECTURE.md) — routes, data model, order flow, API, env vars.
+- [Design System](docs/DESIGN.md) — tokens, typography, brand components.
+- [Audit](docs/AUDIT.md) — vulnerabilities, bugs, tech debt (2026-10-24).
+- [Remediation Plan](docs/REMEDIATION_PLAN.md) — phased fixes and pending business decisions.
+- [Webhook Integration](docs/webhook-pedidos.md) — ERP contract.
+- [AGENTS.md](AGENTS.md) — rules for AI agents and contributors.
 
 ---
 

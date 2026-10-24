@@ -1,0 +1,139 @@
+# Plan de remediación
+
+**Fecha:** 2026-10-24 · **Basado en:** [`AUDIT.md`](./AUDIT.md) (IDs entre corchetes).
+
+Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en fases pequeñas, verificables y reversibles**, sin rediseñar el producto. Cada fase termina con `npm run lint`, `npm run build` y la verificación manual indicada.
+
+## Reglas para ejecutar el plan
+
+1. **Una rama y un PR por tarea** (o grupo pequeño de tareas de la misma fase). Nombre: `fix/<ID>-descripcion-corta`.
+2. Ninguna tarea cambia SKUs, precios ni el contrato con el ERP sin confirmación explícita del dueño/equipo ERP.
+3. Las tareas marcadas con 🔒 requieren una **decisión del negocio** (sección [Decisiones pendientes](#decisiones-pendientes)) antes de empezar.
+4. Nunca usar `npm audit fix --force` (ver incidente en `SECURITY_AND_TECH_DEBT.md`).
+5. Nunca correr `scripts/test-webhook-orders.ps1` contra producción [OPS-01].
+6. Al cerrar una tarea, marcar la casilla aquí y mover el hallazgo a "Resuelto" en `AUDIT.md` con el hash del commit.
+
+## Vista general
+
+| Fase | Tema | Esfuerzo estimado | Bloqueado por |
+| :-: | :--- | :-: | :--- |
+| 0 | Parches urgentes de seguridad y cumplimiento | 0.5–1 día | — |
+| 1 | Libro de Reclamaciones conforme | 1–2 días | Decisiones D2, D5 |
+| 2 | Endurecer API de pedidos (servidor como fuente de verdad) | 2–3 días | Decisión D4 (equipo ERP) |
+| 3 | Bugs de carrito y checkout | 1–2 días | Fase 2 (módulo de reglas compartido) |
+| 4 | Datos únicos y consistentes (horario, legal, contacto, assets) | 1 día | Decisiones D1, D2, D3 |
+| 5 | Base de calidad: tests, CI, tooling | 1–2 días | — (puede ir en paralelo desde Fase 1) |
+| 6 | Refactor de arquitectura del home | 3–5 días | Fase 5 (tests como red) |
+| 7 | Accesibilidad, SEO y rendimiento | 2–3 días | Fase 6 recomendable |
+| 8 | Limpieza de código muerto y documentación | 0.5–1 día | Al final de cada fase anterior |
+
+---
+
+## Fase 0 — Parches urgentes (hacer ya)
+
+- [ ] **0.1** Actualizar `next` y `eslint-config-next` a `^16.4.3`; `npm audit fix` (sin `--force`). [SEC-01]
+  - *Aceptación:* `npm audit --omit=dev` sin críticas/altas; `npm run build` OK; navegar `/`, `/product/la-bacon`, enviar un reclamo de prueba en local.
+- [ ] **0.2** Quitar `placehold.co` e `images.unsplash.com` de `remotePatterns`. [SEC-08]
+- [ ] **0.3** `sendComplaint`: en producción, si no hay canal de entrega (SMTP ni Formspree) devolver `success:false` y loguear error. Mantener modo simulado **solo** con `NODE_ENV !== "production"`. [LEG-01]
+- [ ] **0.4** Eliminar la descripción hardcodeada de opciones en `ProductAddToCart.js:97` (mostrar nada o `option.description` si existe). [LEG-03]
+- [ ] **0.5** Cambiar la URL por defecto del script PS1 a `http://localhost:3000/api/online-orders` o exigir `-WebhookUrl` explícito; advertencia en cabecera del script. [OPS-01]
+- [ ] **0.6** Copiar `public/images/sincomprimir/og-bigjack.png` (optimizada, 1200×630) a `public/images/og-bigjack.png`. [SEO-01, DEAD-01]
+
+## Fase 1 — Libro de Reclamaciones conforme 🔒 (D2, D5)
+
+- [ ] **1.1** Leer y enviar `incident_date` en `actions.js`. [LEG-02]
+- [ ] **1.2** Generar número correlativo + fecha de registro (persistencia: ver D5 — ERP, base de datos o hoja). [LEG-02]
+- [ ] **1.3** Enviar copia al email del consumidor con el número de reclamo. Ajustar el texto de éxito para que diga exactamente lo que ocurre. [LEG-02]
+- [ ] **1.4** Mostrar razón social legal y dirección fiscal desde `restaurantInfo`. [LEG-02, DATA-02]
+- [ ] **1.5** Agregar campos/textos faltantes del reglamento (apoderado para menores, avisos legales). Validar redacción con asesoría legal. [LEG-02]
+- [ ] **1.6** Validación de servidor (DNI/CE, email, teléfono, longitudes máximas) + Turnstile + rate-limit. [SEC-06]
+- [ ] **1.7** `<label htmlFor>` en todos los campos. [A11Y-02]
+- [ ] **1.8** Página `/privacidad` y texto de consentimiento en checkout, libro y juego. [LEG-04]
+- *Aceptación:* enviar reclamo → llega correo al negocio **y** al consumidor con el mismo número; sin credenciales en prod → error visible.
+
+## Fase 2 — API de pedidos: el servidor manda 🔒 (D4)
+
+- [ ] **2.1** Crear `app/lib/catalog.js` (índice de SKUs activos con precio y nombre) y usarlo en `route.js` y `submitOrder.js`. [QLT-02]
+- [ ] **2.2** Crear `app/lib/orderRules.js` con las reglas de negocio (horario en `America/Lima`, pre-orden solo recojo, delivery sin efectivo, complementos, máximos, longitudes). Usarlo en cliente **y** servidor. [SEC-05, BUG-05]
+- [ ] **2.3** Construir en servidor el payload saliente con lista blanca de campos (no hacer spread del body). [SEC-03]
+- [ ] **2.4** Normalizar la respuesta al cliente (`{ success, orderId, duplicated, message }`) y loguear la respuesta cruda del ERP en servidor. [SEC-09]
+- [ ] **2.5** `eventId` con `crypto.randomUUID()`; mantener el mismo id en reintentos del mismo intento de compra. [SEC-10]
+- [ ] **2.6** Verificación de `Origin` + Turnstile en el checkout. [SEC-02]
+- [ ] **2.7** Rate-limit persistente (Upstash/Vercel KV o Vercel Firewall). [SEC-04]
+- [ ] **2.8** `app/lib/env.js`: un nombre por variable, validación al arranque, sin fallbacks `NEXT_PUBLIC_` para secretos. Actualizar `.env.example`. [SEC-11, OPS-03]
+- [ ] **2.9** Cabeceras de seguridad en `next.config.mjs`. [SEC-07]
+- *Aceptación:* `curl` directo al endpoint con campos extra, fuera de horario, con delivery+efectivo o solo bebidas → `400`; con origen ajeno → `403`; pedido válido desde la UI → `200` y llega al ERP de **staging**.
+
+## Fase 3 — Bugs de carrito y checkout
+
+- [ ] **3.1** `ClientSearchParams`: abrir el carrito una sola vez y limpiar `?openCart` con `router.replace`. [BUG-01]
+- [ ] **3.2** `lib/cartModel.js#addItem` con tope por ítem y total; usarlo en tarjeta, modal, upsell y página de producto. [BUG-02, QLT-02]
+- [ ] **3.3** Aplicar reglas de complementos al **quitar** ítems y en la página de producto, con mensaje al usuario cuando se retire algo. [BUG-03]
+- [ ] **3.4** Constantes de categoría (corrige `"GUARNICION"`). [BUG-04, QLT-07]
+- [ ] **3.5** `getNextOpenDate` coherente con `isOpenNow` + tests de bordes horarios. [BUG-06]
+- [ ] **3.6** Definir obligatoriedad del teléfono (D6) y alinear UI/cliente/servidor. [BUG-07]
+- [ ] **3.7** `safeStorage` (try/catch) y limpiar el carrito **antes** de cualquier operación que pueda lanzar tras un pedido exitoso. [BUG-10, QLT-04]
+- [ ] **3.8** Instalar `tw-animate-css` o reemplazar clases `animate-in/*`. [BUG-08]
+- *Aceptación:* tests de `cartModel`/`orderRules` verdes; flujo manual: producto → `/?openCart=true` → cerrar carrito funciona; no se puede pasar de 10 unidades por ninguna vía.
+
+## Fase 4 — Datos únicos y consistentes 🔒 (D1, D2, D3)
+
+- [ ] **4.1** `restaurantInfo` como única fuente: `hours`, `legalName`, `ruc`, `address{street,district,city}`, `geo`, `whatsapp`, `prepTimeMinutes`, `siteUrl`. [DATA-01..06]
+- [ ] **4.2** Formateador `formatSchedule(hours)` usado por header, footer, `/links` y JSON-LD. [DATA-01]
+- [ ] **4.3** Estado "ABIERTO/CERRADO" real en `/links`; quitar o justificar rating "4.9" y badge "Premium". [DATA-05]
+- [ ] **4.4** Generar íconos PWA (192/512) y logo; corregir `manifest.json` y `restaurantInfo.logo`. [DEAD-01]
+- [ ] **4.5** Código real de Google Search Console o quitar `verification`. [SEO-03]
+- [ ] **4.6** Corregir comentarios y textos sin tildes. [DATA-07, QLT-10]
+
+## Fase 5 — Base de calidad (puede empezar en paralelo)
+
+- [ ] **5.1** Vitest + tests unitarios de `openHours`, `cartModel`, `cartRules`, `onlineOrders`, `orderRules`, `catalog`. [QLT-06]
+- [ ] **5.2** GitHub Actions: `npm ci`, `lint`, `test`, `build`, `npm audit --omit=dev --audit-level=high`. [OPS-02]
+- [ ] **5.3** `engines.node` + `.nvmrc` (LTS). [OPS-04]
+- [ ] **5.4** Script de prueba del webhook en Node (multiplataforma) contra staging/mock. [OPS-01]
+- [ ] **5.5** (Opcional) JSDoc con `// @ts-check` en `lib/`, o migración incremental a TypeScript.
+
+## Fase 6 — Refactor del home
+
+- [ ] **6.1** Extraer hooks: `useCart`, `useCheckoutForm`, `useOpenStatus` (intervalo de 30–60 s, sin escribir `localStorage`). [QLT-01, PERF-01, DEAD-06]
+- [ ] **6.2** Mover builders puros (mensaje WhatsApp, recordatorio de pago, errores amigables) a `features/home/checkout/`. [QLT-01]
+- [ ] **6.3** Contexto o store para el carrito; `CartDrawer` con < 10 props. [QLT-01]
+- [ ] **6.4** Reemplazar `alert/confirm` por sistema de toasts (reutilizar CSS existente). [QLT-03, DEAD-04]
+- [ ] **6.5** `MenuGrid`: un solo árbol responsive. [QLT-09]
+- [ ] **6.6** Unificar diseño de `/product/[slug]` con el sistema (dorado `#FCC900`, sin clases inexistentes). [DEAD-02, ver `DESIGN.md`]
+
+## Fase 7 — Accesibilidad, SEO y rendimiento
+
+- [ ] **7.1** Componente `Dialog` reutilizable (focus trap, `Esc`, retorno de foco) para drawer y modales. [A11Y-01]
+- [ ] **7.2** Labels en checkout. [A11Y-02]
+- [ ] **7.3** `SecureMap` → iframe simple sin bloqueo de interacción; `aria-label` en enlaces solo-icono. [SEC-12, A11Y-03]
+- [ ] **7.4** Convertir `/links`, `/quienes`, `/libro-de-reclamaciones` a Server Components con islas cliente y `metadata` propia; eliminar spinner de `/links`. [QLT-05, SEO-02, DEAD-05]
+- [ ] **7.5** Optimizar `burger_hero.png` (WebP/AVIF ≤ 150 KB). [PERF-02]
+- [ ] **7.6** `next/dynamic` para drawer, modales y mapa. [PERF-03]
+- [ ] **7.7** Revisar sticky del filtro en móvil. [A11Y-04]
+
+## Fase 8 — Limpieza
+
+- [ ] **8.1** Borrar `MenuGridSkeleton`/`ProductCardSkeleton` (o usarlos de verdad). [DEAD-03]
+- [ ] **8.2** Borrar CSS sin uso y `:focus-visible` duplicado. [DEAD-07]
+- [ ] **8.3** Borrar lógica muerta e imports sin uso. [DEAD-08]
+- [ ] **8.4** Sacar `public/images/sincomprimir/` del directorio público (mover a `design-assets/` o fuera del repo); quitar `choripan.webp`/`grilljack.webp` si no se usarán. [DEAD-09]
+- [ ] **8.5** Simplificar Reto Gamer según D7. [BUG-09, DEAD-10]
+- [ ] **8.6** Marcar docs históricos y corregir rutas absolutas. [DOC-01, DOC-02]
+
+---
+
+## Decisiones pendientes
+
+Necesarias del dueño del negocio / equipo ERP antes de las tareas marcadas con 🔒.
+
+| ID | Pregunta | Afecta |
+| :-: | :--- | :--- |
+| D1 | ¿Cuál es el horario real por día? (hoy hay 4 versiones, ver DATA-01) | Fase 4, cálculo de abierto/cerrado |
+| D2 | Razón social legal, RUC correcto y dirección fiscal/local (¿Centro de Lima o Lince?) | Fases 1 y 4, SEO |
+| D3 | Número oficial de WhatsApp | Fase 4 |
+| D4 | ¿Qué campos lee hoy el webhook del ERP? ¿Ignora `unitPrice`/`useCatalogPrice`/`status`? ¿Existe entorno de staging? | Fase 2 |
+| D5 | ¿Dónde se persisten los reclamos (ERP, base de datos, Google Sheet)? ¿Quién responde y en qué plazo? | Fase 1 |
+| D6 | ¿Teléfono obligatorio en todos los pedidos o solo en delivery? | Fase 3 |
+| D7 | Reto Gamer: ¿se entregan premios con el "código de canje"? Si sí, necesita backend; si no, quitar nombre/WhatsApp/código. | Fase 8 |
+| D8 | ¿Se cobra delivery? La UI dice que lo coordina inDrive y el mensaje dice "sin costo de envío". | Copy del checkout |
