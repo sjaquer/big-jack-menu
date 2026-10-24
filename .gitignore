@@ -44,3 +44,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# fuentes de diseño pesadas (guardar fuera del repo)
+/Manual de Identidad*.pdf
+/design-assets/
