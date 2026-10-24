@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { menuItems, restaurantInfo } from "../../data/menuData";
-import { ChevronLeft, ShoppingCart, Star } from "lucide-react";
+import { Star } from "lucide-react";
+import SiteHeader from "../../components/SiteHeader";
 import ProductAddToCart from "./ProductAddToCart";
 
 export function generateStaticParams() {
@@ -50,27 +51,7 @@ export default async function ProductDetail({ params }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#020204] via-[#0a0a0c] to-[#020204] text-white">
-      {/* Header con navegación */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-[#020204] to-[#0a0a0c] backdrop-blur-lg border-b-2 border-neutral-800 shadow-xl">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link 
-            href="/" 
-            className="flex items-center gap-3 px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 border-2 border-neutral-700 rounded-xl text-white font-bold transition-all active:scale-95"
-          >
-            <ChevronLeft size={20} />
-            <span className="text-sm sm:text-base">Menú</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <span className="text-xs sm:text-sm text-neutral-400 hidden sm:block">Ver tu carrito</span>
-            <Link
-              href="/?openCart=true"
-              className="p-3 sm:p-4 bg-[#FCC900] text-black font-black rounded-2xl hover:bg-[#e2b500] transition-all active:scale-95 shadow-lg shadow-[#FCC900]/20"
-            >
-              <ShoppingCart size={22} />
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader compact />
 
       {/* Hero con imagen destacada */}
       <section className="relative max-w-6xl mx-auto px-4 py-8 md:py-16">
