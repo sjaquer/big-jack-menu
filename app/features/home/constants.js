@@ -1,5 +1,6 @@
 export const PRIMARY_CATEGORIES = ["LAS INTOCABLES"];
 export const COMPLEMENT_CATEGORIES = ["BEBIDAS"];
+export const SIDES_CATEGORY = "GUARNICIONES";
 
 export const MAX_QTY_PER_ITEM = 10;
 export const MAX_CART_ITEMS = 30;
