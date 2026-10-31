@@ -1,40 +1,38 @@
 # Sistema de diseño — Big Jack Menu
 
-**Fecha:** 2026-10-24 · Documenta el lenguaje visual **actual** y las reglas para mantenerlo coherente. Los desvíos detectados están al final y en [`AUDIT.md`](./AUDIT.md).
+**Fecha:** 2026-10-31 · Documenta el lenguaje visual **actual** y las reglas para mantenerlo coherente. Los desvíos detectados están al final y en [`AUDIT.md`](./AUDIT.md).
 
 ## 1. Concepto
 
-> La identidad de marca (concepto, voz, fotografía, uso del logo) está en [`marca/MANUAL_DE_MARCA.md`](./marca/MANUAL_DE_MARCA.md) (v3, "el vecino que nunca falla"). Este documento cubre cómo se implementa en la web; ante conflicto de marca, manda el manual.
+> La identidad de marca (concepto, voz, fotografía, uso del logo) está en [`marca/MANUAL_DE_MARCA.md`](./marca/MANUAL_DE_MARCA.md). Este documento cubre cómo se implementa en la web; ante conflicto de marca, manda el manual.
 
-**"Potencia honesta" · Streetwear / brutalismo urbano.** Fondo casi negro con retícula sutil, amarillo de marca a plena saturación, tipografía condensada en mayúsculas, bordes gruesos y etiquetas tipo `[ CORCHETES ]`. Tono de voz directo, limeño y sin adornos ("al toque", "sin floro", "No vendemos humo").
+**Menos es más.** La comida es la protagonista; la interfaz se aparta. Fondo casi negro, amarillo de marca solo para lo que importa (precio destacado, acción principal), tipografía Anton enorme para crear jerarquía y mucho aire entre bloques. Desde el rediseño del 2026-10-31 la web es **una sola columna vertical** (`max-w-3xl`) también en desktop.
 
 Principios:
-1. **Mobile-first y pulgar primero:** acciones principales abajo o a pantalla completa, objetivos táctiles ≥ 44 px.
-2. **Producto protagonista:** foto grande, nombre en Anton, precio en bloque amarillo.
-3. **Contraste alto:** amarillo sobre negro; texto negro sobre amarillo (nunca blanco sobre amarillo).
-4. **Una acción primaria por vista** (amarillo); las secundarias en gris oscuro con borde.
+1. **Una idea por pantalla.** Nada de pastillas, etiquetas `[ CORCHETES ]`, contadores, badges ni subtítulos de relleno. Si un elemento no ayuda a pedir, no va.
+2. **Jerarquía por tamaño, no por cajas.** Titulares en Anton de 4–15 rem (`clamp()`), cuerpo en Poppins 16–18 px, rótulos en 12 px con `tracking` amplio y gris. Evitar tarjetas con borde para agrupar: separar con espacio (`py-24`/`py-32`) o una línea fina.
+3. **Variación de ritmo.** Las hamburguesas se muestran grandes (foto a todo el ancho, alternando formato 4:5 / 1:1); papas y bebidas en filas compactas. El cambio de tamaño guía la vista.
+4. **Movimiento con propósito.** El hero se cuenta con el scroll; las secciones aparecen con un fundido (`.reveal`). Siempre con alternativa en `prefers-reduced-motion`.
+5. **Pulgar primero.** Objetivos táctiles ≥ 44 px, acción principal abajo en móvil (barra "Ver pedido").
+6. **Contraste alto:** amarillo sobre negro; texto negro sobre amarillo (nunca blanco sobre amarillo).
 
 ## 2. Tokens
 
 ### 2.1 Color
 
-Los tokens están declarados en `app/globals.css` (`:root`) pero **casi no se usan**: el código repite hex literales (`#FCC900` aparece 169 veces). Al tocar un componente, migrar a tokens (ver §6).
+Definidos en `@theme` de `app/globals.css`; Tailwind genera las utilidades (`bg-bj-yellow`, `text-bj-yellow/60`, `border-bj-surface-2`…). En 2026-10-31 se migraron todas las clases con hex de marca a tokens.
 
-| Token propuesto | Hex | Uso | Variable actual |
-| :--- | :--- | :--- | :--- |
-| `--bj-yellow` | `#FCC900` | Primario: CTA, precios, acentos, foco | `--potencia-amarillo`, `--bj-accent` |
-| `--bj-yellow-hover` | `#E2B500` | Hover de CTA amarillos | — |
-| `--bj-red` | `#B22222` | Alertas, badge de cantidad, cerrado | `--potencia-rojo` |
-| `--bj-silver` | `#C0C0C0` | Texto secundario sobre negro | `--potencia-aluminio` |
-| `--bj-bg` | `#0F0F12` | Fondo de página, header, footer | — (`--background` = `#1E1E1E`) |
-| `--bj-surface` | `#131317` | Tarjetas, inputs del filtro | — |
-| `--bj-surface-2` | `#1F1F24` | Tags, botones secundarios | — |
-| `--bj-border` | `neutral-800` (`#262626`) | Bordes de tarjetas | — |
-| `--bj-success` | `green-600` / `#25D366` | Confirmar pedido / WhatsApp | — |
+| Token (`--color-…`) | Hex | Uso |
+| :--- | :--- | :--- |
+| `bj-yellow` | `#FCC900` | Primario: CTA, precio destacado, foco |
+| `bj-yellow-hover` | `#E2B500` | Hover de CTA amarillos |
+| `bj-red` | `#B22222` | Cerrado, alertas |
+| `bj-silver` | `#C0C0C0` | Texto secundario |
+| `bj-bg` | `#0F0F12` | Fondo de página |
+| `bj-surface` / `bj-surface-2` | `#131317` / `#1F1F24` | Superficies (drawer, campos) |
+| `whatsapp` | `#25D366` | Solo acciones de WhatsApp |
 
-**Colores de terceros (solo en sus botones):** WhatsApp `#25D366`, PedidosYa `#FF0050`/`#EA004B`, Rappi `#FF441F`, Google `#4285F4`, Instagram (gradiente).
-
-**Fuera de sistema (a eliminar):** `#D99133`, `#EEB055`, `#B07020` (dorado/ámbar, quedan sobre todo en `/reto-gamer`), `yellow-500/400` de Tailwind en el Libro de Reclamaciones, fondos `#020204`/`#0A0A0C`. `/product/[slug]` ya usa `#FCC900` (6.6).
+**Prohibidos:** `#D99133`, `#EEB055`, `#B07020`, `yellow-400/500` de Tailwind, nuevos dorados. Colores de terceros (PedidosYa, Rappi, Instagram) ya no se usan como fondos.
 
 ### 2.2 Tipografía
 
@@ -59,59 +57,58 @@ Escala habitual: H1 hero `text-4xl → sm:text-7xl → md:text-8xl`; títulos de
 
 ### 2.4 Fondo
 
-`body`: `#1E1E1E` + retícula de 28 px con líneas blancas al 3% (`globals.css:18-30`). Los headers usan `bg-[#0F0F12]/95 backdrop-blur-md`.
+`body` usa `bg-bj-bg` liso. La retícula (`.bg-grid`) queda solo como recurso decorativo puntual (404); nunca detrás de texto, precios o formularios.
 
 ## 3. Componentes de marca (`globals.css`)
 
-| Clase | Aspecto | Uso |
-| :--- | :--- | :--- |
-| `.btn-streetwear` | Fondo amarillo, texto negro Anton, borde negro 3 px, hover blanco | CTA primario |
-| `.block-yellow` | Bloque amarillo con texto negro Anton | Precios, badges ("HIT LIMEÑO") |
-| `.tag-streetwear` | Fondo `#1F1F24`, borde `#33333D`, texto amarillo 11 px, tracking 0.12em | Etiquetas `[ LIMA CENTRO ]` |
-| `.scrollbar-hide` | Oculta scrollbar | Carruseles y filtros |
-| `.product-card-anim` | Reveal escalonado (0.6 s) | Tarjetas de producto |
-| `.cart-drawer-*` / `.product-modal-*` | Transiciones de apertura/cierre | Drawer y modal |
-| `.skeleton` | Pulso de carga | (sin uso hoy) |
+| Clase / componente | Uso |
+| :--- | :--- |
+| `@theme` → `bg-bj-yellow`, `bg-bj-bg`, `text-bj-silver`, `bg-bj-surface`, `bg-whatsapp`… | Tokens de color. No usar hex sueltos en clases. |
+| `.btn-streetwear` | CTA primario (con `rounded-full` en el rediseño). |
+| `.scroll-hero` + `.hero-*` | Hero animado por scroll (`--p` de 0 a 1, lo escribe `useScrollProgress`). |
+| `.reveal` | Aparición al entrar en pantalla (CSS `animation-timeline: view()`; sin soporte, se muestra directo). |
+| `Dialog` (`app/components/Dialog.js`) | Drawer y hojas: foco atrapado, `Esc`, devuelve el foco, bloquea scroll. |
+| `.block-yellow`, `.tag-streetwear` | Heredadas; usar solo en piezas puntuales (no en la carta). |
 
 ## 4. Patrones de UI
 
-| Patrón | Implementación de referencia |
+| Patrón | Implementación |
 | :--- | :--- |
-| Header pegajoso con borde amarillo inferior | `app/page.js:742` |
-| Filtro de categorías en píldoras con contador + búsqueda | `features/home/components/CategoryFilter.js` |
-| Tarjeta de producto (imagen 4:3, nombre sobre degradado, precio en `block-yellow`, opciones como filas) | `ProductCard.js` |
-| Drawer lateral derecho con pasos (Cliente · Entrega · Pago) y barra de progreso | `CartDrawer.js` |
-| Selector segmentado (Recojo/Delivery, métodos de pago) — activo = fondo amarillo | `CartDrawer.js:299-315, 413-437` |
-| Avisos: azul = información de pago, rojo = cerrado/error, verde = éxito | `CartDrawer.js`, `ClosedNotice.js` |
-| Barra flotante móvil de carrito | `FloatingCartBar.js` |
-| Modal de confirmación con CTA WhatsApp verde | `OrderConfirmation.js` |
+| Header mínimo: logo + bolsa con contador | `app/components/SiteHeader.js` |
+| Hero en scroll: titular → fundido a pantalla completa de la hamburguesa que crece → frases → un CTA | `features/shop/components/hero/ScrollHero.js` |
+| Navegación de la carta: texto con subrayado amarillo en la sección visible (scroll-spy), fija bajo el header | `menu/CategoryNav.js` |
+| Plato estrella: foto grande, nombre enorme, precio y botón circular "+" | `menu/FeatureItem.js` |
+| Complemento: fila con miniatura, nombre, precio y "+" con borde | `menu/CompactItem.js` |
+| Hoja de producto (bottom sheet en móvil) con radios nativos y cantidad | `overlays/ProductSheet.js` |
+| Carrito en dos pasos ("Tu pedido" → "Entrega y pago") con barra de progreso; filas sin cajas, "−" que pasa a papelera en 1 unidad, sugerencias en carrusel, CTA amarillo `rounded-full` | `CartDrawer.js`, `cart/` |
+| Campos: superficie `bg-white/[0.06]` sin borde, etiqueta visible; selecciones con control segmentado en cápsula | `cart/Field.js`, `cart/SegmentedChoice.js` |
+| Barra flotante "Ver pedido · N · S/ total" (píldora amarilla, solo móvil) | `FloatingCartBar.js` |
+| Aviso de cerrado: una línea discreta, no bloquea | `ClosedBanner.js` |
+| Ubicación: dirección como titular gigante + links subrayados | `LocationSection.js` |
 
 ## 5. Accesibilidad (mínimos obligatorios)
 
-- Foco visible: `:focus-visible { outline: 2px solid #FCC900; outline-offset: 2px }` (está declarado dos veces, dejar una).
+- Foco visible: `:focus-visible { outline: 3px solid var(--color-bj-yellow) }`.
 - Todo input con `<label>` asociado (puede ser `sr-only`); no usar solo `placeholder`.
 - Diálogos: `role="dialog"`, `aria-modal`, `aria-labelledby`, *focus trap*, cierre con `Esc`, devolver foco al disparador.
 - Botones solo-icono con `aria-label`.
 - Contraste: amarillo `#FCC900` sobre `#0F0F12` ≈ 12:1 ✅; negro sobre amarillo ≈ 13:1 ✅; `neutral-500` sobre negro solo para texto ≥ 14 px no esencial.
-- Respetar `prefers-reduced-motion` en animaciones de entrada (pendiente).
+- `prefers-reduced-motion`: implementado en `globals.css` (hero estático, sin `.reveal`, transiciones mínimas).
+- Enlace "Saltar al contenido" en el layout de `(shop)`.
 
 ## 6. Reglas para cambios de UI
 
-1. Usar los tokens de §2 (migrar a `@theme` de Tailwind v4 para obtener `bg-bj-yellow`, `text-bj-silver`, etc.).
+1. Usar los tokens de §2 (`bg-bj-yellow`, `text-bj-silver`…); nada de hex sueltos.
 2. No introducir nuevos tonos de amarillo/dorado; `#D99133` queda prohibido.
 3. No usar clases que no existan (verificar en `globals.css` o en Tailwind). Las utilidades `animate-in`, `zoom-in-*`, `slide-in-from-*` vienen de `tw-animate-css`, instalado e importado en `globals.css`.
-4. Reutilizar `.btn-streetwear`, `.block-yellow`, `.tag-streetwear` antes de crear estilos nuevos.
+4. Antes de agregar un elemento, preguntarse si ayuda a pedir. Reutilizar `Dialog`, `btn-streetwear` y los ítems de la carta antes de crear estilos nuevos.
 5. Mensajes al usuario en español con tildes; tono directo.
 6. Probar en 360 px de ancho y en desktop.
 
 ## 7. Desvíos actuales del sistema
 
-| Dónde | Desvío | Ref. |
-| :--- | :--- | :--- |
-| `/product/[slug]` | ✅ Unificado en 6.6: Anton, `#FCC900`, clases de marca e iconos lucide. El footer propio se unificará en 6.13. | DEAD-02 |
-| `/libro-de-reclamaciones` | Mezcla `#FCC900` con `yellow-500`, fondo `#020204`. | — |
-| `/reto-gamer` | Paleta neón/dorada propia (aceptable como "mundo" del juego, pero CTAs deberían usar el amarillo de marca). | — |
-| `/links` | Spinner a pantalla completa al cargar. | QLT-05 |
-| Footer | `animate-pulse-slow` inexistente; horario distinto al real. | DEAD-02, DATA-01 |
-| Modales | Animaciones de entrada que no se ejecutan (falta plugin). | BUG-08 |
-| `globals.css` | Tokens declarados sin uso; utilidades huérfanas (`glass-panel`, `gold-glow`, `toast-*`, `fade-in-stagger`…). | DEAD-07 |
+| Dónde | Desvío |
+| :--- | :--- |
+| `/libro-de-reclamaciones` | Formulario largo con bloques numerados y bordes: se mantiene por claridad legal (tono neutro). Pendiente de Fase 1. |
+| `/reto-gamer` | Paleta neón propia del juego (D7 pendiente). |
+| `/links` | Lista de botones (formato link-in-bio); ya sin colores de terceros ni etiquetas. |

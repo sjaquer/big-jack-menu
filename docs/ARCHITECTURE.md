@@ -1,6 +1,6 @@
 # Arquitectura técnica — Big Jack Menu
 
-**Fecha:** 2026-10-24 · Describe el código **tal como está** en `master`. Para problemas conocidos ver [`AUDIT.md`](./AUDIT.md).
+**Fecha:** 2026-10-31 · Describe el código **tal como está** en `master`. Para problemas conocidos ver [`AUDIT.md`](./AUDIT.md).
 
 ## 1. Stack
 
@@ -8,7 +8,7 @@
 | :--- | :--- |
 | Framework | Next.js 16 (App Router, Turbopack) |
 | UI | React 19.2, Tailwind CSS v4 (`@tailwindcss/postcss`), `lucide-react` |
-| Fuentes | `next/font/google`: Poppins (cuerpo), Anton (títulos), Parkinsans |
+| Fuentes | `next/font/google`: Poppins (cuerpo), Anton (títulos) |
 | Servidor | Route Handler (`/api/online-orders`) + Server Action (`sendComplaint`) |
 | Email | Nodemailer (Gmail SMTP) / Formspree opcional |
 | Lenguaje | JavaScript (sin TypeScript), alias `@/*` → raíz (`jsconfig.json`) |
@@ -20,55 +20,57 @@
 
 ```text
 app/
-├── layout.js                 # Root layout: fuentes, metadata global, JSON-LD (Restaurant + FAQ)
-├── page.js                   # "/" — Server Component que compone HomeClient
-├── components/SiteHeader.js  # Header compartido (home completo / producto compacto)
-├── components/Toast.js       # Avisos info/success/error y confirmación accesible
-├── globals.css               # Tailwind + tokens + utilidades de marca + animaciones
-├── actions.js                # Server Action: sendComplaint (Libro de Reclamaciones)
-├── api/online-orders/route.js# POST proxy al webhook del ERP (validación, rate-limit, timeout)
-├── data/menuData.js          # ⭐ Fuente de verdad: restaurantInfo, categories, menuItems (SKUs, precios)
-├── lib/
-│   ├── cartModel.js          # Ítem de carrito, addItem con topes, migración legacy
-│   ├── safeStorage.js        # Lectura/escritura de localStorage con try/catch
-│   ├── onlineOrders.js       # Construcción del payload + fetch al proxy
-│   └── openHours.js          # Horario en America/Lima: isOpenNow, getNextOpenDate
-├── features/home/
-│   ├── HomeClient.js         # Isla cliente del home: estado, modales, checkout
-│   ├── constants.js          # Límites, categorías, links de apps, URL del sitio
-│   ├── cartRules.js          # applyComplementRules (bebidas requieren hamburguesa)
-│   ├── hooks/                # useCart, useCheckoutForm, useOpenStatus, useToast
-│   ├── context/CartContext.js # CartProvider + useCartDrawer (estado compartido del checkout)
-│   ├── seo.js                # Builders de JSON-LD y rangos de precio
-│   ├── checkout/submitOrder.js # Validaciones de checkout (cliente) + envío
-│   ├── checkout/orderMessages.js # Builders puros: WhatsApp, errores, recordatorios
-│   └── components/           # UI del home (CartDrawer, MenuGrid, CategoryCarousel, ProductCard, modales, etc.)
-│       └── cart/             # CartItemList, CustomerStep, DeliveryStep, PaymentStep, CartSummary, ItemThumb
-├── product/[slug]/
-│   ├── page.js               # Detalle de producto (Server Component, SSG)
-│   └── ProductAddToCart.js   # Isla cliente: opción, cantidad, reglas de carrito
-├── links/page.js             # Linktree (Client)
-├── quienes/page.js           # Quiénes somos (Client)
-├── libro-de-reclamaciones/page.js # Formulario (Client) → sendComplaint
-├── reto-gamer/{page,leaderboard}.js # Juego canvas + récord local
-├── robots.js · sitemap.js · manifest.json · icon*/favicon
-docs/                          # Esta documentación
-public/images/                 # Fotos de producto (.webp), logos, hero
-scripts/test-webhook-orders.ps1# Prueba manual del webhook del ERP (⚠️ ver OPS-01)
+├── layout.js                    # Root: fuentes, viewport, metadata global, JSON-LD Restaurant + WebSite
+├── (shop)/                      # Grupo con header, carrito y footer compartidos (el carrito persiste al navegar)
+│   ├── layout.js                # ShopProvider + SiteHeader + ClosedBanner + SiteFooter + ShopOverlays
+│   ├── page.js                  # "/" (Server): Hero en scroll, carta, ubicación, FAQ + JSON-LD FAQPage
+│   ├── product/[slug]/          # Ficha (Server, SSG) + ProductAddToCart (isla cliente) + JSON-LD Product
+│   ├── quienes/page.js          # Server Component
+│   └── libro-de-reclamaciones/  # page.js (Server, metadata) + ComplaintForm.js (cliente) → sendComplaint
+├── components/                  # UI compartida: SiteHeader, SiteFooter, Dialog, Toast, JsonLd, icons/BrandIcons
+├── data/menuData.js             # ⭐ Fuente única: restaurantInfo (horario, dirección, contacto, apps), categoryInfo, menuItems
+├── lib/                         # Dominio puro con tests
+│   ├── site.js                  # SITE_URL, absoluteUrl, whatsappUrl, formatPhone, formatAddress, instagramUrl
+│   ├── schedule.js              # formatTime, groupSchedule, formatScheduleSummary, formatPrepTime
+│   ├── format.js                # formatPrice, getPriceRange, getMenuPriceRange
+│   ├── openHours.js             # isOpenNow, getNextOpenDate, getOpenStatusLabel (hora de Lima)
+│   ├── llms.js                  # Contenido de /llms.txt generado desde los datos
+│   ├── cartModel.js · onlineOrders.js · safeStorage.js
+├── features/shop/
+│   ├── constants.js             # Reglas: categorías, máximos, métodos de pago, upsell
+│   ├── cartRules.js             # Bebidas solo con hamburguesa
+│   ├── seo.js                   # JSON-LD (Restaurant, Product, Breadcrumb, FAQPage) y FAQ visible
+│   ├── checkout/                # submitOrder (validaciones) y orderMessages (WhatsApp, errores)
+│   ├── context/ShopContext.js   # ShopProvider + useShop: compone los hooks
+│   ├── hooks/                   # useCart, useCartActions, useCheckoutForm, useOrderSubmit, useUpsell,
+│   │                            # useGeolocation, useOpenStatus, useToast, useNotice, useScrollSpy, useScrollProgress
+│   └── components/
+│       ├── hero/                # HeroSection (Server) + ScrollHero (animación por scroll)
+│       ├── menu/                # MenuSection, CategoryNav (scroll-spy), FeatureItem, CompactItem
+│       ├── cart/                # Pasos del checkout con <label>: Customer, Delivery, Payment, Summary, ItemList
+│       ├── overlays/            # ShopOverlays (dynamic import), ProductSheet, UpsellSheet, OrderConfirmation
+│       └── …                    # CartDrawer, FloatingCartBar, ClosedBanner, LocationSection, FaqSection…
+├── links/                       # Link-in-bio (Server) + OpenStatusBadge (isla)
+├── reto-gamer/                  # Juego canvas (pendiente D7) + layout.js con metadata
+├── actions.js                   # Server Action: sendComplaint
+├── api/online-orders/route.js   # Proxy al webhook del ERP
+├── robots.js · sitemap.js · manifest.js · llms.txt/route.js · not-found.js
+public/images/                   # Fotos .webp, burger-hero.webp, og-bigjack.jpg, logos
+scripts/                         # generate-og.js, test-webhook-orders.ps1 (⚠️ OPS-01)
 ```
 
 ## 3. Rutas
 
-| Ruta | Tipo | Render | Notas |
-| :--- | :--- | :--- | :--- |
-| `/` | Server Component + `HomeClient` | Estático (○) | Carta, carrito, checkout, modales. |
-| `/product/[slug]` | Server + isla cliente | SSG (●) vía `generateStaticParams` | `generateMetadata` por producto. |
-| `/links` | Client | Estático | Spinner hasta montar. |
-| `/quienes` | Client | Estático | |
-| `/libro-de-reclamaciones` | Client | Estático | Usa Server Action. |
-| `/reto-gamer` | Client | Estático | Canvas, ~1.670 líneas. |
-| `/api/online-orders` | Route Handler | Dinámico (ƒ) | Solo `POST`. |
-| `/robots.txt`, `/sitemap.xml`, `/manifest.json` | Metadata routes | Estático | |
+| Ruta | Render | Notas |
+| :--- | :--- | :--- |
+| `/` | Estático (○) | Server Component con islas: hero en scroll, carta, ubicación y FAQ. |
+| `/product/[slug]` | SSG (●) | Mismo carrito y drawer que la carta (layout compartido). |
+| `/quienes` | Estático | Server Component. |
+| `/libro-de-reclamaciones` | Estático | Página server con metadata + formulario cliente. |
+| `/links` | Estático | Server + isla de estado abierto/cerrado. Sin spinner. |
+| `/reto-gamer` | Estático | Client (canvas). |
+| `/api/online-orders` | Dinámico (ƒ) | Solo `POST`. |
+| `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`, `/llms.txt` | Estático | Generados desde `menuData.js`. |
 
 ## 4. Modelo de datos
 
@@ -117,20 +119,19 @@ Es el único punto que aplica los topes de 10 por producto y 30 por pedido.
 
 | Clave | Contenido | Escrita por |
 | :--- | :--- | :--- |
-| `cart` | Array de ítems de carrito | `useCart`, `ProductAddToCart.js` |
+| `cart` | Array de ítems de carrito | `useCart` |
 | `bj_checkout` | Nombre, teléfono, dirección, referencia, pago, notas (**PII**) | `useCheckoutForm` (debounce 400 ms) |
-| `bj_preorder` | `true` si el carrito es pre-orden | `HomeClient`, `ProductAddToCart.js` |
 | `bj_game_data` | Récord del juego + checksum | `reto-gamer/page.js` |
 | `bj_local_record_v1` | Mejor partida (nombre, WhatsApp, código) | `reto-gamer/leaderboard.js` |
 
-Las lecturas/escrituras pasan por `lib/safeStorage.js` (try/catch). La sincronización entre `/product/*` y `/` usa el evento `storage` (y un `dispatchEvent(new Event("storage"))` manual en la misma pestaña).
+Las lecturas/escrituras pasan por `lib/safeStorage.js` (try/catch). La carta y la ficha de producto comparten el mismo `ShopProvider` (layout de `(shop)`), así que no hace falta sincronizar entre páginas; el evento `storage` solo sincroniza pestañas. La pre-orden ya no se guarda: es pre-orden todo pedido confirmado fuera de horario (y solo admite recojo).
 
 ## 5. Flujo de pedido
 
 ```mermaid
 sequenceDiagram
   actor C as Cliente
-  participant UI as "/" (HomeClient + CartDrawer)
+  participant UI as "(shop)" (ShopProvider + CartDrawer)
   participant SO as submitOrder.js
   participant API as /api/online-orders
   participant ERP as ERP webhook
@@ -206,15 +207,19 @@ Campos leídos: `name, dni, email, phone, address, type, description, product, a
 | `GMAIL_USER`, `GMAIL_PASS` | Sí (prod) | SMTP para reclamos (contraseña de aplicación). |
 | `RECIPIENT_EMAIL` | Sí (prod) | Destino de reclamos. Default: `bigjackpe@gmail.com`. |
 | `FORMSPREE_URL` | No | Canal alternativo de reclamos. |
-| `NEXT_PUBLIC_BASE_URL` | Recomendada | URL pública para `metadataBase`, `robots`, `sitemap`. Default: `https://bigjack.vercel.app`. |
+| `NEXT_PUBLIC_BASE_URL` | Recomendada | URL pública para `metadataBase`, canonicals, JSON-LD, `robots`, `sitemap`, `llms.txt`. Default: `https://bigjack.vercel.app` (`lib/site.js`). |
+| `GOOGLE_SITE_VERIFICATION` | No | Código de Search Console; si no existe no se publica la meta (SEO-03). |
 
 Local: copiar `.env.example` a `.env.local`.
 
-## 8. SEO
+## 8. SEO e IA
 
-- `layout.js`: `metadata` global (title template, OG, Twitter, robots) + JSON-LD `Restaurant`/`FastFoodRestaurant` (menú completo con ofertas, horario, geo) y `FAQPage`, generados desde `menuData.js` por `features/home/seo.js`.
-- `product/[slug]`: `generateMetadata` por producto.
-- `sitemap.js`: páginas estáticas + `/product/<slug>`; `robots.js`: permite todo salvo `/api/`, permite explícitamente bots de IA.
+- `layout.js`: metadata global (title template, OG con `og-bigjack.jpg`, Twitter, robots, `viewport`/`themeColor`) y JSON-LD `@graph` con `WebSite` + `Restaurant` (dirección de `restaurantInfo.address`, horario, menú con URL e imagen absoluta de cada plato).
+- Cada página define `alternates.canonical` y su propio `title`/`description`.
+- `/` publica `FAQPage` con las mismas preguntas que muestra (`getFaqItems`).
+- `/product/[slug]`: `Product` (AggregateOffer) + `BreadcrumbList`.
+- `sitemap.js` con imágenes; `robots.js` permite buscadores y asistentes de IA (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended…) salvo `/api/`.
+- `/llms.txt`: resumen en Markdown (datos del local, carta con precios, cómo pedir, FAQ) generado desde `menuData.js`.
 
 ## 9. Build, ejecución y despliegue
 
@@ -226,7 +231,7 @@ npm run lint
 npm run build && npm start
 ```
 
-Despliegue: Vercel (variables de entorno configuradas en el proyecto). No hay CI ni tests automatizados (OPS-02, QLT-06).
+Despliegue: Vercel (variables de entorno configuradas en el proyecto). CI en `.github/workflows/ci.yml` (lint, test, build, audit).
 
 ## 10. Decisiones de diseño relevantes
 
@@ -237,3 +242,6 @@ Despliegue: Vercel (variables de entorno configuradas en el proyecto). No hay CI
 | Precio lo decide el ERP | Evitar manipulación de precios | El total que ve el cliente es referencial. |
 | WhatsApp como paso final | Hábito del cliente; coordinar pago/entrega | El pedido queda registrado aunque el cliente no envíe el WhatsApp. |
 | Estado en `localStorage` | Sin cuentas de usuario | PII en el dispositivo; sin historial entre dispositivos. |
+| Layout `(shop)` con `ShopProvider` | Un solo carrito para carta, ficha y páginas informativas | El estado vive en el cliente; las secciones estáticas siguen siendo Server Components (`children`). |
+| Diálogos con `next/dynamic` | El JS del drawer y las hojas se descarga al abrirlos | Primer clic en "Ver pedido" carga un chunk pequeño. |
+| Hero animado con una variable CSS (`--p`) | Sin librerías de animación ni renders por frame | `prefers-reduced-motion` muestra la versión estática. |

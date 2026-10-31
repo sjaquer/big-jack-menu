@@ -1312,7 +1312,7 @@ export default function RetoGamerPage() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#020204] overflow-hidden select-none">
+    <div className="fixed inset-0 bg-bj-bg overflow-hidden select-none">
       {/* Game Canvas */}
       <canvas
         ref={canvasRef}
@@ -1331,7 +1331,7 @@ export default function RetoGamerPage() {
 
               {/* Combo indicator */}
               {combo > 0 && (
-                <div className={`text-[#d99133] font-mono text-sm sm:text-lg font-bold mt-1 ${combo > 10 ? 'animate-pulse' : ''}`}>
+                <div className={`text-bj-yellow font-mono text-sm sm:text-lg font-bold mt-1 ${combo > 10 ? 'animate-pulse' : ''}`}>
                   🔥 COMBO x{combo}
                 </div>
               )}
@@ -1361,7 +1361,7 @@ export default function RetoGamerPage() {
 
             {/* Wave indicator */}
             <div className="text-right">
-              <div className="text-[#d99133] font-mono text-sm sm:text-base font-bold">
+              <div className="text-bj-yellow font-mono text-sm sm:text-base font-bold">
                 OLEADA {wave}
               </div>
             </div>
@@ -1396,7 +1396,7 @@ export default function RetoGamerPage() {
 
       {/* Menu Screen */}
       {gameState === 'menu' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-[#020204]/90 backdrop-blur-sm p-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-bj-bg/90 backdrop-blur-sm p-4">
           <Link
             href="/"
             className="absolute top-4 left-4 flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
@@ -1406,22 +1406,22 @@ export default function RetoGamerPage() {
           </Link>
 
           <div className="text-center">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black mb-2 bg-gradient-to-r from-[#d99133] via-[#b07020] to-[#8a5010] bg-clip-text text-transparent drop-shadow-lg">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black mb-2 bg-gradient-to-r from-bj-yellow via-bj-yellow-hover to-[#8a5010] bg-clip-text text-transparent drop-shadow-lg">
               NEON BURGER
             </h1>
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-[#d99133] mb-4 drop-shadow-[0_0_20px_rgba(217,145,51,0.4)]">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-bj-yellow mb-4 drop-shadow-[0_0_20px_rgba(217,145,51,0.4)]">
               HELL 🔥
             </h2>
 
             {highScore > 0 && (
-              <div className="text-[#d99133] font-mono text-lg sm:text-xl mb-4">
+              <div className="text-bj-yellow font-mono text-lg sm:text-xl mb-4">
                 🏆 RÉCORD: {highScore.toLocaleString()}
               </div>
             )}
 
             <button
               onClick={startGame}
-              className="px-8 sm:px-12 py-4 sm:py-5 bg-gradient-to-r from-[#d99133] to-[#b07020] hover:from-[#eeb055] hover:to-[#d99133] text-black font-black text-xl sm:text-2xl rounded-2xl shadow-[0_0_30px_rgba(217,145,51,0.5)] hover:shadow-[0_0_50px_rgba(217,145,51,0.7)] transition-all active:scale-95 uppercase tracking-wider"
+              className="px-8 sm:px-12 py-4 sm:py-5 bg-gradient-to-r from-bj-yellow to-bj-yellow-hover hover:from-bj-yellow-hover hover:to-bj-yellow text-black font-black text-xl sm:text-2xl rounded-2xl shadow-[0_0_30px_rgba(217,145,51,0.5)] hover:shadow-[0_0_50px_rgba(217,145,51,0.7)] transition-all active:scale-95 uppercase tracking-wider"
             >
               🎮 INSERTAR MONEDA
             </button>
@@ -1429,7 +1429,7 @@ export default function RetoGamerPage() {
             {/* Ver ranking (modal local) */}
             <button
               onClick={() => { loadLeaderboard('high_score'); setShowLeaderboard(true); }}
-              className="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-[#d99133] font-bold rounded-xl transition-all"
+              className="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-bj-yellow font-bold rounded-xl transition-all"
             >
               <Trophy size={18} />
               Ver Ranking
@@ -1442,7 +1442,7 @@ export default function RetoGamerPage() {
                 <div className="flex items-center gap-1 text-cyan-400">
                   <Shield size={14} /> Escudo
                 </div>
-                <div className="flex items-center gap-1 text-[#d99133]">
+                <div className="flex items-center gap-1 text-bj-yellow">
                   <Zap size={14} /> Velocidad
                 </div>
                 <div className="flex items-center gap-1 text-fuchsia-400">
@@ -1472,13 +1472,13 @@ export default function RetoGamerPage() {
 
       {/* Game Over Screen */}
       {gameState === 'gameover' && !showRegisterModal && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-[#020204]/90 backdrop-blur-sm p-4 overflow-y-auto">
-          <h1 className="text-4xl sm:text-5xl font-black text-[#d99133] mb-3 drop-shadow-[0_0_20px_rgba(217,145,51,0.8)]">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-bj-bg/90 backdrop-blur-sm p-4 overflow-y-auto">
+          <h1 className="text-4xl sm:text-5xl font-black text-bj-yellow mb-3 drop-shadow-[0_0_20px_rgba(217,145,51,0.8)]">
             GAME OVER
           </h1>
 
           <div className="text-2xl sm:text-3xl font-bold text-white mb-2">
-            PUNTUACIÓN: <span className="text-[#d99133]">{score.toLocaleString()}</span>
+            PUNTUACIÓN: <span className="text-bj-yellow">{score.toLocaleString()}</span>
           </div>
 
           <div className="text-neutral-400 text-sm mb-2 flex flex-wrap gap-2 justify-center">
@@ -1503,7 +1503,7 @@ export default function RetoGamerPage() {
           {score >= 1000 && !submitSuccess && (
             <button
               onClick={() => setShowRegisterModal(true)}
-              className="mb-4 px-6 py-3 bg-gradient-to-r from-[#d99133] to-[#b07020] hover:from-[#eeb055] hover:to-[#d99133] text-black font-black text-base rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-2"
+              className="mb-4 px-6 py-3 bg-gradient-to-r from-bj-yellow to-bj-yellow-hover hover:from-bj-yellow-hover hover:to-bj-yellow text-black font-black text-base rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-2"
             >
               <Trophy size={20} />
               ¡REGISTRAR EN RANKING!
@@ -1514,7 +1514,7 @@ export default function RetoGamerPage() {
             <div className="mb-4 p-4 bg-green-500/20 border border-green-500/50 rounded-xl text-center max-w-sm">
               <p className="text-green-400 font-bold mb-2">✅ ¡Registrado exitosamente!</p>
               <p className="text-xs text-neutral-400 mb-2">Tu código de participación:</p>
-              <p className="text-lg font-mono text-[#d99133] bg-black/50 p-2 rounded">{redeemCode}</p>
+              <p className="text-lg font-mono text-bj-yellow bg-black/50 p-2 rounded">{redeemCode}</p>
             </div>
           )}
 
@@ -1527,7 +1527,7 @@ export default function RetoGamerPage() {
             </button>
             <button
               onClick={goToMenu}
-              className={`px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg rounded-xl border-2 border-neutral-600 transition-all active:scale-95 ${menuPulse ? 'animate-bounce ring-2 ring-[#d99133]/30' : ''}`}
+              className={`px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg rounded-xl border-2 border-neutral-600 transition-all active:scale-95 ${menuPulse ? 'animate-bounce ring-2 ring-bj-yellow/30' : ''}`}
             >
               📋 MENÚ
             </button>
@@ -1536,7 +1536,7 @@ export default function RetoGamerPage() {
             <div className="flex gap-4 mt-4">
             <button
               onClick={() => { loadLeaderboard('high_score'); setShowLeaderboard(true); }}
-              className="text-[#d99133] hover:text-[#eeb055] font-semibold transition-colors flex items-center gap-1"
+              className="text-bj-yellow hover:text-bj-yellow-hover font-semibold transition-colors flex items-center gap-1"
             >
               <Trophy size={16} /> Ver Ranking
             </button>
@@ -1552,7 +1552,7 @@ export default function RetoGamerPage() {
 
       {/* Modal de Registro */}
       {showRegisterModal && (
-        <div className="absolute inset-0 flex items-center justify-center z-40 bg-[#020204]/90 backdrop-blur-sm p-4">
+        <div className="absolute inset-0 flex items-center justify-center z-40 bg-bj-bg/90 backdrop-blur-sm p-4">
           <div className="bg-neutral-900 rounded-2xl p-6 max-w-sm w-full border border-neutral-700 relative">
             <button
               onClick={() => setShowRegisterModal(false)}
@@ -1561,12 +1561,12 @@ export default function RetoGamerPage() {
               <X size={20} />
             </button>
 
-            <h2 className="text-2xl font-black text-[#d99133] mb-2 flex items-center gap-2">
+            <h2 className="text-2xl font-black text-bj-yellow mb-2 flex items-center gap-2">
               <Trophy size={24} /> Registrar Score
             </h2>
             
             <p className="text-neutral-400 text-sm mb-4">
-              ¡Tu puntuación: <span className="text-[#d99133] font-bold">{score.toLocaleString()}</span>!
+              ¡Tu puntuación: <span className="text-bj-yellow font-bold">{score.toLocaleString()}</span>!
               <br />Completa tus datos para participar.
             </p>
 
@@ -1578,7 +1578,7 @@ export default function RetoGamerPage() {
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
                   placeholder="Tu nombre para el ranking"
-                  className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#d99133]"
+                  className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-bj-yellow"
                   maxLength={30}
                 />
               </div>
@@ -1590,7 +1590,7 @@ export default function RetoGamerPage() {
                   value={playerWhatsApp}
                   onChange={(e) => setPlayerWhatsApp(e.target.value)}
                   placeholder="9XX XXX XXX"
-                  className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-[#d99133]"
+                  className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-bj-yellow"
                   maxLength={15}
                 />
               </div>
@@ -1598,7 +1598,7 @@ export default function RetoGamerPage() {
               <button
                 onClick={handleSubmitScore}
                 disabled={!playerName.trim() || isSubmitting}
-                className="w-full py-4 bg-gradient-to-r from-[#d99133] to-[#b07020] hover:from-[#eeb055] hover:to-[#d99133] disabled:from-neutral-600 disabled:to-neutral-600 text-black disabled:text-neutral-400 font-black text-lg rounded-xl transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-gradient-to-r from-bj-yellow to-bj-yellow-hover hover:from-bj-yellow-hover hover:to-bj-yellow disabled:from-neutral-600 disabled:to-neutral-600 text-black disabled:text-neutral-400 font-black text-lg rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -1623,7 +1623,7 @@ export default function RetoGamerPage() {
 
         {/* Leaderboard Modal (local) */}
         {showLeaderboard && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#020204]/90 backdrop-blur-sm p-4">
+          <div className="absolute inset-0 flex items-center justify-center z-50 bg-bj-bg/90 backdrop-blur-sm p-4">
             <div className="bg-neutral-900 rounded-2xl p-6 max-w-4xl w-full border border-neutral-700 relative">
               <button
                 onClick={() => setShowLeaderboard(false)}
@@ -1633,7 +1633,7 @@ export default function RetoGamerPage() {
               </button>
 
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-black text-[#d99133]">🏆 RANKING (Récord local)</h2>
+                <h2 className="text-2xl font-black text-bj-yellow">🏆 RANKING (Récord local)</h2>
                 <div className="flex items-center gap-2">
                   <button onClick={() => { loadLeaderboard('high_score'); }} className="px-3 py-1 bg-neutral-800 rounded text-sm">Actualizar</button>
                 </div>
@@ -1649,13 +1649,13 @@ export default function RetoGamerPage() {
                 ) : (
                   leaderboardRankings.map((entry, index) => (
                     <div key={entry.id || index} className={`flex items-center gap-4 p-4 rounded-xl border bg-neutral-900/50`}>
-                      <div className="w-10 flex justify-center text-[#d99133] font-mono font-bold">#{index+1}</div>
+                      <div className="w-10 flex justify-center text-bj-yellow font-mono font-bold">#{index+1}</div>
                       <div className="flex-1 min-w-0">
                         <div className="font-bold text-white truncate">{entry.playerName || 'Jugador Anónimo'}</div>
                         <div className="text-xs text-neutral-500">Oleada {entry.wave || 1} • {entry.kills || 0} kills</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-xl font-bold text-[#d99133]">{entry.score?.toLocaleString() || 0}</div>
+                        <div className="text-xl font-bold text-bj-yellow">{entry.score?.toLocaleString() || 0}</div>
                         <div className="text-xs text-neutral-500">{entry.date}</div>
                       </div>
                     </div>

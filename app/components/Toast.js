@@ -5,8 +5,8 @@ import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
 const STYLES = {
   info: {
     icon: Info,
-    border: "border-[#FCC900]/50",
-    iconColor: "text-[#FCC900]",
+    border: "border-bj-yellow/50",
+    iconColor: "text-bj-yellow",
   },
   success: {
     icon: CheckCircle2,
@@ -20,8 +20,8 @@ const STYLES = {
   },
   confirm: {
     icon: AlertTriangle,
-    border: "border-[#FCC900]/60",
-    iconColor: "text-[#FCC900]",
+    border: "border-bj-yellow/60",
+    iconColor: "text-bj-yellow",
   },
 };
 
@@ -33,10 +33,11 @@ export default function Toast({ toast, onDismiss, onConfirm }) {
   const isConfirm = toast.type === "confirm";
 
   return (
-    <div className="fixed top-20 right-4 left-4 sm:left-auto sm:w-96 z-[70]">
+    <div className="fixed top-[calc(var(--header-h)+0.75rem)] right-4 left-4 sm:left-auto sm:w-96 z-[70]">
       <div
         role={isConfirm ? "alertdialog" : "status"}
         aria-live={isConfirm ? undefined : "polite"}
+        key={toast.id}
         className={`toast-enter rounded-2xl border-2 ${style.border} bg-neutral-900/95 backdrop-blur-md p-4 shadow-2xl`}
       >
         <div className="flex items-start gap-3">
@@ -64,7 +65,7 @@ export default function Toast({ toast, onDismiss, onConfirm }) {
             <button
               type="button"
               onClick={onConfirm}
-              className="flex-1 px-3 py-2 rounded-xl bg-[#FCC900] hover:bg-[#e2b500] text-black text-sm font-black transition-colors"
+              className="flex-1 px-3 py-2 rounded-xl bg-bj-yellow hover:bg-bj-yellow-hover text-black text-sm font-black transition-colors"
             >
               Aceptar
             </button>

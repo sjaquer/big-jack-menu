@@ -1,36 +1,42 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-html {
-  scroll-behavior: smooth;
+/* --- TOKENS DE MARCA (docs/DESIGN.md §2) ---
+   Generan utilidades: bg-bj-yellow, text-bj-silver, border-bj-surface-2, etc. */
+@theme {
+  --color-bj-yellow: #fcc900;
+  --color-bj-yellow-hover: #e2b500;
+  --color-bj-red: #b22222;
+  --color-bj-silver: #c0c0c0;
+  --color-bj-bg: #0f0f12;
+  --color-bj-surface: #131317;
+  --color-bj-surface-2: #1f1f24;
+  --color-bj-line: #2a2a31;
+  --color-whatsapp: #25d366;
 }
 
 :root {
-  --background: #1e1e1e;
-  --foreground: #fcc900;
-  --potencia-negro: #1e1e1e;
-  --potencia-amarillo: #fcc900;
-  --potencia-rojo: #b22222;
-  --potencia-aluminio: #c0c0c0;
-  --bj-accent: #fcc900;
-  --bj-dark: #1e1e1e;
+  --header-h: 56px;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 56px);
+  background: var(--color-bj-bg);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--color-bj-bg);
   color: #f5f5f5;
   font-family: var(--font-poppins), "Segoe UI", sans-serif;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 28px 28px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* --- MEJORES PRÁCTICAS DE TIPOGRAFÍA MODERNA --- */
+/* --- TIPOGRAFÍA --- */
 h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
 }
@@ -40,7 +46,7 @@ p, blockquote, li {
 }
 
 :focus-visible {
-  outline: 3px solid #FCC900 !important;
+  outline: 3px solid var(--color-bj-yellow) !important;
   outline-offset: 2px !important;
 }
 
@@ -49,9 +55,9 @@ p, blockquote, li {
   letter-spacing: 0.02em;
 }
 
-/* --- ESTILO STREETWEAR / BRUTALISMO URBANO (BERLIN / TOKYO) --- */
+/* --- COMPONENTES DE MARCA (streetwear / brutalismo urbano) --- */
 .btn-streetwear {
-  background-color: #FCC900;
+  background-color: var(--color-bj-yellow);
   color: #000000;
   font-family: var(--font-anton), Impact, sans-serif;
   font-weight: 900;
@@ -62,7 +68,7 @@ p, blockquote, li {
 }
 
 .btn-streetwear:hover {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #000000;
 }
 
@@ -71,9 +77,9 @@ p, blockquote, li {
 }
 
 .tag-streetwear {
-  background-color: #1F1F24;
-  border: 2px solid #33333D;
-  color: #FCC900;
+  background-color: var(--color-bj-surface-2);
+  border: 2px solid #33333d;
+  color: var(--color-bj-yellow);
   font-weight: 900;
   text-transform: uppercase;
   font-size: 11px;
@@ -83,7 +89,7 @@ p, blockquote, li {
 }
 
 .block-yellow {
-  background-color: #FCC900;
+  background-color: var(--color-bj-yellow);
   color: #000000;
   font-family: var(--font-anton), Impact, sans-serif;
   font-weight: 900;
@@ -93,114 +99,128 @@ p, blockquote, li {
   display: inline-block;
 }
 
-/* --- CART DRAWER TRANSITIONS --- */
-.cart-drawer-container {
-  display: flex;
-  transition: opacity 0.3s ease;
+/* Retícula decorativa: solo en fondos, nunca detrás de formularios. */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
+/* --- HERO EN SCROLL ---
+   `--p` (0 → 1) lo escribe useScrollProgress. Cada capa calcula su propio
+   tramo con clamp((p - inicio) / duración). */
+.scroll-hero {
+  --p: 0;
+  height: 270svh;
+}
+
+.scroll-hero-stage {
+  background: var(--color-bj-bg);
+}
+
+.hero-title {
+  --t: clamp(0, calc(var(--p) / 0.24), 1);
+  opacity: calc(1 - var(--t));
+  transform: translateY(calc(var(--t) * -10vh)) scale(calc(1 - var(--t) * 0.18));
+}
+
+.hero-hint {
+  opacity: clamp(0, calc(1 - var(--p) * 14), 1);
+  animation: hint-bob 1.8s ease-in-out infinite;
+}
+
+@keyframes hint-bob {
+  50% { translate: 0 6px; }
+}
+
+.hero-glow {
+  --t: clamp(0, calc((var(--p) - 0.1) / 0.3), 1);
+  opacity: var(--t);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(252, 201, 0, 0.38), rgba(252, 201, 0, 0.08) 45%, transparent 70%),
+    radial-gradient(circle at 50% 120%, rgba(178, 34, 34, 0.35), transparent 60%);
+}
+
+.hero-burger {
+  --fade: clamp(0, calc((var(--p) - 0.1) / 0.3), 1);
+  --grow: clamp(0, calc((var(--p) - 0.1) / 0.6), 1);
+  opacity: var(--fade);
+  transform: scale(calc(0.4 + var(--grow) * 0.75)) rotate(calc((1 - var(--grow)) * -10deg));
+  filter: blur(calc((1 - var(--fade)) * 12px));
+}
+
+.hero-word {
+  opacity: var(--t);
+  transform: translateY(calc((1 - var(--t)) * 40px));
+}
+.hero-word-1 { --t: clamp(0, calc((var(--p) - 0.5) / 0.12), 1); }
+.hero-word-2 { --t: clamp(0, calc((var(--p) - 0.6) / 0.12), 1); }
+
+.hero-cta {
+  --t: clamp(0, calc((var(--p) - 0.72) / 0.12), 1);
+  opacity: var(--t);
+  transform: translateY(calc((1 - var(--t)) * 30px));
+}
+.hero-cta:focus-within {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- APARICIÓN AL HACER SCROLL (sin JS; navegadores sin soporte lo muestran directo) --- */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+  }
+}
+
+@keyframes reveal {
+  from { opacity: 0; translate: 0 56px; scale: 0.96; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+/* --- CART DRAWER --- */
 .cart-drawer-panel {
-  translate: 0 0;
-  opacity: 1;
-  transition:
-    translate 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.3s ease;
+  animation: drawer-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cart-drawer-backdrop {
-  opacity: 1;
-  transition: opacity 0.3s ease;
+@keyframes drawer-in {
+  from { translate: 100% 0; }
+  to { translate: 0 0; }
 }
 
-.cart-drawer-container.cart-closed {
-  display: none;
+/* --- BOTTOM SHEET / MODAL --- */
+.sheet-panel {
+  animation: sheet-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cart-closed .cart-drawer-panel {
-  translate: 100% 0;
-  opacity: 0;
-}
-
-.cart-closed .cart-drawer-backdrop {
-  opacity: 0;
-}
-
-/* --- PRODUCT MODAL TRANSITIONS --- */
-.product-modal-container {
-  display: flex;
-  transition: opacity 0.3s ease;
-}
-
-.product-modal-panel {
-  scale: 1;
-  opacity: 1;
-  transition:
-    scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.3s ease;
-}
-
-.product-modal-backdrop {
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-
-.product-modal-container.modal-closed {
-  display: none;
-}
-
-.modal-closed .product-modal-panel {
-  scale: 0.95;
-  opacity: 0;
-}
-
-.modal-closed .product-modal-backdrop {
-  opacity: 0;
-}
-
-/* --- PRODUCT CARDS SCROLL REVEAL --- */
-@keyframes product-reveal {
-  from {
-    opacity: 0;
-    translate: 0 40px;
-    scale: 0.96;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
-}
-
-.product-card-anim {
-  opacity: 0;
-  animation: product-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.product-card-anim:nth-child(1) { animation-delay: 0s; }
-.product-card-anim:nth-child(2) { animation-delay: 0.08s; }
-.product-card-anim:nth-child(3) { animation-delay: 0.16s; }
-.product-card-anim:nth-child(4) { animation-delay: 0.24s; }
-
-/* --- TOAST NOTIFICATION --- */
-@keyframes toast-in {
-  from { translate: 100% 0; opacity: 0; }
+@keyframes sheet-in {
+  from { translate: 0 24px; opacity: 0; }
   to { translate: 0 0; opacity: 1; }
 }
 
-@keyframes toast-out {
-  from { translate: 0 0; opacity: 1; }
-  to { translate: 100% 0; opacity: 0; }
+.fade-in {
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* --- TOAST --- */
+@keyframes toast-in {
+  from { translate: 0 -12px; opacity: 0; }
+  to { translate: 0 0; opacity: 1; }
 }
 
 .toast-enter {
-  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.toast-exit {
-  animation: toast-out 0.2s ease forwards;
-}
-
-/* --- UTILITY: SCROLLBAR HIDE --- */
+/* --- UTILIDADES --- */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -209,7 +229,10 @@ p, blockquote, li {
   display: none;
 }
 
-/* --- CUSTOM DARK SCROLLBAR --- */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -222,18 +245,44 @@ p, blockquote, li {
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #fcc900;
+  background: var(--color-bj-yellow);
 }
 
-/* --- CAROUSEL HORIZONTAL SCROLL SNAP --- */
-.carousel-snap-container {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  width: 100%;
-}
-
-.carousel-snap-item {
-  flex-shrink: 0;
+/* --- MOVIMIENTO REDUCIDO --- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  /* Hero estático: titular, hamburguesa y CTA uno debajo del otro. */
+  .scroll-hero {
+    height: auto;
+  }
+  .scroll-hero-stage {
+    position: relative;
+    height: auto;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 4rem 0;
+  }
+  .scroll-hero-stage > * {
+    position: relative !important;
+    inset: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .hero-glow,
+  .hero-hint {
+    display: none;
+  }
+  .reveal {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

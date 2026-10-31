@@ -1,4 +1,31 @@
-# Nuevas funcionalidades
+# Cambios
+
+## Rediseño "menos es más", refactor de la tienda y SEO/IA
+
+Fecha: 2026-10-31
+
+### UX / UI
+
+1. Carta vertical en una sola columna: hamburguesas en grande y complementos en filas compactas; navegación por secciones que resalta dónde estás.
+2. Hero animado con el scroll: el titular se desvanece y la hamburguesa aparece a pantalla completa y crece; versión estática con `prefers-reduced-motion`.
+3. Header mínimo, sin pastillas ni etiquetas; aviso de cerrado de una línea (ya no bloquea la pantalla).
+4. El carrito funciona igual en la carta y en la ficha de producto (no redirige a `/?openCart=true`).
+5. Hoja de producto, sugerencia de papas/bebida (una vez por visita) y confirmación en diálogos accesibles.
+
+### Código
+
+1. Grupo de rutas `app/(shop)` con `ShopProvider`; `HomeClient` (711 líneas) reemplazado por hooks pequeños.
+2. `features/home` → `features/shop`.
+3. Datos del negocio centralizados en `restaurantInfo` + `lib/site.js`, `lib/schedule.js`, `lib/format.js` (con tests).
+4. Tokens de color en `@theme`.
+
+### SEO / IA / rendimiento
+
+1. `/llms.txt`, robots para asistentes de IA, sitemap con imágenes, `manifest.js`, 404 de marca.
+2. JSON-LD `WebSite`, `Restaurant` (dirección corregida), `Product`, `BreadcrumbList` y `FAQPage` igual a la FAQ visible.
+3. Imágenes: hero 862 KB → 99 KB, OG 275 KB → 101 KB.
+4. Cabeceras de seguridad.
+
 
 ## Migracion a webhook de pedidos
 

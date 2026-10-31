@@ -1,81 +1,74 @@
-import { Anton, Parkinsans, Poppins } from "next/font/google";
+import { Anton, Poppins } from "next/font/google";
 import "./globals.css";
-import { menuItems, restaurantInfo, categories } from "./data/menuData";
-import {
-  buildOpeningHoursSpecification,
-  buildMenuSections,
-  buildRestaurantSchema,
-  buildFaqSchema,
-  getComputedPriceRange,
-} from "./features/home/seo";
-import { DEFAULT_SITE_URL, MARKETING_DESCRIPTION, AREA_SERVED } from "./features/home/constants";
+import { restaurantInfo } from "./data/menuData";
+import JsonLd from "./components/JsonLd";
+import { buildRestaurantSchema } from "./features/shop/seo";
+import { SITE_URL } from "./lib/site";
 
 const poppins = Poppins({
   variable: "--font-poppins",
   weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
+  display: "swap",
 });
 
 const anton = Anton({
   variable: "--font-anton",
   weight: "400",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const parkinsans = Parkinsans({
-  variable: "--font-parkinsans",
-  weight: ["700", "800"],
-  subsets: ["latin"],
-  adjustFontFallback: "Arial",
-  fallback: ["Arial", "sans-serif"],
-});
+const TITLE = "BIG JACK | Hamburguesas artesanales en el Centro de Lima";
+const DESCRIPTION =
+  "Hamburguesas gruesas a la plancha en el Centro de Lima: carne de res, queso derretido y salsas de la casa. Mira la carta con precios y pide para recojo o delivery.";
+const OG_IMAGE = {
+  url: "/images/og-bigjack.jpg",
+  width: 1200,
+  height: 630,
+  alt: "BIG JACK, hamburguesas en el Centro de Lima",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0f0f12",
+  colorScheme: "dark",
+};
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://bigjack.vercel.app'),
-  title: {
-    default: 'BIG JACK | Hamburguesas Artesanales en Centro de Lima',
-    template: '%s | BIG JACK'
-  },
-  description: 'Hamburguesas artesanas gruesas con carne 100% de res, queso derretido y salsas de la casa en Centro de Lima. Delivery rápido y recojo al toque.',
+  metadataBase: new URL(SITE_URL),
+  title: { default: TITLE, template: `%s | ${restaurantInfo.name}` },
+  description: DESCRIPTION,
+  applicationName: restaurantInfo.name,
   keywords: [
-    'hamburguesas artesanales lima',
-    'hamburguesas centro de lima',
-    'hamburguesas lince',
-    'delivery de hamburguesas lima',
-    'big jack lima',
-    'hamburguesas gruesas',
-    'fast food artesanal lima',
-    'mejores hamburguesas lima centro'
+    "hamburguesas centro de lima",
+    "hamburguesas artesanales lima",
+    "hamburguesas gruesas",
+    "delivery de hamburguesas lima",
+    "big jack lima",
+    "carta big jack",
   ],
-  authors: [{ name: 'BIG JACK Perú' }],
-  creator: 'BIG JACK Perú S.A.C.',
-  publisher: 'BIG JACK Perú',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
+  authors: [{ name: restaurantInfo.name }],
+  creator: restaurantInfo.name,
+  publisher: restaurantInfo.name,
+  category: "food",
+  formatDetection: { email: false, address: false, telephone: false },
   openGraph: {
-    title: 'BIG JACK | Hamburguesas Artesanales en Centro de Lima',
-    description: 'Hamburguesas gruesas con carne 100% de res, queso derretido y salsas de la casa. Pide online con delivery o recojo rápido.',
-    url: 'https://bigjack.vercel.app',
-    siteName: 'BIG JACK',
-    locale: 'es_PE',
-    type: 'website',
-    images: [
-      {
-        url: '/images/og-bigjack.png',
-        width: 1200,
-        height: 630,
-        alt: 'BIG JACK - Hamburguesas Artesanales en Centro de Lima',
-      },
-    ],
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: restaurantInfo.name,
+    locale: "es_PE",
+    type: "website",
+    images: [OG_IMAGE],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'BIG JACK | Hamburguesas Artesanales en Centro de Lima',
-    description: 'Hamburguesas gruesas y jugosas en Centro de Lima. Pide por WhatsApp o recoge en tienda al toque.',
-    images: ['/images/og-bigjack.png'],
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
   robots: {
     index: true,
@@ -83,46 +76,22 @@ export const metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code',
-  },
+  // Se publica solo si existe el código real de Search Console (SEO-03).
+  ...(process.env.GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 export default function RootLayout({ children }) {
-  const computedPriceRange = getComputedPriceRange(menuItems);
-  const openingHoursSpecification = buildOpeningHoursSpecification(restaurantInfo.hours);
-  const menuSections = buildMenuSections(menuItems, categories);
-
-  const restaurantSchema = buildRestaurantSchema({
-    restaurantInfo,
-    siteUrl: DEFAULT_SITE_URL,
-    marketingDescription: MARKETING_DESCRIPTION,
-    computedPriceRange,
-    openingHoursSpecification,
-    menuSections,
-    areaServed: AREA_SERVED,
-  });
-
-  const faqSchema = buildFaqSchema();
-
   return (
-    <html lang="es">
-      <body
-        className={`${poppins.variable} ${anton.variable} ${parkinsans.variable} antialiased`}
-      >
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
+    <html lang="es-PE" className={`${poppins.variable} ${anton.variable}`}>
+      <body className="antialiased">
+        <JsonLd data={buildRestaurantSchema()} />
         {children}
       </body>
     </html>

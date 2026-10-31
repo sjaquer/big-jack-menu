@@ -19,10 +19,7 @@ const eslintConfig = defineConfig([
   {
     files: [
       "app/reto-gamer/page.js",
-      "app/features/home/HomeClient.js",
-      "app/features/home/components/CartDrawer.js",
-      "app/libro-de-reclamaciones/page.js",
-      "app/links/page.js",
+      "app/(shop)/libro-de-reclamaciones/ComplaintForm.js",
     ],
     rules: {
       "max-lines": "off",

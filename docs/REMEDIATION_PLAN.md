@@ -48,9 +48,11 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 - [ ] **1.2** Generar número correlativo + fecha de registro (persistencia: ver D5 — ERP, base de datos o hoja). [LEG-02]
 - [ ] **1.3** Enviar copia al email del consumidor con el número de reclamo. Ajustar el texto de éxito para que diga exactamente lo que ocurre. [LEG-02]
 - [ ] **1.4** Mostrar razón social legal y dirección fiscal desde `restaurantInfo`. [LEG-02, DATA-02]
+  - Parcial (Hecho 2026-10-31): el libro muestra `legalName` y la dirección de `restaurantInfo.address`. Falta confirmar razón social y RUC (D2).
 - [ ] **1.5** Agregar campos/textos faltantes del reglamento (apoderado para menores, avisos legales). Validar redacción con asesoría legal. [LEG-02]
 - [ ] **1.6** Validación de servidor (DNI/CE, email, teléfono, longitudes máximas) + Turnstile + rate-limit. [SEC-06]
-- [ ] **1.7** `<label htmlFor>` en todos los campos. [A11Y-02]
+- [x] **1.7** `<label htmlFor>` en todos los campos. [A11Y-02]
+  - Hecho 2026-10-31: `htmlFor`/`id` en todos los campos y `radiogroup` en tipo de registro.
 - [ ] **1.8** Página `/privacidad` y texto de consentimiento en checkout, libro y juego. [LEG-04]
 - *Aceptación:* enviar reclamo → llega correo al negocio **y** al consumidor con el mismo número; sin credenciales en prod → error visible.
 
@@ -64,7 +66,8 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 - [ ] **2.6** Verificación de `Origin` + Turnstile en el checkout. [SEC-02]
 - [ ] **2.7** Rate-limit persistente (Upstash/Vercel KV o Vercel Firewall). [SEC-04]
 - [ ] **2.8** `app/lib/env.js`: un nombre por variable, validación al arranque, sin fallbacks `NEXT_PUBLIC_` para secretos. Actualizar `.env.example`. [SEC-11, OPS-03]
-- [ ] **2.9** Cabeceras de seguridad en `next.config.mjs`. [SEC-07]
+- [x] **2.9** Cabeceras de seguridad en `next.config.mjs`. [SEC-07]
+  - Hecho 2026-10-31: `nosniff`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, HSTS y `poweredByHeader: false`. CSP pendiente (requiere probar el embed de Maps y scripts de Next).
 - *Aceptación:* `curl` directo al endpoint con campos extra, fuera de horario, con delivery+efectivo o solo bebidas → `400`; con origen ajeno → `403`; pedido válido desde la UI → `200` y llega al ERP de **staging**.
 
 ## Fase 3 — Bugs de carrito y checkout
@@ -82,12 +85,16 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 
 ## Fase 4 — Datos únicos y consistentes 🔒 (D1, D2, D3)
 
-- [ ] **4.1** `restaurantInfo` como única fuente: `hours`, `legalName`, `ruc`, `address{street,district,city}`, `geo`, `whatsapp`, `prepTimeMinutes`, `siteUrl`. [DATA-01..06]
-- [ ] **4.2** Formateador `formatSchedule(hours)` usado por header, footer, `/links` y JSON-LD. [DATA-01]
-- [ ] **4.3** Estado "ABIERTO/CERRADO" real en `/links`; quitar o justificar rating "4.9" y badge "Premium". [DATA-05]
+- [x] **4.1** `restaurantInfo` como única fuente: `hours`, `legalName`, `ruc`, `address{street,district,city}`, `geo`, `whatsapp`, `prepTimeMinutes`, `siteUrl`. [DATA-01..06]
+  - Hecho 2026-10-31: `legalName`, `address{street,area,locality,region,postalCode,country}` (dirección confirmada en el manual, B5), `prepTimeMinutes`, `deliveryApps`, `googleReviewLink`; URL del sitio en `lib/site.js`. Sin `geo`: las coordenadas antiguas eran de Lince y no se inventan nuevas.
+- [x] **4.2** Formateador `formatSchedule(hours)` usado por header, footer, `/links` y JSON-LD. [DATA-01]
+  - Hecho 2026-10-31: `lib/schedule.js` (`groupSchedule`, `formatScheduleSummary`) usado en footer, ubicación, `/links`, FAQ y `llms.txt`; JSON-LD usa `restaurantInfo.hours`.
+- [x] **4.3** Estado "ABIERTO/CERRADO" real en `/links`; quitar o justificar rating "4.9" y badge "Premium". [DATA-05]
+  - Hecho 2026-10-31: `/links` muestra el estado real (`OpenStatusBadge`); eliminados el "4.9" y el "ABIERTO" fijo.
 - [x] **4.4** Generar íconos PWA (192/512) y logo; corregir `manifest.json` y `restaurantInfo.logo`. [DEAD-01]
   - Íconos generados desde `app/icon0.svg` sobre fondo `#FCC900`; `purpose: "any maskable"`; logo apunta a `bigjacktitle.svg`.
-- [ ] **4.5** Código real de Google Search Console o quitar `verification`. [SEO-03]
+- [x] **4.5** Código real de Google Search Console o quitar `verification`. [SEO-03]
+  - Hecho 2026-10-31: la meta solo se publica si existe `GOOGLE_SITE_VERIFICATION`.
 - [ ] **4.6** Corregir comentarios y textos sin tildes. [DATA-07, QLT-10]
 
 ## Fase 5 — Base de calidad (puede empezar en paralelo)
@@ -134,22 +141,32 @@ Objetivo: que ningún archivo junte UI, estado, reglas de negocio y datos. Cada 
 - [x] **6.8** `CartDrawer.js` (494): dividir en `CartItemList`, `CustomerStep`, `DeliveryStep`, `PaymentStep`, `CartSummary`, `ItemThumb`; el drawer solo orquesta el paso actual. [QLT-11]
   - `CartDrawer.js`: 508 → 90 líneas. Componentes en `components/cart/` (146, 120, 163, 79, 58 y 27 líneas).
 - [ ] **6.9** `api/online-orders/route.js` (243): el handler solo orquesta; mover rate-limit a `lib/rateLimit.js`, cliente del ERP a `lib/erpClient.js` y validación a `lib/orderRules.js` (se apoya en 2.1–2.3 y 2.7). [QLT-11]
-- [ ] **6.10** `links/page.js` (304): íconos de marca a `app/components/icons/` (compartidos con `FooterSection`), datos desde `restaurantInfo`, página server + isla cliente para el estado abierto/cerrado (se combina con 7.4). [QLT-11, QLT-05]
+- [x] **6.10** `links/page.js` (304): íconos de marca a `app/components/icons/` (compartidos con `FooterSection`), datos desde `restaurantInfo`, página server + isla cliente para el estado abierto/cerrado (se combina con 7.4). [QLT-11, QLT-05]
+  - Hecho 2026-10-31: `links/page.js` es Server Component; íconos en `app/components/icons/BrandIcons.js`; datos desde `restaurantInfo`.
 - [ ] **6.11** `libro-de-reclamaciones/page.js` (315): página server con `metadata` + `ComplaintForm` cliente dividido por secciones (`ConsumerFieldset`, `ProductFieldset`, `ClaimFieldset`). Coordinar con Fase 1 para no hacer el trabajo dos veces. [QLT-11, QLT-05]
+  - Parcial (Hecho 2026-10-31): `page.js` server con metadata + `ComplaintForm.js` cliente dentro del layout común. Falta dividir por fieldsets junto con la Fase 1.
 - [ ] **6.12** 🔒 `reto-gamer/page.js` (1.670): **primero resolver D7** — si el juego se simplifica o se quita, no refactorizar código que se va a borrar. Si se queda: motor en `app/reto-gamer/game/` (módulos puros `player.js`, `boss.js`, `bullets.js`, `collisions.js`, `waves.js`, `powerUps.js`, `loop.js`) y UI en `components/` (`Hud`, `MenuScreen`, `GameOverScreen`, `RegisterModal`, `LeaderboardModal`). [QLT-11, PERF-04, DEAD-10]
-- [ ] **6.13** `SiteHeader`/`SiteFooter` compartidos (o layout de grupo de rutas) para que home, producto, `/quienes` y `/links` no tengan cada uno su propio header/footer. [QLT-11, DEAD-02]
+- [x] **6.13** `SiteHeader`/`SiteFooter` compartidos (o layout de grupo de rutas) para que home, producto, `/quienes` y `/links` no tengan cada uno su propio header/footer. [QLT-11, DEAD-02]
+  - Hecho 2026-10-31: grupo de rutas `app/(shop)` con `SiteHeader`, `SiteFooter`, carrito y overlays compartidos para `/`, `/product/*`, `/quienes` y `/libro-de-reclamaciones`.
   - Hecho: `SiteHeader` compartido entre home y producto (modo `compact`). Pendiente: footer y rutas `/quienes`, `/links`.
 - *Aceptación:* lista de excepciones de `max-lines` vacía; `npm run lint` y `npm run build` OK; flujo completo (agregar → carrito → 3 pasos → confirmación) igual que antes en 360 px y desktop; tests de Fase 5 verdes sin modificarlos.
 
 ## Fase 7 — Accesibilidad, SEO y rendimiento
 
-- [ ] **7.1** Componente `Dialog` reutilizable (focus trap, `Esc`, retorno de foco) para drawer y modales. [A11Y-01]
-- [ ] **7.2** Labels en checkout. [A11Y-02]
-- [ ] **7.3** `SecureMap` → iframe simple sin bloqueo de interacción; `aria-label` en enlaces solo-icono. [SEC-12, A11Y-03]
-- [ ] **7.4** Convertir `/links`, `/quienes`, `/libro-de-reclamaciones` a Server Components con islas cliente y `metadata` propia; eliminar spinner de `/links`. [QLT-05, SEO-02, DEAD-05]
-- [ ] **7.5** Optimizar `burger_hero.png` (WebP/AVIF ≤ 150 KB). [PERF-02]
-- [ ] **7.6** `next/dynamic` para drawer, modales y mapa. [PERF-03]
-- [ ] **7.7** Revisar sticky del filtro en móvil. [A11Y-04]
+- [x] **7.1** Componente `Dialog` reutilizable (focus trap, `Esc`, retorno de foco) para drawer y modales. [A11Y-01]
+  - Hecho 2026-10-31: `app/components/Dialog.js`, usado por drawer, hoja de producto, sugerencias y confirmación.
+- [x] **7.2** Labels en checkout. [A11Y-02]
+  - Hecho 2026-10-31: componente `Field` con `<label>` visible en todo el checkout.
+- [x] **7.3** `SecureMap` → iframe simple sin bloqueo de interacción; `aria-label` en enlaces solo-icono. [SEC-12, A11Y-03]
+  - Hecho 2026-10-31: `SecureMap` eliminado; la ubicación usa enlaces directos a Google Maps. Íconos sociales con `aria-label`.
+- [x] **7.4** Convertir `/links`, `/quienes`, `/libro-de-reclamaciones` a Server Components con islas cliente y `metadata` propia; eliminar spinner de `/links`. [QLT-05, SEO-02, DEAD-05]
+  - Hecho 2026-10-31: `/links`, `/quienes`, `/libro-de-reclamaciones` y `/reto-gamer` con metadata y canonical propios; sin spinner.
+- [x] **7.5** Optimizar `burger_hero.png` (WebP/AVIF ≤ 150 KB). [PERF-02]
+  - Hecho 2026-10-31: `burger-hero.webp` (99 KB, antes 862 KB) y `og-bigjack.jpg` (101 KB, antes 275 KB).
+- [x] **7.6** `next/dynamic` para drawer, modales y mapa. [PERF-03]
+  - Hecho 2026-10-31: drawer, hojas y confirmación con `next/dynamic` (se cargan al abrirse).
+- [x] **7.7** Revisar sticky del filtro en móvil. [A11Y-04]
+  - Hecho 2026-10-31: header de altura fija (`--header-h`) y barra de secciones `sticky top-[var(--header-h)]`.
 
 ## Fase 8 — Limpieza
 
@@ -162,6 +179,15 @@ Objetivo: que ningún archivo junte UI, estado, reglas de negocio y datos. Cada 
 - [x] **8.6** Marcar docs históricos y corregir rutas absolutas. [DOC-01, DOC-02]
 
 ---
+
+## Fase 9 — Rediseño UX "menos es más" y SEO/IA (2026-10-31)
+
+- [x] **9.1** Carta vertical en una columna: hamburguesas grandes (`FeatureItem`), complementos en filas (`CompactItem`), navegación por secciones con scroll-spy.
+- [x] **9.2** Hero animado por scroll (fundido a pantalla completa de la hamburguesa) con alternativa `prefers-reduced-motion`.
+- [x] **9.3** Header mínimo, aviso de cerrado no bloqueante, barra flotante "Ver pedido".
+- [x] **9.4** Un solo carrito en carta y ficha de producto (layout `(shop)` + `ShopProvider`); ya no se redirige a `/?openCart=true`.
+- [x] **9.5** `llms.txt`, robots para asistentes de IA, sitemap con imágenes, JSON-LD `Product`/`BreadcrumbList`/`WebSite`, FAQ visible = FAQPage, 404 de marca, `manifest.js`.
+- [x] **9.6** Tokens de color en `@theme` y migración de clases hex.
 
 ## Decisiones pendientes
 

@@ -1,27 +1,35 @@
 import { menuItems } from "./data/menuData";
+import { absoluteUrl } from "./lib/site";
 
-export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://bigjack.vercel.app";
+// Fecha de la última publicación del sitio (se fija al compilar).
+const lastModified = new Date();
 
-  const staticRoutes = [
-    "",
-    "/quienes",
-    "/links",
-    "/libro-de-reclamaciones",
-    "/reto-gamer",
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: "daily",
-    priority: route === "" ? 1.0 : 0.8,
+const STATIC_ROUTES = [
+  { path: "/", priority: 1, changeFrequency: "weekly" },
+  { path: "/quienes", priority: 0.6, changeFrequency: "monthly" },
+  { path: "/links", priority: 0.5, changeFrequency: "monthly" },
+  { path: "/libro-de-reclamaciones", priority: 0.3, changeFrequency: "yearly" },
+  { path: "/reto-gamer", priority: 0.3, changeFrequency: "monthly" },
+];
+
+export default function sitemap() {
+  const pages = STATIC_ROUTES.map((route) => ({
+    url: absoluteUrl(route.path),
+    lastModified,
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
+    ...(route.path === "/" ? { images: [absoluteUrl("/images/og-bigjack.jpg")] } : {}),
   }));
 
-  const productRoutes = menuItems.map((item) => ({
-    url: `${baseUrl}/product/${item.slug}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.9,
-  }));
+  const products = menuItems
+    .filter((item) => item.available !== false)
+    .map((item) => ({
+      url: absoluteUrl(`/product/${item.slug}`),
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+      images: [absoluteUrl(item.image)],
+    }));
 
-  return [...staticRoutes, ...productRoutes];
+  return [...pages, ...products];
 }

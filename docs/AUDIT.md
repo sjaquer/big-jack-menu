@@ -81,6 +81,31 @@
 | DOC-01 | README y documentos históricos ya advierten su estado; se corrigió la versión del badge. |
 | DOC-02 | Reemplazadas las rutas `file:///home/sjaquer/...` por rutas relativas. |
 
+### Rediseño y SEO/IA (2026-10-31)
+
+| ID | Cambio |
+| :--- | :--- |
+| DATA-01 | Horario único: footer, ubicación, `/links`, FAQ, `llms.txt` y JSON-LD leen `restaurantInfo.hours` vía `lib/schedule.js`. |
+| DATA-02 | Dirección confirmada (manual B5, Pje. Larrabure 142) en `restaurantInfo.address`; JSON-LD sin Lince ni coordenadas antiguas. Razón social/RUC siguen pendientes (D2). |
+| DATA-03 | WhatsApp solo desde `restaurantInfo` (`lib/site.js`). |
+| DATA-04 | Tiempo de recojo único: `prepTimeMinutes` (15–20 min). |
+| DATA-05 | Eliminados "4.9", "ABIERTO" fijo y badge de `/links`; estado real. |
+| DATA-06 | URL del sitio solo en `lib/site.js` (`SITE_URL`). |
+| SEO-02 | Metadata y canonical propios en todas las rutas. |
+| SEO-03 | `verification` solo con `GOOGLE_SITE_VERIFICATION`. |
+| SEO-04 | Keywords sin "lince"; NAP consistente. |
+| SEC-07 | Cabeceras de seguridad (sin CSP todavía). |
+| SEC-12 / A11Y-03 | `SecureMap` eliminado; íconos con `aria-label`. |
+| A11Y-01 | `Dialog` con focus trap, `Esc` y retorno de foco. |
+| A11Y-02 | `<label>` en checkout y Libro de Reclamaciones. |
+| A11Y-04 | Header de altura fija y barra de secciones alineada. |
+| PERF-02 | Hero 862 KB → 99 KB (WebP); OG 275 KB → 101 KB (JPEG). |
+| PERF-03 | Diálogos con `next/dynamic`; secciones estáticas como Server Components. |
+| QLT-05 | `/links`, `/quienes`, `/libro-de-reclamaciones` con página server. |
+| QLT-08 | Colores como tokens `@theme` (316 clases migradas). |
+| DEAD-05 | Borrado `links/metadata.js`. |
+| BUG-03 | La regla de bebidas se explica antes de fallar ("Va con hamburguesa"). |
+
 ## Escala de severidad
 
 | Nivel | Significado |

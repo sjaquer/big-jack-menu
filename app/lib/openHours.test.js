@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatMsToCountdown,
   getNextOpenDate,
+  getOpenStatusLabel,
   isOpenNow,
 } from "./openHours.js";
 
@@ -65,5 +66,37 @@ describe("formatMsToCountdown", () => {
     expect(formatMsToCountdown(0)).toBe("0m");
     expect(formatMsToCountdown(65_000)).toBe("1m 5s");
     expect(formatMsToCountdown(2 * 3_600_000 + 3 * 60_000)).toBe("2h 3m");
+  });
+});
+
+describe("getOpenStatusLabel", () => {
+  it("abierto antes de medianoche muestra la hora de cierre", () => {
+    // 21:00 en Lima = 02:00 UTC del día siguiente
+    expect(getOpenStatusLabel(at("2026-10-29T02:00:00Z"), everyday)).toEqual({
+      isOpen: true,
+      label: "Abierto · hasta 1:00 a. m.",
+    });
+  });
+
+  it("abierto pasada la medianoche usa el cierre del turno de ayer", () => {
+    // 00:30 en Lima
+    expect(getOpenStatusLabel(at("2026-10-29T05:30:00Z"), everyday).label).toBe(
+      "Abierto · hasta 1:00 a. m."
+    );
+  });
+
+  it("cerrado en la tarde abre hoy", () => {
+    // 15:00 en Lima
+    const status = getOpenStatusLabel(at("2026-10-28T20:00:00Z"), everyday);
+    expect(status.isOpen).toBe(false);
+    expect(status.label).toBe("Cerrado · abre hoy 7:00 p. m.");
+  });
+
+  it("cerrado el día libre abre mañana", () => {
+    const hours = { ...everyday, 3: undefined };
+    // Miércoles 28/10/2026 15:00 Lima, miércoles cerrado
+    expect(getOpenStatusLabel(at("2026-10-28T20:00:00Z"), hours).label).toBe(
+      "Cerrado · abre mañana 7:00 p. m."
+    );
   });
 });
