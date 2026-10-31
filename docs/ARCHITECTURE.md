@@ -50,8 +50,8 @@ app/
 │       ├── cart/                # Pasos del checkout con <label>: Customer, Delivery, Payment, Summary, ItemList
 │       ├── overlays/            # ShopOverlays (dynamic import), ProductSheet, UpsellSheet, OrderConfirmation
 │       └── …                    # CartDrawer, FloatingCartBar, ClosedBanner, LocationSection, FaqSection…
-├── links/                       # Link-in-bio (Server) + OpenStatusBadge (isla)
-├── reto-gamer/                  # Juego canvas (pendiente D7) + layout.js con metadata
+├── links/                       # Link-in-bio (Server) + OpenStatusBadge (isla); íconos de apps en public/images/brands/
+├── reto-gamer/                  # "Arma tu burger": page (Server) + BurgerGame (canvas) + game/engine.js (puro, con tests) + game/render.js
 ├── actions.js                   # Server Action: sendComplaint
 ├── api/online-orders/route.js   # Proxy al webhook del ERP
 ├── robots.js · sitemap.js · manifest.js · llms.txt/route.js · not-found.js
@@ -68,7 +68,7 @@ scripts/                         # generate-og.js, test-webhook-orders.ps1 (⚠�
 | `/quienes` | Estático | Server Component. |
 | `/libro-de-reclamaciones` | Estático | Página server con metadata + formulario cliente. |
 | `/links` | Estático | Server + isla de estado abierto/cerrado. Sin spinner. |
-| `/reto-gamer` | Estático | Client (canvas). |
+| `/reto-gamer` | Estático | "Arma tu burger": juego de apilar para la espera; récord en `localStorage`. |
 | `/api/online-orders` | Dinámico (ƒ) | Solo `POST`. |
 | `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`, `/llms.txt` | Estático | Generados desde `menuData.js`. |
 
@@ -121,8 +121,7 @@ Es el único punto que aplica los topes de 10 por producto y 30 por pedido.
 | :--- | :--- | :--- |
 | `cart` | Array de ítems de carrito | `useCart` |
 | `bj_checkout` | Nombre, teléfono, dirección, referencia, pago, notas (**PII**) | `useCheckoutForm` (debounce 400 ms) |
-| `bj_game_data` | Récord del juego + checksum | `reto-gamer/page.js` |
-| `bj_local_record_v1` | Mejor partida (nombre, WhatsApp, código) | `reto-gamer/leaderboard.js` |
+| `bj_burger_stats` | Récord, partidas y últimos 5 puntajes del juego (sin datos personales) | `reto-gamer/BurgerGame.js` |
 
 Las lecturas/escrituras pasan por `lib/safeStorage.js` (try/catch). La carta y la ficha de producto comparten el mismo `ShopProvider` (layout de `(shop)`), así que no hace falta sincronizar entre páginas; el evento `storage` solo sincroniza pestañas. La pre-orden ya no se guarda: es pre-orden todo pedido confirmado fuera de horario (y solo admite recojo).
 
@@ -208,7 +207,8 @@ Campos leídos: `name, dni, email, phone, address, type, description, product, a
 | `RECIPIENT_EMAIL` | Sí (prod) | Destino de reclamos. Default: `bigjackpe@gmail.com`. |
 | `FORMSPREE_URL` | No | Canal alternativo de reclamos. |
 | `NEXT_PUBLIC_BASE_URL` | Recomendada | URL pública para `metadataBase`, canonicals, JSON-LD, `robots`, `sitemap`, `llms.txt`. Default: `https://bigjack.vercel.app` (`lib/site.js`). |
-| `GOOGLE_SITE_VERIFICATION` | No | Código de Search Console; si no existe no se publica la meta (SEO-03). |
+| `GOOGLE_SITE_VERIFICATION` | No | Sobrescribe el código de Search Console (por defecto, el de `bigjack.vercel.app` en `lib/site.js`). |
+| `NEXT_PUBLIC_GA_ID` | Para medir | ID de medición de GA4 (`G-…`). Sin él no se carga Analytics. |
 
 Local: copiar `.env.example` a `.env.local`.
 
@@ -219,6 +219,8 @@ Local: copiar `.env.example` a `.env.local`.
 - `/` publica `FAQPage` con las mismas preguntas que muestra (`getFaqItems`).
 - `/product/[slug]`: `Product` (AggregateOffer) + `BreadcrumbList`.
 - `sitemap.js` con imágenes; `robots.js` permite buscadores y asistentes de IA (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended…) salvo `/api/`.
+- Search Console verificado con `<meta name="google-site-verification">` (`lib/site.js`).
+- Google Analytics 4 con `@next/third-parties` (se carga después de la hidratación). Eventos en `lib/analytics.js`: `view_item`, `add_to_cart`, `remove_from_cart`, `view_cart`, `begin_checkout`, `purchase`, `whatsapp_order_sent`, `game_start`, `post_score`. Los clics salientes (WhatsApp, apps) los mide la medición mejorada de GA4.
 - `/llms.txt`: resumen en Markdown (datos del local, carta con precios, cómo pedir, FAQ) generado desde `menuData.js`.
 
 ## 9. Build, ejecución y despliegue

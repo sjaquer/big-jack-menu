@@ -105,6 +105,8 @@
 | QLT-08 | Colores como tokens `@theme` (316 clases migradas). |
 | DEAD-05 | Borrado `links/metadata.js`. |
 | BUG-03 | La regla de bebidas se explica antes de fallar ("Va con hamburguesa"). |
+| BUG-09 / DEAD-10 / PERF-04 | Reto Gamer reemplazado por "Arma tu burger" (motor puro con tests, ~400 líneas en total); sin ranking falso ni datos personales. |
+| SEO-03 | Search Console verificado con la meta oficial de `bigjack.vercel.app`. |
 
 ## Escala de severidad
 

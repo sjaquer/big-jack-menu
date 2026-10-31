@@ -1,5 +1,14 @@
 # Cambios
 
+## Google Search Console, Analytics, página de links y nuevo minijuego
+
+Fecha: 2026-10-31
+
+1. Meta `google-site-verification` de `bigjack.vercel.app` (en `lib/site.js`).
+2. Google Analytics 4 con `@next/third-parties`; se activa con `NEXT_PUBLIC_GA_ID`. Eventos de e-commerce GA4 y del juego en `lib/analytics.js`.
+3. `/links` con nueva jerarquía: CTA "Ver la carta y pedir", WhatsApp, "Pide por app" con los íconos oficiales de PedidosYa y Rappi, información en filas, redes y legal.
+4. `/reto-gamer` ahora es "Arma tu burger": juego de un toque para la espera. Récord, partidas y últimas 5 puntuaciones en el dispositivo. Se eliminó el registro con nombre, WhatsApp y código de canje (D7).
+
 ## Nombres de producto normales y salchipapa retirada
 
 Fecha: 2026-10-31

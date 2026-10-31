@@ -12,7 +12,7 @@ const SOCIAL = [
 const LINKS = [
   { href: "/quienes", label: "Quiénes somos" },
   { href: "/links", label: "Enlaces" },
-  { href: "/reto-gamer", label: "Reto Gamer" },
+  { href: "/reto-gamer", label: "Arma tu burger" },
 ];
 
 export default function SiteFooter() {

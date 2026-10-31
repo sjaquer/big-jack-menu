@@ -145,7 +145,7 @@ Objetivo: que ningún archivo junte UI, estado, reglas de negocio y datos. Cada 
   - Hecho 2026-10-31: `links/page.js` es Server Component; íconos en `app/components/icons/BrandIcons.js`; datos desde `restaurantInfo`.
 - [ ] **6.11** `libro-de-reclamaciones/page.js` (315): página server con `metadata` + `ComplaintForm` cliente dividido por secciones (`ConsumerFieldset`, `ProductFieldset`, `ClaimFieldset`). Coordinar con Fase 1 para no hacer el trabajo dos veces. [QLT-11, QLT-05]
   - Parcial (Hecho 2026-10-31): `page.js` server con metadata + `ComplaintForm.js` cliente dentro del layout común. Falta dividir por fieldsets junto con la Fase 1.
-- [ ] **6.12** 🔒 `reto-gamer/page.js` (1.670): **primero resolver D7** — si el juego se simplifica o se quita, no refactorizar código que se va a borrar. Si se queda: motor en `app/reto-gamer/game/` (módulos puros `player.js`, `boss.js`, `bullets.js`, `collisions.js`, `waves.js`, `powerUps.js`, `loop.js`) y UI en `components/` (`Hud`, `MenuScreen`, `GameOverScreen`, `RegisterModal`, `LeaderboardModal`). [QLT-11, PERF-04, DEAD-10]
+- [x] **6.12** 🔒 `reto-gamer/page.js` (1.670): **primero resolver D7** — si el juego se simplifica o se quita, no refactorizar código que se va a borrar. Si se queda: motor en `app/reto-gamer/game/` (módulos puros `player.js`, `boss.js`, `bullets.js`, `collisions.js`, `waves.js`, `powerUps.js`, `loop.js`) y UI en `components/` (`Hud`, `MenuScreen`, `GameOverScreen`, `RegisterModal`, `LeaderboardModal`). [QLT-11, PERF-04, DEAD-10]
 - [x] **6.13** `SiteHeader`/`SiteFooter` compartidos (o layout de grupo de rutas) para que home, producto, `/quienes` y `/links` no tengan cada uno su propio header/footer. [QLT-11, DEAD-02]
   - Hecho 2026-10-31: grupo de rutas `app/(shop)` con `SiteHeader`, `SiteFooter`, carrito y overlays compartidos para `/`, `/product/*`, `/quienes` y `/libro-de-reclamaciones`.
   - Hecho: `SiteHeader` compartido entre home y producto (modo `compact`). Pendiente: footer y rutas `/quienes`, `/links`.
@@ -175,7 +175,8 @@ Objetivo: que ningún archivo junte UI, estado, reglas de negocio y datos. Cada 
 - [x] **8.3** Borrar lógica muerta e imports sin uso. [DEAD-08]
 - [x] **8.4** Sacar `public/images/sincomprimir/` del directorio público (mover a `design-assets/` o fuera del repo); quitar `choripan.webp`/`grilljack.webp` si no se usarán. [DEAD-09]
   - `sincomprimir/` movido a `design-assets/` (ignorado por git); eliminados `choripan.webp`, `grilljack.webp` y `bigjacklogotipo.png`. El schema usa `lamisia.webp`.
-- [ ] **8.5** Simplificar Reto Gamer según D7. [BUG-09, DEAD-10]
+- [x] **8.5** Simplificar Reto Gamer según D7. [BUG-09, DEAD-10]
+  - Hecho 2026-10-31: D7 resuelto por el dueño (sin premios; el juego es para la espera). El shooter de 1.670 líneas se reemplazó por "Arma tu burger" (`BurgerGame.js` + `game/engine.js` con tests). Sin nombre, WhatsApp ni código de canje; récord local en `bj_burger_stats` y se borran las claves antiguas.
 - [x] **8.6** Marcar docs históricos y corregir rutas absolutas. [DOC-01, DOC-02]
 
 ---
@@ -201,5 +202,5 @@ Necesarias del dueño del negocio / equipo ERP antes de las tareas marcadas con 
 | D4 | ¿Qué campos lee hoy el webhook del ERP? ¿Ignora `unitPrice`/`useCatalogPrice`/`status`? ¿Existe entorno de staging? | Fase 2 |
 | D5 | ¿Dónde se persisten los reclamos (ERP, base de datos, Google Sheet)? ¿Quién responde y en qué plazo? | Fase 1 |
 | D6 | ¿Teléfono obligatorio en todos los pedidos o solo en delivery? | Fase 3 |
-| D7 | Reto Gamer: ¿se entregan premios con el "código de canje"? Si sí, necesita backend; si no, quitar nombre/WhatsApp/código. | Fase 8 |
+| D7 | ✅ Resuelto (2026-10-31): sin premios. Juego casual para la espera, récord solo local. | Fase 8 |
 | D8 | ¿Se cobra delivery? La UI dice que lo coordina inDrive y el mensaje dice "sin costo de envío". | Copy del checkout |

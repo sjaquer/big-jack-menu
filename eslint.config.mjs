@@ -18,7 +18,6 @@ const eslintConfig = defineConfig([
   },
   {
     files: [
-      "app/reto-gamer/page.js",
       "app/(shop)/libro-de-reclamaciones/ComplaintForm.js",
     ],
     rules: {
