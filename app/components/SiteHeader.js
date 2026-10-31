@@ -26,8 +26,8 @@ export default function SiteHeader() {
           </Link>
         )}
 
-        <Link href="/" className="relative h-7 w-24" aria-label={`${restaurantInfo.name}, inicio`}>
-          <Image src={restaurantInfo.logo} alt="" fill sizes="96px" className="object-contain object-left" priority />
+        <Link href="/" className="relative h-9 w-28" aria-label={`${restaurantInfo.name}, inicio`}>
+          <Image src={restaurantInfo.logo} alt="" fill sizes="112px" className="object-contain object-left" priority />
         </Link>
 
         <button

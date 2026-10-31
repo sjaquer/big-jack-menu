@@ -23,7 +23,7 @@ export const restaurantInfo = {
   },
   // Tiempo estimado de preparación para recojo.
   prepTimeMinutes: { min: 15, max: 20 },
-  logo: "/images/bigjacktitle.svg",
+  logo: "/brand/logo-horizontal.svg",
   // Dirección confirmada en el manual de marca (B5).
   address: {
     street: "Pje. Larrabure 142",
