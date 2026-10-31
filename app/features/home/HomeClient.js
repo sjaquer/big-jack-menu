@@ -7,6 +7,7 @@ import { menuItems, restaurantInfo, categories } from "../../data/menuData";
 import { formatMsToCountdown } from "../../lib/openHours";
 import { readJson, removeItem, writeJson } from "../../lib/safeStorage";
 import SiteHeader from "../../components/SiteHeader";
+import Toast from "../../components/Toast";
 import ClientSearchParams from "./components/ClientSearchParams";
 import CartDrawer from "./components/CartDrawer";
 import { submitOnlineOrder } from "./checkout/submitOrder";
@@ -30,6 +31,8 @@ import { getHeroPriceRange } from "./seo";
 import useCart from "./hooks/useCart";
 import useCheckoutForm from "./hooks/useCheckoutForm";
 import useOpenStatus from "./hooks/useOpenStatus";
+import useToast from "./hooks/useToast";
+import { CartProvider } from "./context/CartContext";
 
 import HeroSection from "./components/HeroSection";
 import CategoryFilter from "./components/CategoryFilter";
@@ -55,6 +58,7 @@ export default function HomeClient() {
     clearCart: clearCartState,
   } = useCart({ menuItems });
   const { isOpen, nextOpenMs } = useOpenStatus();
+  const { toast, showToast, dismissToast, confirmToast } = useToast();
   const {
     orderType,
     customerName,
@@ -204,7 +208,7 @@ export default function HomeClient() {
 
   const openProductModal = (product, optionId) => {
     if (!isProductAvailable(product)) {
-      alert("Este producto no esta disponible en este momento.");
+      showToast({ type: "error", message: "Este producto no está disponible en este momento." });
       return;
     }
     const preferredOption =
@@ -229,21 +233,24 @@ export default function HomeClient() {
   const addToCart = (product, option, showSuggestion = true, quantity = 1) => {
     const addingAsPreorder = !isOpen;
     if (!option) {
-      alert("No encontramos una presentacion valida para este producto.");
+      showToast({ type: "error", message: "No encontramos una presentación válida para este producto." });
       return;
     }
     if (!isProductAvailable(product)) {
-      alert("Este producto no esta disponible en este momento.");
+      showToast({ type: "error", message: "Este producto no está disponible en este momento." });
       return;
     }
     const validOption = product.options?.find((opt) => opt.id === option.id) || product.options?.[0];
     if (!validOption) {
-      alert("No encontramos una presentacion valida para este producto.");
+      showToast({ type: "error", message: "No encontramos una presentación válida para este producto." });
       return;
     }
     const isComplementProduct = COMPLEMENT_CATEGORIES.includes(product.category);
     if (isComplementProduct && !hasPrimaryProduct) {
-      alert("Para añadir bebidas primero agrega una hamburguesa.");
+      showToast({
+        type: "info",
+        message: "Para añadir bebidas primero agrega una hamburguesa.",
+      });
       return;
     }
     const uniqueId = `${product.id}-${validOption.id || "default"}`;
@@ -291,7 +298,7 @@ export default function HomeClient() {
 
   const handleAddProduct = (product, optionId) => {
     if (!isProductAvailable(product)) {
-      alert("Este producto no esta disponible en este momento.");
+      showToast({ type: "error", message: "Este producto no está disponible en este momento." });
       return;
     }
     const option = product.options?.find((opt) => opt.id === optionId) || product.options?.[0];
@@ -411,7 +418,12 @@ export default function HomeClient() {
 
   const getUserLocation = useCallback(({ silent = false } = {}) => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      if (!silent) alert("Tu navegador no soporta geolocalización.");
+      if (!silent) {
+        showToast({
+          type: "error",
+          message: "Tu navegador no soporta geolocalización.",
+        });
+      }
       return;
     }
     setIsLocating(true);
@@ -421,7 +433,10 @@ export default function HomeClient() {
         const link = `https://www.google.com/maps?q=${latitude},${longitude}`;
         setLocationLink(link);
         if (!silent) {
-          alert("¡Ubicación lista! La usaremos para coordinar tu delivery por inDrive.");
+          showToast({
+            type: "success",
+            message: "¡Ubicación lista! La usaremos para coordinar tu delivery por inDrive.",
+          });
         }
         if (!deliveryReference.trim()) {
           setDeliveryReference("Ubicación compartida por GPS");
@@ -430,7 +445,11 @@ export default function HomeClient() {
       },
       () => {
         if (!silent) {
-          alert("No pudimos obtener tu ubicación automáticamente. Escribe tu dirección o pega un enlace de Google Maps.");
+          showToast({
+            type: "error",
+            message:
+              "No pudimos obtener tu ubicación automáticamente. Escribe tu dirección o pega un enlace de Google Maps.",
+          });
         }
         setIsLocating(false);
       },
@@ -440,7 +459,7 @@ export default function HomeClient() {
         maximumAge: 0,
       }
     );
-  }, [deliveryReference, setDeliveryReference, setLocationLink]);
+  }, [deliveryReference, setDeliveryReference, setLocationLink, showToast]);
 
   const handleSelectOrderType = (type) => {
     setOrderType(type);
@@ -532,7 +551,7 @@ export default function HomeClient() {
       removeItem("bj_preorder");
     } catch (error) {
       const friendlyError = buildFriendlyOrderError(error?.message);
-      alert(friendlyError);
+      showToast({ type: "error", message: friendlyError, duration: 8000 });
       setSubmitResult({
         type: "error",
         message: friendlyError,
@@ -550,6 +569,7 @@ export default function HomeClient() {
         cartCount={itemsCount}
         onCartClick={() => setIsCartOpen(!isCartOpen)}
       />
+      <Toast toast={toast} onDismiss={dismissToast} onConfirm={confirmToast} />
 
       <Suspense fallback={null}>
         <ClientSearchParams onOpenCart={() => setIsCartOpen(true)} />
@@ -607,47 +627,52 @@ export default function HomeClient() {
         selectedOption={modalSelectedOption}
       />
 
-      <CartDrawer
-        isCartOpen={isCartOpen}
-        setIsCartOpen={setIsCartOpen}
-        cart={cart}
-        menuItems={menuItems}
-        openProductModal={openProductModal}
-        updateQuantity={updateQuantity}
-        removeFromCart={removeFromCart}
-        orderType={orderType}
-        handleSelectOrderType={handleSelectOrderType}
-        customerName={customerName}
-        setCustomerName={setCustomerName}
-        customerPhone={customerPhone}
-        setCustomerPhone={setCustomerPhone}
-        deliveryAddress={deliveryAddress}
-        setDeliveryAddress={setDeliveryAddress}
-        deliveryReference={deliveryReference}
-        setDeliveryReference={setDeliveryReference}
-        deliveryDetails={deliveryDetails}
-        setDeliveryDetails={setDeliveryDetails}
-        locationLink={locationLink}
-        isLocating={isLocating}
-        getUserLocation={getUserLocation}
-        setLocationLink={setLocationLink}
-        isOpen={isOpen}
-        isPreOrder={isPreOrder}
-        restaurantInfo={restaurantInfo}
-        PEDIDOSYA_LINK={PEDIDOSYA_LINK}
-        RAPPI_LINK={RAPPI_LINK}
-        paymentMethod={paymentMethod}
-        setPaymentMethod={setPaymentMethod}
-        notes={notes}
-        setNotes={setNotes}
-        clearCart={clearCart}
-        total={total}
-        submitOrderToSystem={submitOrderToSystem}
-        isSubmittingOrder={isSubmittingOrder}
-        submitResult={submitResult}
-        cartNotice={cartNotice}
-        onDismissCartNotice={clearCartNotice}
-      />
+      <CartProvider
+        value={{
+          isCartOpen,
+          setIsCartOpen,
+          cart,
+          menuItems,
+          openProductModal,
+          updateQuantity,
+          removeFromCart,
+          orderType,
+          handleSelectOrderType,
+          customerName,
+          setCustomerName,
+          customerPhone,
+          setCustomerPhone,
+          deliveryAddress,
+          setDeliveryAddress,
+          deliveryReference,
+          setDeliveryReference,
+          deliveryDetails,
+          setDeliveryDetails,
+          locationLink,
+          isLocating,
+          getUserLocation,
+          setLocationLink,
+          isOpen,
+          isPreOrder,
+          restaurantInfo,
+          PEDIDOSYA_LINK,
+          RAPPI_LINK,
+          paymentMethod,
+          setPaymentMethod,
+          notes,
+          setNotes,
+          clearCart,
+          total,
+          submitOrderToSystem,
+          isSubmittingOrder,
+          submitResult,
+          cartNotice,
+          onDismissCartNotice: clearCartNotice,
+          onToast: showToast,
+        }}
+      >
+        <CartDrawer />
+      </CartProvider>
 
       <SuggestionModal
         isOpen={suggestionVisible}

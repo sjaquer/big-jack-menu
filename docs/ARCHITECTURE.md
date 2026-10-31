@@ -23,6 +23,7 @@ app/
 ├── layout.js                 # Root layout: fuentes, metadata global, JSON-LD (Restaurant + FAQ)
 ├── page.js                   # "/" — Server Component que compone HomeClient
 ├── components/SiteHeader.js  # Header compartido (home completo / producto compacto)
+├── components/Toast.js       # Avisos info/success/error y confirmación accesible
 ├── globals.css               # Tailwind + tokens + utilidades de marca + animaciones
 ├── actions.js                # Server Action: sendComplaint (Libro de Reclamaciones)
 ├── api/online-orders/route.js# POST proxy al webhook del ERP (validación, rate-limit, timeout)
@@ -36,11 +37,13 @@ app/
 │   ├── HomeClient.js         # Isla cliente del home: estado, modales, checkout
 │   ├── constants.js          # Límites, categorías, links de apps, URL del sitio
 │   ├── cartRules.js          # applyComplementRules (bebidas requieren hamburguesa)
-│   ├── hooks/                # useCart, useCheckoutForm, useOpenStatus
+│   ├── hooks/                # useCart, useCheckoutForm, useOpenStatus, useToast
+│   ├── context/CartContext.js # CartProvider + useCartDrawer (estado compartido del checkout)
 │   ├── seo.js                # Builders de JSON-LD y rangos de precio
 │   ├── checkout/submitOrder.js # Validaciones de checkout (cliente) + envío
 │   ├── checkout/orderMessages.js # Builders puros: WhatsApp, errores, recordatorios
-│   └── components/           # UI del home (CartDrawer, MenuGrid, ProductCard, modales, etc.)
+│   └── components/           # UI del home (CartDrawer, MenuGrid, CategoryCarousel, ProductCard, modales, etc.)
+│       └── cart/             # CartItemList, CustomerStep, DeliveryStep, PaymentStep, CartSummary, ItemThumb
 ├── product/[slug]/
 │   ├── page.js               # Detalle de producto (Server Component, SSG)
 │   └── ProductAddToCart.js   # Isla cliente: opción, cantidad, reglas de carrito

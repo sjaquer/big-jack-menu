@@ -288,7 +288,7 @@
 ### DATA-05 — Textos y métricas fijas que pueden ser falsos · **Media**
 - `links/page.js:196` muestra **"ABIERTO"** siempre, aunque esté cerrado.
 - `links/page.js:222` muestra rating **"4.9"** fijo.
-- `product/[slug]/page.js:111-114` badge "Premium" en todos los productos (incluida el agua).
+- ✅ `product/[slug]` ya no muestra un badge "Premium" fijo (Fase 6.6).
 - Placeholder del buscador "smash, tocino" (`CategoryFilter.js:62`) contradice la FAQ ("no smash") y el menú usa "bacon".
 - **Recomendación:** derivar de datos reales o eliminar.
 
@@ -306,9 +306,9 @@
 | ID | Qué | Dónde | Severidad |
 | :--- | :--- | :--- | :-: |
 | DEAD-01 | ✅ Resuelto: OG (Fase 0), íconos PWA 192/512 y `restaurantInfo.logo` (Fase 4.4). | `manifest.json`, `menuData.js:19` | Media |
-| DEAD-02 | ✅ Resuelto (Fase 8): eliminadas las clases inexistentes del detalle de producto y del footer. | — | Media |
+| DEAD-02 | ✅ Resuelto (Fases 8 y 6.6): detalle de producto unificado con Anton, `#FCC900`, clases de marca e iconos lucide, sin emojis. | — | Media |
 | DEAD-03 | ✅ Resuelto (Fase 8): componentes eliminados. | — | Baja |
-| DEAD-04 | Sistema de toasts a medias: prop `onToast` nunca se pasa (siempre cae a `alert`/`confirm`); CSS `.toast-*` sin uso. | `CartDrawer.js:88-127`, `globals.css:232-249` | Baja |
+| DEAD-04 | Sistema de toasts a medias: prop `onToast` nunca se pasa (siempre cae a `alert`/`confirm`); CSS `.toast-*` sin uso. **Resuelto en Fase 6.4** con `useToast` + `Toast`. | `CartDrawer.js`, `globals.css` | Baja |
 | DEAD-05 | `links/metadata.js` no se importa (Next no lee `metadata.js` por convención) → `/links` no tiene metadata propia. | `app/links/metadata.js` | Baja |
 | DEAD-06 | ✅ Resuelto (Fase 6): `useOpenStatus` actualiza cada 30 s sin escribir `localStorage`. | `hooks/useOpenStatus.js` | Baja |
 | DEAD-07 | ✅ Resuelto (Fase 8): CSS sin uso y `:focus-visible` duplicado eliminados. | `globals.css` | Baja |
@@ -321,7 +321,7 @@
 ## 6. Calidad de código / malas prácticas (QLT)
 
 ### QLT-01 — `app/page.js` es un "god component" · **Media** · ✅ Resuelto (Fase 6)
-`app/page.js` quedó en 5 líneas como Server Component que compone `HomeClient`. El estado y el markup viven en `HomeClient` (686 líneas), que aún debe dividirse en 6.5/6.8. `CartDrawer` sigue recibiendo ~40 props (6.3).
+`app/page.js` quedó en 5 líneas como Server Component que compone `HomeClient`. El estado y el markup viven en `HomeClient` (711 líneas), pendiente de nuevas extracciones. `CartDrawer` ya no recibe props, consume `CartContext` (6.3) y se dividió en `components/cart/` (6.8).
 
 ### QLT-02 — Lógica duplicada · **Media**
 - Catálogo de SKUs activos construido 3 veces (`route.js:27-46`, `submitOrder.js:5-24`, script PS1).
@@ -332,9 +332,8 @@
 - `https://wa.me/${...}` armado en ≥ 8 lugares.
 → Un módulo de dominio por concepto (`catalog`, `cart`, `openHours`, `contact`).
 
-### QLT-03 — `alert()`/`confirm()` como UX (13 usos) · **Media**
-Bloquean el hilo, no son accesibles ni personalizables, y rompen automatización de navegador.
-→ Toast/inline errors (retomar DEAD-04).
+### QLT-03 — `alert()`/`confirm()` como UX (13 usos) · **Media** · ✅ Resuelto en home (Fase 6)
+Home y `CartDrawer` usan `useToast` + `Toast` (info/success/error/confirm accesible, autocierre a 5 s). Queda un `alert` en `reto-gamer/leaderboard.js`, bloqueado por D7.
 
 ### QLT-04 — Errores tragados en silencio (8 `catch {}` vacíos) · **Media**
 `page.js:208,226,233,255,382,499`, `ClientSearchParams.js:13`, etc.
@@ -356,8 +355,8 @@ Strings de UI ("LAS INTOCABLES", "TODOS") usados como claves lógicas; causa dir
 ### QLT-08 — Estilos con colores hex literales repetidos · **Baja**
 `#FCC900` aparece cientos de veces; existen variables CSS (`--potencia-amarillo`, `--bj-accent`) que no se usan. Ver `DESIGN.md`.
 
-### QLT-09 — `MenuGrid` renderiza dos árboles completos (móvil y desktop) · **Baja**
-`MenuGrid.js:206-252`: ambos se montan y se ocultan con CSS → doble DOM, doble `<Image>`, contenido duplicado para buscadores.
+### QLT-09 — `MenuGrid` renderiza dos árboles completos (móvil y desktop) · **Baja** · ✅ Resuelto (Fase 6)
+`MenuGrid` usa un solo árbol de `CategoryCarousel` en todos los tamaños; se eliminó el grid móvil duplicado (doble DOM e imágenes).
 
 ### QLT-10 — Mezcla de idiomas y sin tildes en mensajes · **Baja**
 Mensajes al usuario sin tildes ("presentacion", "exito", "Vacialo") junto a otros con tildes.
@@ -369,10 +368,10 @@ QLT-01 es el caso más visible, pero no el único. Archivos que juntan UI, estad
 | :--- | :-: | :--- |
 | `app/reto-gamer/page.js` | 1.670 | Motor del juego (clases `Player`, `Boss`, `Bullet`, colisiones, oleadas, power-ups) dentro de un `useEffect` de ~1.180 líneas + HUD + 4 pantallas/modales + ranking. |
 | `app/page.js` | 968 | Ver QLT-01: 32 `useState`, 8 `useEffect`, carrito, checkout, geolocalización, builders de WhatsApp y todo el markup del header. |
-| `app/features/home/components/CartDrawer.js` | 494 | 40 props; lista de ítems + 3 pasos del checkout + resumen + avisos en un solo componente. |
+| ~~`app/features/home/components/CartDrawer.js`~~ | 90 | Resuelto en 6.8: divide en `components/cart/` (`CartItemList`, `CustomerStep`, `DeliveryStep`, `PaymentStep`, `CartSummary`, `ItemThumb`). |
 | `app/libro-de-reclamaciones/page.js` | 315 | Página completa como Client Component; las 3 secciones del formulario y el estado de envío juntos. |
 | `app/links/page.js` | 304 | 5 íconos SVG inline (duplicados en el footer), datos de enlaces, horarios y estado en un archivo cliente. |
-| `app/features/home/components/MenuGrid.js` | 282 | Carrusel + grid + dos árboles responsive (QLT-09). |
+| ~~`app/features/home/components/MenuGrid.js`~~ | 91 | Resuelto en 6.5: carrusel extraído a `CategoryCarousel.js`; ya no duplica árboles. |
 | `app/api/online-orders/route.js` | 243 | Rate-limit, catálogo, validación de reglas, normalización del payload y cliente HTTP del ERP en un handler. |
 
 Consecuencias: cambios pequeños tocan archivos enormes (conflictos de merge, revisiones difíciles), la lógica no se puede testear sin montar la UI, y la misma regla termina copiada en varios lugares (QLT-02).
@@ -384,7 +383,7 @@ Consecuencias: cambios pequeños tocan archivos enormes (conflictos de merge, re
 
 | ID | Hallazgo | Severidad |
 | :--- | :--- | :-: |
-| PERF-01 | ⚠️ Parcial (Fase 6): `/` usa 30 s y `visibilitychange`; `/product/*` sigue con 1 s. | Media |
+| PERF-01 | ✅ Resuelto (Fase 6): `/` y `/product/*` usan `useOpenStatus` (30 s + `visibilitychange`). | Media |
 | PERF-02 | `burger_hero.png` de 862 KB como imagen LCP con `priority`. Convertir a WebP/AVIF. (El PNG de logo sin uso se eliminó en Fase 8.) | Media |
 | PERF-03 | Ruta `/` completamente cliente: el JS de toda la página (modales, drawer, mapa) se descarga de entrada. Usar `next/dynamic` para modales/drawer/mapa. | Baja |
 | PERF-04 | `/reto-gamer` (1.670 líneas) es una sola unidad; aceptable al ser ruta aislada, pero cualquier cambio es costoso. | Baja |

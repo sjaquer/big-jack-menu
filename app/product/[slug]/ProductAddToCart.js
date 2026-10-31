@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Plus, Minus, Check } from "lucide-react";
-import { isOpenNow, getNextOpenDate, formatMsToCountdown } from "../../lib/openHours";
+import { formatMsToCountdown } from "../../lib/openHours";
 import {
   addItem,
   buildCartItem,
@@ -17,6 +17,7 @@ import {
   PRIMARY_CATEGORIES,
 } from "../../features/home/constants";
 import { applyComplementRules } from "../../features/home/cartRules";
+import useOpenStatus from "../../features/home/hooks/useOpenStatus";
 import { menuItems } from "../../data/menuData";
 
 export default function ProductAddToCart({ product }) {
@@ -80,30 +81,15 @@ export default function ProductAddToCart({ product }) {
     }, 300);
   };
 
-  // Estado de apertura local para este componente (cliente)
-  const [isOpen, setIsOpen] = useState(true);
-  const [countdown, setCountdown] = useState(null);
-
-  useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      const open = isOpenNow(now);
-      setIsOpen(Boolean(open));
-      const next = getNextOpenDate(now);
-      if (next) setCountdown(formatMsToCountdown(next.getTime() - now.getTime()));
-      else setCountdown(null);
-    };
-    update();
-    const t = setInterval(update, 1000);
-    return () => clearInterval(t);
-  }, []);
+  const { isOpen, nextOpenMs } = useOpenStatus();
+  const countdown = nextOpenMs != null ? formatMsToCountdown(nextOpenMs) : null;
 
   return (
     <div className="space-y-6">
       {/* Selector de opciones */}
       {product.options && product.options.length > 0 && (
         <div className="space-y-3">
-          <p className="text-sm font-bold text-white uppercase tracking-wider">
+          <p className="font-anton text-base text-white uppercase tracking-wide">
             Elige tu versión
           </p>
           <div className="grid gap-3">
@@ -118,7 +104,7 @@ export default function ProductAddToCart({ product }) {
                 }`}
               >
                 <div className="text-left">
-                  <p className="font-black text-lg">{option.label}</p>
+                  <p className="font-anton text-lg uppercase tracking-wide">{option.label}</p>
                   {option.description && (
                     <p className={`text-xs ${selectedOption?.id === option.id ? "text-[#FCC900]" : "text-neutral-500"}`}>
                       {option.description}
@@ -126,7 +112,7 @@ export default function ProductAddToCart({ product }) {
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-2xl font-black ${selectedOption?.id === option.id ? "text-[#FCC900]" : "text-white"}`}>
+                  <span className={`font-anton text-2xl ${selectedOption?.id === option.id ? "text-[#FCC900]" : "text-white"}`}>
                     S/ {option.price.toFixed(2)}
                   </span>
                   {selectedOption?.id === option.id && (
@@ -143,7 +129,7 @@ export default function ProductAddToCart({ product }) {
 
       {/* Selector de cantidad */}
       <div className="bg-neutral-900 border-2 border-neutral-800 rounded-2xl p-5">
-        <p className="text-sm font-bold text-white uppercase tracking-wider mb-3">
+        <p className="font-anton text-base text-white uppercase tracking-wide mb-3">
           Cantidad
         </p>
         <div className="flex items-center justify-between">
@@ -154,7 +140,7 @@ export default function ProductAddToCart({ product }) {
           >
             <Minus size={20} className={quantity <= 1 ? "text-neutral-600" : "text-white"} />
           </button>
-          <span className="text-3xl font-black text-[#FCC900]">{quantity}</span>
+          <span className="font-anton text-3xl text-[#FCC900]">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
             className="w-12 h-12 bg-neutral-800 hover:bg-neutral-700 rounded-xl flex items-center justify-center transition"
@@ -168,7 +154,7 @@ export default function ProductAddToCart({ product }) {
       <div className="bg-neutral-900 border-2 border-neutral-800 rounded-2xl p-5 space-y-4">
         <div className="flex justify-between items-center">
           <span className="text-neutral-400 text-sm font-semibold">Subtotal:</span>
-          <span className="text-3xl font-black text-[#FCC900]">
+          <span className="font-anton text-3xl text-[#FCC900]">
             S/ {(selectedOption ? selectedOption.price * quantity : 0).toFixed(2)}
           </span>
         </div>
@@ -177,10 +163,10 @@ export default function ProductAddToCart({ product }) {
           <button
             onClick={goToCartAndCheckout}
             disabled={!selectedOption}
-            className={`w-full min-h-[64px] rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all shadow-xl ${
+            className={`w-full min-h-[64px] rounded-2xl font-anton uppercase tracking-wide text-lg flex items-center justify-center gap-3 transition-all shadow-xl ${
               added
                 ? "bg-green-600 text-white"
-                : "bg-[#FCC900] hover:bg-[#eeb055] text-black active:scale-[0.98]"
+                : "bg-[#FCC900] hover:bg-[#E2B500] text-black active:scale-[0.98]"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {added ? (

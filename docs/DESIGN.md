@@ -34,7 +34,7 @@ Los tokens están declarados en `app/globals.css` (`:root`) pero **casi no se us
 
 **Colores de terceros (solo en sus botones):** WhatsApp `#25D366`, PedidosYa `#FF0050`/`#EA004B`, Rappi `#FF441F`, Google `#4285F4`, Instagram (gradiente).
 
-**Fuera de sistema (a eliminar):** `#D99133`, `#EEB055`, `#B07020` (dorado/ámbar, 54 usos, sobre todo en `/product/[slug]` y `/reto-gamer`), `yellow-500/400` de Tailwind en el Libro de Reclamaciones, fondos `#020204`/`#0A0A0C`.
+**Fuera de sistema (a eliminar):** `#D99133`, `#EEB055`, `#B07020` (dorado/ámbar, quedan sobre todo en `/reto-gamer`), `yellow-500/400` de Tailwind en el Libro de Reclamaciones, fondos `#020204`/`#0A0A0C`. `/product/[slug]` ya usa `#FCC900` (6.6).
 
 ### 2.2 Tipografía
 
@@ -108,7 +108,7 @@ Escala habitual: H1 hero `text-4xl → sm:text-7xl → md:text-8xl`; títulos de
 
 | Dónde | Desvío | Ref. |
 | :--- | :--- | :--- |
-| `/product/[slug]` | Paleta dorada `#D99133`, emojis como íconos, clases inexistentes (`warning-border`, `tape-corner-tr`, `cuidado-badge`), header/footer propios distintos al home. | DEAD-02 |
+| `/product/[slug]` | ✅ Unificado en 6.6: Anton, `#FCC900`, clases de marca e iconos lucide. El footer propio se unificará en 6.13. | DEAD-02 |
 | `/libro-de-reclamaciones` | Mezcla `#FCC900` con `yellow-500`, fondo `#020204`. | — |
 | `/reto-gamer` | Paleta neón/dorada propia (aceptable como "mundo" del juego, pero CTAs deberían usar el amarillo de marca). | — |
 | `/links` | Spinner a pantalla completa al cargar. | QLT-05 |
