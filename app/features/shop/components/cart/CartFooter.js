@@ -3,6 +3,7 @@
 import { ArrowRight, Loader2 } from "lucide-react";
 import { formatPrice } from "../../../../lib/format";
 import { useShop } from "../../context/ShopContext";
+import TurnstileWidget from "./TurnstileWidget";
 
 // Total y acción del paso actual: "Continuar" en el pedido, "Confirmar" en los datos.
 export default function CartFooter({ step, onContinue }) {
@@ -21,6 +22,8 @@ export default function CartFooter({ step, onContinue }) {
         </div>
         <p className="font-anton text-4xl leading-none text-white">{formatPrice(total)}</p>
       </div>
+
+      {isCheckout && <TurnstileWidget />}
 
       {isCheckout && order.submitError && (
         <p role="alert" className="mt-4 text-sm text-red-300">

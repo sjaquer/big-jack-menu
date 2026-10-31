@@ -64,8 +64,8 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 - [x] **2.4** Normalizar la respuesta al cliente (`{ success, orderId, duplicated, message }`) y loguear la respuesta cruda del ERP en servidor. [SEC-09]
 - [x] **2.5** `eventId` con `crypto.randomUUID()`; mantener el mismo id en reintentos del mismo intento de compra. [SEC-10]
   - Hecho 2026-10-31 (2.1–2.5): `lib/catalog.js` y `lib/orderRules.js` (con tests) usados por `route.js`; pedido saliente con lista blanca y la misma forma (contrato intacto); horario y pre-orden decididos en el servidor; respuesta normalizada `{ success, orderId, duplicated }` y log del ERP en servidor; `eventId` con `crypto.getRandomValues` (mismo formato `menu-AAAAMMDD-xxxxxx`). Pendiente: que `submitOrder.js` (cliente) también use `orderRules` para no duplicar reglas.
-- [ ] **2.6** Verificación de `Origin` + Turnstile en el checkout. [SEC-02]
-  - Parcial 2026-10-31: verificación de `Origin`/`Sec-Fetch-Site`, `Content-Type` y tamaño del cuerpo. Falta Turnstile (requiere crear la cuenta de Cloudflare y las claves).
+- [x] **2.6** Verificación de `Origin` + Turnstile en el checkout. [SEC-02]
+  - Hecho 2026-10-31: `Origin`/`Sec-Fetch-Site`, `Content-Type`, tamaño del cuerpo y Cloudflare Turnstile invisible (token de un solo uso validado en el servidor antes del ERP) + freno de 20 s entre pedidos por IP.
 - [ ] **2.7** Rate-limit persistente (Upstash/Vercel KV o Vercel Firewall). [SEC-04]
 - [ ] **2.8** `app/lib/env.js`: un nombre por variable, validación al arranque, sin fallbacks `NEXT_PUBLIC_` para secretos. Actualizar `.env.example`. [SEC-11, OPS-03]
 - [x] **2.9** Cabeceras de seguridad en `next.config.mjs`. [SEC-07]
@@ -199,6 +199,7 @@ Decisiones del dueño del 2026-10-31. Cada tarea es un cambio pequeño y ya est�
 
 - [ ] **E.1** Volver a publicar el **RUC** nuevo: poner el valor en `restaurantInfo.ruc` (`app/data/menuData.js`). Con eso aparece solo en el footer, `/links` y el Libro de Reclamaciones.
 - [ ] **E.2** Reactivar el **Libro de Reclamaciones**: `FEATURES.complaintsBook = true` en `app/lib/site.js`. Vuelve el formulario, el link del footer y de `/links`, el sitemap y `llms.txt`; la Server Action vuelve a aceptar reclamos.
+  - Al reactivarlo, proteger también `sendComplaint` con Turnstile (`verifyTurnstile` de `lib/turnstile.js`, acción propia) y límites de longitud (SEC-06).
   - Antes de reactivar, completar la Fase 1 (número correlativo, copia al consumidor, campos del reglamento, razón social y RUC correctos) para que el libro sea conforme.
   - ⚠️ **Riesgo legal mientras esté apagado:** el Código de Protección y Defensa del Consumidor y su reglamento (DS 011-2011-PCM) exigen que el establecimiento tenga un Libro de Reclamaciones disponible (físico o virtual) y avisado. No tenerlo puede generar multas de INDECOPI. Mientras tanto la ruta muestra un aviso con WhatsApp como vía de contacto; confirmar con asesoría legal si basta con un libro físico en el local.
 - [ ] **E.3** Revisar si PedidosYa vuelve (se quitó el 2026-10-31 por malos tratos de la plataforma). Si vuelve: agregar `deliveryApps.pedidosYa` en `menuData.js` y su ícono en `public/images/brands/`.

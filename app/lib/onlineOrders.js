@@ -1,3 +1,5 @@
+import { TURNSTILE_HEADER } from "./turnstileConfig";
+
 function normalizePaymentMethod(method) {
   const value = String(method || "").toLowerCase();
   if (value === "cash") return "efectivo";
@@ -94,11 +96,13 @@ export function buildOnlineOrderPayload(input) {
   };
 }
 
-export async function createOnlineOrder(payload) {
+export async function createOnlineOrder(payload, { turnstileToken } = {}) {
   const response = await fetch("/api/online-orders", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      // El token anti-bots va en una cabecera: el cuerpo (contrato con el ERP) no cambia.
+      ...(turnstileToken ? { [TURNSTILE_HEADER]: turnstileToken } : {}),
     },
     body: JSON.stringify(payload),
   });

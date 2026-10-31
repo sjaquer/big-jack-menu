@@ -1,5 +1,14 @@
 # Cambios
 
+## Cloudflare Turnstile en el checkout
+
+Fecha: 2026-10-31
+
+1. Widget invisible (solo pide interacción si Cloudflare duda) que se carga en el paso "Entrega y pago"; el token viaja en la cabecera `x-turnstile-token`, sin cambiar el contrato con el ERP.
+2. `/api/online-orders` valida el token con Cloudflare antes de enviar el pedido al ERP (de un solo uso, acción `checkout`, dominio); falla cerrado si Cloudflare no responde.
+3. Contra pedidos masivos: además de 5 por IP cada 15 min, un pedido cada 20 s; los intentos que fallan en el ERP no cuentan.
+4. CSP ampliada para `challenges.cloudflare.com`. Variables: `NEXT_PUBLIC_TURNSTILE_SITE_KEY` y `TURNSTILE_SECRET_KEY` (solo Vercel).
+
 ## Dependencias y seguridad
 
 Fecha: 2026-10-31

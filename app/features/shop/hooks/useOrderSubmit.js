@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { menuItems } from "../../../data/menuData";
 import { analytics } from "../../../lib/analytics";
 import { formatPrice } from "../../../lib/format";
+import { getTurnstileToken, resetTurnstile, turnstileEnabled } from "../../../lib/turnstileClient";
 import { formatPhone, whatsappUrl } from "../../../lib/site";
 import { submitOnlineOrder } from "../checkout/submitOrder";
 import {
@@ -45,6 +46,7 @@ export default function useOrderSubmit({ cart, total, form: rawForm, isOpen, onS
         deliveryDetails: form.deliveryDetails,
         locationLink: form.locationLink,
         notes: form.notes,
+        getTurnstileToken: turnstileEnabled ? getTurnstileToken : undefined,
       });
 
       const businessPhone = formatPhone();
@@ -83,6 +85,7 @@ export default function useOrderSubmit({ cart, total, form: rawForm, isOpen, onS
       setSubmitError(message);
       onError?.(message);
     } finally {
+      resetTurnstile();
       setIsSubmitting(false);
     }
   }, [cart, rawForm, isOpen, isSubmitting, onError, onSuccess, total]);

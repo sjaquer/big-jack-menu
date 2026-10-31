@@ -181,7 +181,8 @@ sequenceDiagram
 **Seguridad y validaciones en el servidor** (`route.js` + `lib/orderRules.js` + `lib/catalog.js`):
 
 - Solo mismo origen (`Origin` = host; `Sec-Fetch-Site` ≠ `cross-site`) → si no, `403`. `Content-Type: application/json` → si no, `415`. Cuerpo ≤ 16 KB → si no, `413`.
-- Máx. 5 pedidos válidos por IP cada 15 min (en memoria, por instancia; ver SEC-04).
+- Máx. 5 pedidos válidos por IP cada 15 min y uno cada 20 s (en memoria, por instancia; ver SEC-04). Si el ERP falla, el intento no cuenta.
+- **Cloudflare Turnstile:** el navegador envía el token en la cabecera `x-turnstile-token` (el cuerpo no cambia). El servidor lo valida con `siteverify` (éxito, acción `checkout`, dominio) **antes** de llamar al ERP; sin token o inválido → `403`. Si Cloudflare no responde, se rechaza. Widget invisible (`appearance: interaction-only`) que se carga en el paso "Entrega y pago" (`lib/turnstileClient.js`, `cart/TurnstileWidget.js`); servidor en `lib/turnstile.js`.
 - `eventId` con formato válido · ítems con `sku` vendible, `quantity` entera 1–10, total ≤ 30, `price` (si viene) igual al catálogo · bebidas solo con hamburguesa · `orderType` `pickup`/`delivery` · método de pago válido y sin efectivo en delivery · delivery con dirección o ubicación · **horario calculado en el servidor**: cerrado ⇒ solo recojo y `isPreOrder: true`.
 - El pedido que va al ERP se **reconstruye con lista blanca** (misma forma que la de arriba): se descartan campos desconocidos, se recortan textos, se quitan caracteres de control, `orderDate` lo pone el servidor y `locationLink` solo se acepta si es un link de Google Maps con coordenadas.
 
@@ -191,7 +192,7 @@ sequenceDiagram
 | :-: | :--- | :--- |
 | 200 | Proxy | `{ success: true, orderId, duplicated }` (respuesta normalizada; la del ERP no se reenvía) |
 | 400 | Proxy | `{ success: false, error }` (regla de negocio o formato) |
-| 403 / 413 / 415 | Proxy | Origen no permitido / cuerpo muy grande / no es JSON |
+| 403 / 413 / 415 | Proxy | Origen no permitido o Turnstile inválido / cuerpo muy grande / no es JSON |
 | 422 | Proxy | El ERP rechazó el pedido (detalle solo en el log del servidor) |
 | 429 | Proxy | Límite de pedidos |
 | 502 | Proxy | Error del ERP o de red |
@@ -216,6 +217,8 @@ Campos leídos: `name, dni, email, phone, address, type, description, product, a
 | `NEXT_PUBLIC_BASE_URL` | Recomendada | URL pública para `metadataBase`, canonicals, JSON-LD, `robots`, `sitemap`, `llms.txt`. Default: `https://bigjack.vercel.app` (`lib/site.js`). |
 | `GOOGLE_SITE_VERIFICATION` | No | Sobrescribe el código de Search Console (por defecto, el de `bigjack.vercel.app` en `lib/site.js`). |
 | `NEXT_PUBLIC_GA_ID` | Para medir | ID de medición de GA4 (`G-…`). Sin él no se carga Analytics. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Sí (prod) | Clave pública del widget de Cloudflare Turnstile. |
+| `TURNSTILE_SECRET_KEY` | Sí (prod) | Clave secreta de Turnstile (solo servidor, solo en Vercel). Sin ella en producción el chequeo anti-bots queda **apagado** (se avisa en el log). En desarrollo se usan las claves de prueba de Cloudflare. |
 
 Local: copiar `.env.example` a `.env.local`.
 

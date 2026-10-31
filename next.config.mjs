@@ -11,15 +11,17 @@ const GOOGLE_TAGS = [
   "https://*.google-analytics.com",
   "https://*.analytics.google.com",
 ];
+// Cloudflare Turnstile (anti-bots del checkout).
+const TURNSTILE = "https://challenges.cloudflare.com";
 const contentSecurityPolicy = [
   "default-src 'self'",
   // Next.js inserta scripts en línea al hidratar; en desarrollo además usa eval.
-  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ""}${GOOGLE_TAGS.join(" ")}`,
+  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ""}${GOOGLE_TAGS.join(" ")} ${TURNSTILE}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${GOOGLE_TAGS.join(" ")}`,
   "font-src 'self'",
-  `connect-src 'self' ${GOOGLE_TAGS.join(" ")}${isDev ? " ws:" : ""}`,
-  "frame-src https://www.googletagmanager.com",
+  `connect-src 'self' ${GOOGLE_TAGS.join(" ")} ${TURNSTILE}${isDev ? " ws:" : ""}`,
+  `frame-src https://www.googletagmanager.com ${TURNSTILE}`,
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",

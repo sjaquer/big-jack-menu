@@ -114,14 +114,14 @@
 | :--- | :--- |
 | SEC-03 | El proxy reconstruye el pedido con lista blanca (`lib/orderRules.js`); ya no hace spread del body. |
 | SEC-05 | Reglas de negocio en el servidor: horario (Lima), pre-orden solo recojo, delivery sin efectivo, bebidas con hamburguesa, máximos y longitudes. |
-| SEC-02 | ⚠️ Parcial: mismo origen, `Content-Type` y límite de 16 KB. Falta Turnstile. |
+| SEC-02 | Mismo origen, `Content-Type`, límite de 16 KB, Cloudflare Turnstile (token de un solo uso validado en servidor) y un pedido cada 20 s por IP. |
 | SEC-07 | CSP + COOP además de las cabeceras previas. |
 | SEC-09 | Respuesta normalizada al cliente; la del ERP solo en el log del servidor. |
 | SEC-10 | `eventId` con aleatoriedad criptográfica. |
 | — | Analytics: con GTM los eventos ya no se envían dos veces (dataLayer + gtag). |
 | — | Dependencias: React 19.3.1, Tailwind 4.3.3, nodemailer 10.3.1, lucide-react 1.66, ESLint 9.39.5, opentype.js 2.0. `npm audit --omit=dev` = 0. Quedan 16 avisos **moderados solo de desarrollo** (`minimatch` < 11 en la cadena de ESLint, ReDoS con patrones controlados por nosotros); ESLint 10 no los resuelve. Riesgo aceptado. |
 
-**Pendientes de seguridad:** SEC-04 (rate-limit persistente: Upstash/Vercel KV o Vercel Firewall), Turnstile (SEC-02/06), SEC-06 y validación de longitudes del Libro al reactivarlo (enero), SEC-11 (dejar solo `WEBHOOK_MENU_SECRET` cuando se confirme el nombre usado en Vercel), aviso de privacidad (LEG-04) antes de medir con GA/GTM.
+**Pendientes de seguridad:** SEC-04 (rate-limit persistente: Upstash/Vercel KV o Vercel Firewall), Turnstile en el Libro (SEC-06, al reactivarlo), SEC-06 y validación de longitudes del Libro al reactivarlo (enero), SEC-11 (dejar solo `WEBHOOK_MENU_SECRET` cuando se confirme el nombre usado en Vercel), aviso de privacidad (LEG-04) antes de medir con GA/GTM.
 
 ## Escala de severidad
 

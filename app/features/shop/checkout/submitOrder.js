@@ -37,6 +37,7 @@ export async function submitOnlineOrder({
   deliveryReference,
   deliveryDetails,
   menuItems,
+  getTurnstileToken,
 }) {
   if (!cart?.length) {
     throw new Error("Tu carrito está vacío.");
@@ -106,6 +107,12 @@ export async function submitOnlineOrder({
     isPreOrder,
   });
 
-  const response = await createOnlineOrder(payload);
+  // El token anti-bots se pide al final, cuando las validaciones del cliente ya pasaron.
+  const turnstileToken = getTurnstileToken ? await getTurnstileToken() : null;
+  if (getTurnstileToken && !turnstileToken) {
+    throw new Error("No pudimos verificar tu pedido. Espera unos segundos e inténtalo otra vez.");
+  }
+
+  const response = await createOnlineOrder(payload, { turnstileToken });
   return { response, migratedCart };
 }
