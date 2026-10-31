@@ -47,4 +47,16 @@ describe("track", () => {
     analytics.addToCart(product, product.options[0], 1);
     expect(gtag).toHaveBeenCalledWith("event", "add_to_cart", expect.objectContaining({ value: 17.9 }));
   });
+
+  it("envía el evento a dataLayer cuando existe GTM", () => {
+    const dataLayer = [];
+    vi.stubGlobal("window", { dataLayer });
+    analytics.addToCart(product, product.options[0], 1);
+    expect(dataLayer).toEqual(
+      expect.arrayContaining([
+        { ecommerce: null },
+        expect.objectContaining({ event: "add_to_cart", ecommerce: expect.objectContaining({ value: 17.9 }) }),
+      ])
+    );
+  });
 });

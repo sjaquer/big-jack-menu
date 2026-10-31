@@ -92,6 +92,14 @@ export default function RootLayout({ children }) {
         <JsonLd data={buildRestaurantSchema()} />
         {children}
       </body>
+      {GTM_ID && (
+        <script
+          id="gtag-init"
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());`,
+          }}
+        />
+      )}
       {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
       {GA_MEASUREMENT_ID && !GTM_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>

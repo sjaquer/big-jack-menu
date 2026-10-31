@@ -5,8 +5,22 @@
 const CURRENCY = "PEN";
 
 export function track(name, params = {}) {
-  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
-  window.gtag("event", name, params);
+  if (typeof window === "undefined") return;
+
+  // Google Tag Manager (dataLayer): formato oficial para GA4 eCommerce y eventos GTM
+  if (Array.isArray(window.dataLayer)) {
+    if (params.items) {
+      window.dataLayer.push({ ecommerce: null });
+      window.dataLayer.push({ event: name, ecommerce: params });
+    } else {
+      window.dataLayer.push({ event: name, ...params });
+    }
+  }
+
+  // Google Analytics directo (gtag) si está disponible
+  if (typeof window.gtag === "function") {
+    window.gtag("event", name, params);
+  }
 }
 
 // Ítem GA4 desde un ítem de carrito ({ sku, name, optionLabel, category, price, quantity }).
