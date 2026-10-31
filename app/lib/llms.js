@@ -4,7 +4,7 @@ import { PAYMENT_METHODS } from "../features/shop/constants";
 import { getFaqItems } from "../features/shop/seo";
 import { formatPrice } from "./format";
 import { formatPrepTime, formatScheduleSummary } from "./schedule";
-import { absoluteUrl, formatAddress, formatPhone, instagramUrl, whatsappUrl } from "./site";
+import { FEATURES, absoluteUrl, formatAddress, formatPhone, instagramUrl, whatsappUrl } from "./site";
 
 function menuLines() {
   return categories.flatMap((category) => {
@@ -41,7 +41,7 @@ export function buildLlmsTxt() {
     `- WhatsApp: ${formatPhone()} (${whatsappUrl()})`,
     `- Instagram: ${instagramUrl()} · TikTok: ${contact.tiktok}`,
     `- Google Maps: ${contact.googleMapsLink}`,
-    `- Apps de delivery: [PedidosYa](${deliveryApps.pedidosYa}), [Rappi](${deliveryApps.rappi})`,
+    `- Delivery por app: [Rappi](${deliveryApps.rappi})`,
     "",
     "## Carta (precios en soles, referenciales)",
     "",
@@ -52,7 +52,7 @@ export function buildLlmsTxt() {
     "",
     `- [Carta y pedido online](${absoluteUrl("/")}): se arma el pedido y se confirma por WhatsApp.`,
     `- [Quiénes somos](${absoluteUrl("/quienes")})`,
-    `- [Libro de Reclamaciones](${absoluteUrl("/libro-de-reclamaciones")})`,
+    ...(FEATURES.complaintsBook ? [`- [Libro de Reclamaciones](${absoluteUrl("/libro-de-reclamaciones")})`] : []),
     "",
     "## Preguntas frecuentes",
     "",

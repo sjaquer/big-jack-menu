@@ -3,18 +3,17 @@ import Link from "next/link";
 import { ArrowRight, ChevronRight, Clock, Gamepad2, MapPin, Star, Users } from "lucide-react";
 import { restaurantInfo } from "../data/menuData";
 import { formatScheduleSummary } from "../lib/schedule";
-import { formatAddress, instagramUrl, whatsappUrl } from "../lib/site";
+import { FEATURES, formatAddress, instagramUrl, whatsappUrl } from "../lib/site";
 import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "../components/icons/BrandIcons";
 import OpenStatusBadge from "./OpenStatusBadge";
 
 export const metadata = {
   title: "Enlaces",
-  description: `Enlaces oficiales de ${restaurantInfo.name}: carta online, WhatsApp, PedidosYa, Rappi, ubicación en el ${restaurantInfo.address.area} y redes.`,
+  description: `Enlaces oficiales de ${restaurantInfo.name}: carta online, WhatsApp, Rappi, ubicación en el ${restaurantInfo.address.area} y redes.`,
   alternates: { canonical: "/links" },
 };
 
 const DELIVERY_APPS = [
-  { name: "PedidosYa", href: restaurantInfo.deliveryApps.pedidosYa, icon: "/images/brands/pedidosya.webp" },
   { name: "Rappi", href: restaurantInfo.deliveryApps.rappi, icon: "/images/brands/rappi.webp" },
 ];
 
@@ -87,14 +86,16 @@ export default function LinksPage() {
           <h2 id="links-apps" className="mb-4 text-sm font-medium text-neutral-500">
             Pide por app
           </h2>
-          <ul className="grid grid-cols-2 gap-3">
+          <ul className={`grid gap-3 ${DELIVERY_APPS.length > 1 ? "grid-cols-2" : ""}`}>
             {DELIVERY_APPS.map((app) => (
               <li key={app.name}>
                 <a
                   href={app.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex flex-col items-start gap-4 rounded-3xl bg-white/[0.05] p-5 transition-colors hover:bg-white/[0.09]"
+                  className={`group flex gap-4 rounded-3xl bg-white/[0.05] p-5 transition-colors hover:bg-white/[0.09] ${
+                    DELIVERY_APPS.length > 1 ? "flex-col items-start" : "items-center"
+                  }`}
                 >
                   <Image src={app.icon} alt="" width={48} height={48} className="rounded-2xl" />
                   <span>
@@ -151,11 +152,14 @@ export default function LinksPage() {
 
         <footer className="mt-12 space-y-2 text-center text-xs text-neutral-600">
           <p>
-            {restaurantInfo.legalName} · RUC {restaurantInfo.ruc}
+            {restaurantInfo.legalName}
+            {restaurantInfo.ruc && ` · RUC ${restaurantInfo.ruc}`}
           </p>
-          <Link href="/libro-de-reclamaciones" className="font-semibold text-neutral-400 underline underline-offset-4 hover:text-white">
-            Libro de Reclamaciones
-          </Link>
+          {FEATURES.complaintsBook && (
+            <Link href="/libro-de-reclamaciones" className="font-semibold text-neutral-400 underline underline-offset-4 hover:text-white">
+              Libro de Reclamaciones
+            </Link>
+          )}
         </footer>
       </div>
     </main>

@@ -1,6 +1,6 @@
 // URLs y enlaces del sitio derivados de `restaurantInfo`.
 // Ningún componente debe armar a mano links de WhatsApp, Instagram o la URL base.
-import { restaurantInfo } from "../data/menuData";
+import { restaurantInfo } from "../data/menuData.js";
 
 const FALLBACK_SITE_URL = "https://bigjack.vercel.app";
 
@@ -10,6 +10,15 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || FALLBACK_SITE_URL).
 // No quitarla: Google la revisa periódicamente para mantener la propiedad verificada.
 export const GOOGLE_SITE_VERIFICATION =
   process.env.GOOGLE_SITE_VERIFICATION || "XXXcSKs9hnuQpt4nxbfKDzlXRvZMPRmHXZMO2zgQmEc";
+
+// Funciones que se pueden apagar sin borrar código.
+export const FEATURES = {
+  // Libro de Reclamaciones desactivado hasta nuevo aviso (vuelve en enero 2027, ver REMEDIATION_PLAN.md).
+  complaintsBook: false,
+};
+
+// ID de Google Tag Manager (GTM-XXXXXXX).
+export const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "GTM-W8X3K2L7";
 
 // ID de medición de Google Analytics 4 (G-XXXXXXX). Sin ID no se carga Analytics.
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "";

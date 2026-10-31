@@ -1,5 +1,5 @@
 import { menuItems } from "./data/menuData";
-import { absoluteUrl } from "./lib/site";
+import { FEATURES, absoluteUrl } from "./lib/site";
 
 // Fecha de la última publicación del sitio (se fija al compilar).
 const lastModified = new Date();
@@ -8,7 +8,7 @@ const STATIC_ROUTES = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
   { path: "/quienes", priority: 0.6, changeFrequency: "monthly" },
   { path: "/links", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/libro-de-reclamaciones", priority: 0.3, changeFrequency: "yearly" },
+  ...(FEATURES.complaintsBook ? [{ path: "/libro-de-reclamaciones", priority: 0.3, changeFrequency: "yearly" }] : []),
   { path: "/reto-gamer", priority: 0.3, changeFrequency: "monthly" },
 ];
 

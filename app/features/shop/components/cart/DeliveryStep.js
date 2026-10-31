@@ -90,10 +90,6 @@ export default function DeliveryStep() {
           />
           <p className="text-xs leading-relaxed text-neutral-500">
             El envío se coordina por inDrive (tarifa aparte). También estamos en{" "}
-            <a href={restaurantInfo.deliveryApps.pedidosYa} target="_blank" rel="noopener noreferrer" className="text-neutral-300 underline underline-offset-2">
-              PedidosYa
-            </a>{" "}
-            y{" "}
             <a href={restaurantInfo.deliveryApps.rappi} target="_blank" rel="noopener noreferrer" className="text-neutral-300 underline underline-offset-2">
               Rappi
             </a>

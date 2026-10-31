@@ -48,3 +48,13 @@ describe("formatRange / formatPrepTime", () => {
     expect(formatPrepTime({ min: 15, max: 15 })).toBe("15 min");
   });
 });
+
+describe("groupSchedule con domingo cerrado", () => {
+  it("agrupa lunes a sábado y marca el domingo", () => {
+    const hours = { 0: null, ...Object.fromEntries([1, 2, 3, 4, 5, 6].map((d) => [d, { open: "19:00", close: "00:00" }])) };
+    expect(groupSchedule(hours)).toEqual([
+      { days: "Lun – Sáb", hours: "7:00 p. m. – 12:00 a. m." },
+      { days: "Domingo", hours: "Cerrado" },
+    ]);
+  });
+});

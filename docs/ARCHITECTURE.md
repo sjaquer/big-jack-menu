@@ -67,7 +67,7 @@ scripts/                         # brand/ (kit de marca: npm run brand), generat
 | `/` | Estático (○) | Server Component con islas: hero en scroll, carta, ubicación y FAQ. |
 | `/product/[slug]` | SSG (●) | Mismo carrito y drawer que la carta (layout compartido). |
 | `/quienes` | Estático | Server Component. |
-| `/libro-de-reclamaciones` | Estático | Página server con metadata + formulario cliente. |
+| `/libro-de-reclamaciones` | Estático | Página server con metadata + formulario cliente. **Desactivado** (`FEATURES.complaintsBook` en `lib/site.js`): muestra un aviso y no indexa. |
 | `/links` | Estático | Server + isla de estado abierto/cerrado. Sin spinner. |
 | `/reto-gamer` | Estático | "Arma tu burger": juego de apilar para la espera; récord en `localStorage`. |
 | `/api/online-orders` | Dinámico (ƒ) | Solo `POST`. |

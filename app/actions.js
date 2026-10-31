@@ -1,5 +1,6 @@
 "use server";
 import nodemailer from "nodemailer";
+import { FEATURES } from "./lib/site";
 
 function escapeHtml(str) {
   if (typeof str !== "string") return "";
@@ -12,6 +13,14 @@ function escapeHtml(str) {
 }
 
 export async function sendComplaint(formData) {
+  // Libro desactivado: no se acepta ni se finge el registro (ver FEATURES en lib/site.js).
+  if (!FEATURES.complaintsBook) {
+    return {
+      success: false,
+      message: "El Libro de Reclamaciones virtual no está disponible por ahora. Escríbenos por WhatsApp.",
+    };
+  }
+
   const rawData = {
     name: formData.get("name") || "",
     dni: formData.get("dni") || "",

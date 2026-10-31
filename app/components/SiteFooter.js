@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { restaurantInfo } from "../data/menuData";
-import { formatPhone, instagramUrl, whatsappUrl } from "../lib/site";
+import { FEATURES, formatPhone, instagramUrl, whatsappUrl } from "../lib/site";
 import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "./icons/BrandIcons";
 
 const SOCIAL = [
@@ -47,16 +47,19 @@ export default function SiteFooter() {
                 </Link>
               </li>
             ))}
+            {FEATURES.complaintsBook && (
             <li>
               <Link href="/libro-de-reclamaciones" className="font-semibold text-white underline underline-offset-4 hover:text-bj-yellow">
                 Libro de Reclamaciones
               </Link>
             </li>
+            )}
           </ul>
         </nav>
 
         <p className="text-xs leading-relaxed text-neutral-600">
-          © {new Date().getFullYear()} {restaurantInfo.legalName} · RUC {restaurantInfo.ruc} · WhatsApp {formatPhone()}
+          © {new Date().getFullYear()} {restaurantInfo.legalName}
+          {restaurantInfo.ruc && ` · RUC ${restaurantInfo.ruc}`} · WhatsApp {formatPhone()}
         </p>
       </div>
     </footer>

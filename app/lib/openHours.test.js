@@ -100,3 +100,34 @@ describe("getOpenStatusLabel", () => {
     );
   });
 });
+
+describe("horario lunes a sábado hasta la medianoche", () => {
+  const monToSat = {
+    0: null,
+    1: { open: "19:00", close: "00:00" },
+    2: { open: "19:00", close: "00:00" },
+    3: { open: "19:00", close: "00:00" },
+    4: { open: "19:00", close: "00:00" },
+    5: { open: "19:00", close: "00:00" },
+    6: { open: "19:00", close: "00:00" },
+  };
+
+  it("está abierto a las 23:59 y cerrado a las 00:00 (hora de Lima)", () => {
+    // Miércoles 28/10/2026
+    expect(isOpenNow(at("2026-10-29T04:59:00Z"), monToSat)).toBe(true);
+    expect(isOpenNow(at("2026-10-29T05:00:00Z"), monToSat)).toBe(false);
+  });
+
+  it("muestra el cierre a medianoche", () => {
+    expect(getOpenStatusLabel(at("2026-10-29T02:00:00Z"), monToSat).label).toBe(
+      "Abierto · hasta 12:00 a. m."
+    );
+  });
+
+  it("el domingo está cerrado y abre el lunes", () => {
+    // Domingo 01/11/2026, 20:00 en Lima
+    const sunday = at("2026-11-02T01:00:00Z");
+    expect(isOpenNow(sunday, monToSat)).toBe(false);
+    expect(getOpenStatusLabel(sunday, monToSat).label).toBe("Cerrado · abre mañana 7:00 p. m.");
+  });
+});

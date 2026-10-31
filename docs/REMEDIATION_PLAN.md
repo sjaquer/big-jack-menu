@@ -190,6 +190,16 @@ Objetivo: que ningún archivo junte UI, estado, reglas de negocio y datos. Cada 
 - [x] **9.5** `llms.txt`, robots para asistentes de IA, sitemap con imágenes, JSON-LD `Product`/`BreadcrumbList`/`WebSite`, FAQ visible = FAQPage, 404 de marca, `manifest.js`.
 - [x] **9.6** Tokens de color en `@theme` y migración de clases hex.
 
+## Enero 2027 — Reactivaciones pendientes
+
+Decisiones del dueño del 2026-10-31. Cada tarea es un cambio pequeño y ya está preparado en el código.
+
+- [ ] **E.1** Volver a publicar el **RUC** nuevo: poner el valor en `restaurantInfo.ruc` (`app/data/menuData.js`). Con eso aparece solo en el footer, `/links` y el Libro de Reclamaciones.
+- [ ] **E.2** Reactivar el **Libro de Reclamaciones**: `FEATURES.complaintsBook = true` en `app/lib/site.js`. Vuelve el formulario, el link del footer y de `/links`, el sitemap y `llms.txt`; la Server Action vuelve a aceptar reclamos.
+  - Antes de reactivar, completar la Fase 1 (número correlativo, copia al consumidor, campos del reglamento, razón social y RUC correctos) para que el libro sea conforme.
+  - ⚠️ **Riesgo legal mientras esté apagado:** el Código de Protección y Defensa del Consumidor y su reglamento (DS 011-2011-PCM) exigen que el establecimiento tenga un Libro de Reclamaciones disponible (físico o virtual) y avisado. No tenerlo puede generar multas de INDECOPI. Mientras tanto la ruta muestra un aviso con WhatsApp como vía de contacto; confirmar con asesoría legal si basta con un libro físico en el local.
+- [ ] **E.3** Revisar si PedidosYa vuelve (se quitó el 2026-10-31 por malos tratos de la plataforma). Si vuelve: agregar `deliveryApps.pedidosYa` en `menuData.js` y su ícono en `public/images/brands/`.
+
 ## Decisiones pendientes
 
 Necesarias del dueño del negocio / equipo ERP antes de las tareas marcadas con 🔒.

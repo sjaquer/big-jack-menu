@@ -1,5 +1,15 @@
 # Cambios
 
+## Horario, OG, RUC, PedidosYa y Libro de Reclamaciones
+
+Fecha: 2026-10-31
+
+1. Horario: lunes a sábado de 7:00 p. m. a 12:00 a. m.; domingo cerrado. El estado abierto/cerrado, el footer, `/links`, la FAQ, el JSON-LD y `llms.txt` se actualizan solos.
+2. Imagen OG regenerada desde los datos: "Desde S/ 12.90", horario actual y dominio `bigjack.vercel.app` (`npm run og`).
+3. RUC oculto en todo el sitio (`restaurantInfo.ruc = null`) hasta enero 2027.
+4. PedidosYa retirado (carta, checkout, `/links`, FAQ, `llms.txt`).
+5. Libro de Reclamaciones desactivado con `FEATURES.complaintsBook = false`: la ruta muestra un aviso con WhatsApp, sale del footer, `/links`, sitemap y `llms.txt`, y la Server Action no acepta reclamos. Reactivación en el plan de enero 2027.
+
 ## Logo v3: wordmark chorreante y sello "Central de Potencia"
 
 Fecha: 2026-10-31

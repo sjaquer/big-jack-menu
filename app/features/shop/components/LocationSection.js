@@ -4,7 +4,6 @@ import { formatPrepTime, groupSchedule } from "../../../lib/schedule";
 
 const LINKS = [
   { label: "Cómo llegar", href: restaurantInfo.contact.googleMapsLink, primary: true },
-  { label: "PedidosYa", href: restaurantInfo.deliveryApps.pedidosYa },
   { label: "Rappi", href: restaurantInfo.deliveryApps.rappi },
 ];
 

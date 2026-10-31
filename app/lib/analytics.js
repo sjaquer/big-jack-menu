@@ -1,6 +1,6 @@
 // Eventos de Google Analytics 4 (comercio electrónico recomendado por Google).
 // Si Analytics no está cargado (sin NEXT_PUBLIC_GA_ID o bloqueado), no hace nada.
-// Los clics a WhatsApp, PedidosYa y Rappi los mide la "medición mejorada" de GA4 (outbound clicks).
+// Los clics a WhatsApp y Rappi los mide la "medición mejorada" de GA4 (outbound clicks).
 
 const CURRENCY = "PEN";
 

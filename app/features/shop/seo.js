@@ -169,7 +169,7 @@ export function getFaqItems() {
     },
     {
       question: "¿Cómo hago mi pedido?",
-      answer: `Arma tu pedido en esta carta, confírmalo y te llevamos a WhatsApp con el detalle. El recojo está listo en ${formatPrepTime()}. También estamos en PedidosYa y Rappi.`,
+      answer: `Arma tu pedido en esta carta, confírmalo y te llevamos a WhatsApp con el detalle. El recojo está listo en ${formatPrepTime()}. También estamos en Rappi.`,
     },
     {
       question: "¿Qué medios de pago aceptan?",

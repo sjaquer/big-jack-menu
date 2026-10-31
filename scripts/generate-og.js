@@ -1,7 +1,40 @@
 const fs = require('fs');
 const sharp = require('sharp');
+const opentype = require('opentype.js');
+
+// Ancho real de un texto con Poppins (para ubicar el texto que va a continuación).
+const poppinsMetrics = {
+  600: opentype.loadSync('scripts/fonts/Poppins-SemiBold.ttf'),
+  700: opentype.loadSync('scripts/fonts/Poppins-Bold.ttf'),
+};
+const textWidth = (text, size, weight = 600) => poppinsMetrics[weight].getAdvanceWidth(text, size);
+
+// "19:00" → "7 PM" (forma corta para piezas gráficas, manual §8.2).
+function shortTime(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  const h12 = h % 12 || 12;
+  return `${h12}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h < 12 ? 'AM' : 'PM'}`;
+}
 
 async function generateOgImage() {
+  // Datos del negocio desde la fuente única (precio, horario, dirección, dominio).
+  const { menuItems, restaurantInfo } = await import('../app/data/menuData.js');
+  const { SITE_URL } = await import('../app/lib/site.js');
+  const { groupSchedule } = await import('../app/lib/schedule.js');
+
+  const burgerFrom = Math.min(
+    ...menuItems
+      .filter((item) => item.category === 'LAS INTOCABLES' && item.available !== false)
+      .flatMap((item) => item.options.map((option) => option.price))
+  );
+  const priceText = `DESDE S/ ${burgerFrom.toFixed(2)}`;
+  const firstOpenDay = Object.values(restaurantInfo.hours).find(Boolean);
+  const hoursText = `${shortTime(firstOpenDay.open)} – ${shortTime(firstOpenDay.close)}`;
+  const daysText = `· ${groupSchedule().filter((g) => g.hours !== 'Cerrado').map((g) => g.days).join(', ')}`;
+  const street = restaurantInfo.address.street;
+  const prep = restaurantInfo.prepTimeMinutes;
+  const prepText = `· ${prep.min} a ${prep.max} min`;
+  const domain = new URL(SITE_URL).host;
   const antonFontBase64 = fs.readFileSync('scripts/fonts/Anton-Regular.ttf').toString('base64');
   const poppinsBoldBase64 = fs.readFileSync('scripts/fonts/Poppins-Bold.ttf').toString('base64');
   const poppinsSemiBase64 = fs.readFileSync('scripts/fonts/Poppins-SemiBold.ttf').toString('base64');
@@ -99,10 +132,10 @@ async function generateOgImage() {
     <image href="data:image/png;base64,${burgerBase64}" width="525" height="525" preserveAspectRatio="xMidYMid meet" />
   </g>
 
-  <!-- Badge "DESDE S/ 15.90" rotado sobre la burger -->
+  <!-- Badge de precio "DESDE" (hamburguesa más barata) rotado sobre la burger -->
   <g transform="translate(1015, 95) rotate(7)">
     <rect x="-85" y="-23" width="170" height="46" rx="8" fill="#FCC900" stroke="#0E0E11" stroke-width="3" filter="url(#pillShadow)" />
-    <text x="0" y="7" text-anchor="middle" class="font-anton" font-size="23" fill="#0E0E11" letter-spacing="1">DESDE S/ 15.90</text>
+    <text x="0" y="7" text-anchor="middle" class="font-anton" font-size="23" fill="#0E0E11" letter-spacing="1">${priceText}</text>
   </g>
 
   <!-- Badge "HIT LIMEÑO" -->
@@ -146,8 +179,8 @@ async function generateOgImage() {
         <path d="M14 6.667C14 11.333 8 16 8 16S2 11.333 2 6.667a6 6 0 0 1 12 0Z"/>
         <circle cx="8" cy="6.667" r="2"/>
       </g>
-      <text x="38" y="26" class="font-poppins" font-weight="600" font-size="12" fill="#FFFFFF">Pje. Larrabure 142</text>
-      <text x="162" y="26" class="font-poppins" font-weight="400" font-size="11" fill="#9CA3AF">· Lima Centro</text>
+      <text x="38" y="26" class="font-poppins" font-weight="600" font-size="12" fill="#FFFFFF">${street}</text>
+      <text x="${44 + textWidth(street, 12)}" y="26" class="font-poppins" font-weight="400" font-size="11" fill="#9CA3AF">· Lima Centro</text>
     </g>
 
     <!-- Badge 2: Horario -->
@@ -158,8 +191,8 @@ async function generateOgImage() {
         <circle cx="8.5" cy="8.5" r="7"/>
         <polyline points="8.5 4.5 8.5 8.5 11.5 10"/>
       </g>
-      <text x="38" y="26" class="font-poppins" font-weight="600" font-size="12" fill="#FFFFFF">7:00 PM – 1:00 AM</text>
-      <text x="166" y="26" class="font-poppins" font-weight="400" font-size="11" fill="#9CA3AF">· Todos los días</text>
+      <text x="38" y="26" class="font-poppins" font-weight="600" font-size="12" fill="#FFFFFF">${hoursText}</text>
+      <text x="${44 + textWidth(hoursText, 12)}" y="26" class="font-poppins" font-weight="400" font-size="11" fill="#9CA3AF">${daysText}</text>
     </g>
   </g>
 
@@ -187,7 +220,7 @@ async function generateOgImage() {
         <polygon points="10 1 2 10 7.5 10 6 16 14 7 8.5 7 10 1"/>
       </g>
       <text x="38" y="25" class="font-poppins" font-weight="600" font-size="12" fill="#FFFFFF">Recojo al toque</text>
-      <text x="146" y="25" class="font-poppins" font-weight="400" font-size="11" fill="#9CA3AF">· 15 a 20 min</text>
+      <text x="${44 + textWidth('Recojo al toque', 12)}" y="25" class="font-poppins" font-weight="400" font-size="11" fill="#9CA3AF">${prepText}</text>
     </g>
   </g>
 
@@ -200,8 +233,8 @@ async function generateOgImage() {
     <!-- Web oficial con badge status verde -->
     <g transform="translate(274, 14)">
       <circle cx="8" cy="12" r="5" fill="#22C55E" />
-      <text x="22" y="17" class="font-poppins" font-weight="700" font-size="16" fill="#FFFFFF" letter-spacing="0.5">bigjack.pe</text>
-      <text x="114" y="17" class="font-poppins" font-weight="400" font-size="13" fill="#9CA3AF">· Pedidos directos</text>
+      <text x="22" y="17" class="font-poppins" font-weight="700" font-size="16" fill="#FFFFFF" letter-spacing="0.5">${domain}</text>
+      <text x="${30 + textWidth(domain, 16, 700) + domain.length * 0.5}" y="17" class="font-poppins" font-weight="400" font-size="13" fill="#9CA3AF">· Pedidos directos</text>
     </g>
   </g>
 </svg>

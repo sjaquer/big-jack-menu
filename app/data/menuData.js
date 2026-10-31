@@ -4,22 +4,25 @@
 
 export const restaurantInfo = {
   name: "BIG JACK",
-  // 🔒 D2: razón social y RUC pendientes de confirmación del dueño.
+  // 🔒 D2: razón social pendiente de confirmación del dueño.
   legalName: "Big Jack Perú S.A.C.",
-  ruc: "15614908278",
+  // RUC en trámite de cambio: vuelve en enero 2027 (ver REMEDIATION_PLAN.md, "Enero 2027").
+  // Mientras sea null no se muestra en ninguna parte.
+  ruc: null,
   slogan: "No vendemos humo. Vendemos carne, fuego y barrio.",
   description:
     "Hamburguesas gruesas a la plancha en el Centro de Lima. Carne de res, queso derretido y salsas de la casa. Pide por la web para recojo o delivery.",
   // Horarios por día (0 = domingo … 6 = sábado), hora de Lima.
   // Si `close` es menor que `open`, el turno termina pasada la medianoche.
+  // `close: "00:00"` = cierra a la medianoche. Un día sin entrada (null) está cerrado.
   hours: {
-    0: { open: "19:00", close: "01:00" }, // Domingo
-    1: { open: "19:00", close: "01:00" }, // Lunes
-    2: { open: "19:00", close: "01:00" }, // Martes
-    3: { open: "19:00", close: "01:00" }, // Miércoles
-    4: { open: "19:00", close: "01:00" }, // Jueves
-    5: { open: "19:00", close: "01:00" }, // Viernes
-    6: { open: "19:00", close: "01:00" }, // Sábado
+    0: null, // Domingo: cerrado
+    1: { open: "19:00", close: "00:00" }, // Lunes
+    2: { open: "19:00", close: "00:00" }, // Martes
+    3: { open: "19:00", close: "00:00" }, // Miércoles
+    4: { open: "19:00", close: "00:00" }, // Jueves
+    5: { open: "19:00", close: "00:00" }, // Viernes
+    6: { open: "19:00", close: "00:00" }, // Sábado
   },
   // Tiempo estimado de preparación para recojo.
   prepTimeMinutes: { min: 15, max: 20 },
@@ -40,9 +43,8 @@ export const restaurantInfo = {
     googleMapsLink: "https://maps.app.goo.gl/RFkecMjMDjZhQcxG6",
     googleReviewLink: "https://g.page/r/CRukRtdfadmpEAE/review",
   },
+  // PedidosYa desactivado (2026-10-31) por decisión del dueño.
   deliveryApps: {
-    pedidosYa:
-      "https://www.pedidosya.com.pe/restaurantes/lima/hamburguesas-bigjack-1256afaf-58b6-47bf-8798-54e46d82dc82-menu",
     rappi:
       "https://www.rappi.com.pe/restaurantes/delivery/72151-hamburguesas-big-jack?utm_source=app&utm_medium=deeplink&utm_campaign=share",
   },

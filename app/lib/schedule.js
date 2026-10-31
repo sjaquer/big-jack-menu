@@ -1,6 +1,6 @@
 // Formateo del horario de atención para mostrarlo al cliente.
 // Fuente: `restaurantInfo.hours` (0 = domingo … 6 = sábado).
-import { restaurantInfo } from "../data/menuData";
+import { restaurantInfo } from "../data/menuData.js";
 
 const DAY_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const DAY_LONG = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
