@@ -1,9 +1,16 @@
 // Utilidades geométricas para construir la marca como trazos SVG (sin depender de fuentes).
+import fs from "node:fs";
 import opentype from "opentype.js";
+
+// Carga una fuente desde disco (API estable de opentype.js 1.x y 2.x).
+const loadFont = (file) => {
+  const data = fs.readFileSync(file);
+  return opentype.parse(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+};
 import { fileURLToPath } from "node:url";
 
 const FONT_PATH = fileURLToPath(new URL("../fonts/TitanOne-Regular.ttf", import.meta.url));
-export const font = opentype.loadSync(FONT_PATH);
+export const font = loadFont(FONT_PATH);
 
 const round = (n) => Math.round(n * 100) / 100;
 

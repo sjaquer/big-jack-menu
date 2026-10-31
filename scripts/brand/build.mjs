@@ -4,6 +4,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import opentype from "opentype.js";
+
+// Carga una fuente desde disco (API estable de opentype.js 1.x y 2.x).
+const loadFont = (file) => {
+  const data = fs.readFileSync(file);
+  return opentype.parse(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+};
 import sharp from "sharp";
 import { horizontalWordmark, monogramSvg, stackedWordmark, wordmarkSvg } from "./wordmark.mjs";
 import { sealSvg } from "./seal.mjs";
@@ -12,7 +18,7 @@ const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const OUT = path.join(ROOT, "public/brand");
 const SOCIAL = path.join(OUT, "redes");
 const COLORS = { yellow: "#FCC900", black: "#0F0F12", red: "#B22222", white: "#FFFFFF" };
-const poppins = opentype.loadSync(path.join(ROOT, "scripts/fonts/Poppins-SemiBold.ttf"));
+const poppins = loadFont(path.join(ROOT, "scripts/fonts/Poppins-SemiBold.ttf"));
 
 fs.mkdirSync(SOCIAL, { recursive: true });
 const write = (file, content) => {

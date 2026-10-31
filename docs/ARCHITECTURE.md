@@ -145,7 +145,7 @@ sequenceDiagram
   SO->>API: POST JSON
   API->>API: Rate-limit (memoria), JSON válido, eventId, items, SKU activo, cantidades, precio (si viene)
   API->>ERP: POST + x-webhook-secret (timeout 15 s)
-  ERP-->>API: 200 {success, orderId, saleId, duplicated?} / 4xx / 5xx
+  ERP-->>API: 200 {success, orderId, duplicated?} / 4xx / 5xx
   API-->>UI: Mismo status y body
   UI->>UI: OrderConfirmation + vaciar carrito
   C->>WA: "Enviar por WhatsApp" (wa.me/?text=resumen)
@@ -178,17 +178,23 @@ sequenceDiagram
 
 `paymentMethod` ∈ `efectivo | yape | plin | tarjeta` (`cash`/`card` se normalizan).
 
-**Validaciones en el proxy:** JSON válido · `items` no vacío · `eventId` string · cada ítem con `sku` activo y `quantity` entera 1–10 · total ≤ 30 · `price` (si viene) igual al catálogo ±0.01 · máx. 5 pedidos válidos por IP / 15 min.
+**Seguridad y validaciones en el servidor** (`route.js` + `lib/orderRules.js` + `lib/catalog.js`):
+
+- Solo mismo origen (`Origin` = host; `Sec-Fetch-Site` ≠ `cross-site`) → si no, `403`. `Content-Type: application/json` → si no, `415`. Cuerpo ≤ 16 KB → si no, `413`.
+- Máx. 5 pedidos válidos por IP cada 15 min (en memoria, por instancia; ver SEC-04).
+- `eventId` con formato válido · ítems con `sku` vendible, `quantity` entera 1–10, total ≤ 30, `price` (si viene) igual al catálogo · bebidas solo con hamburguesa · `orderType` `pickup`/`delivery` · método de pago válido y sin efectivo en delivery · delivery con dirección o ubicación · **horario calculado en el servidor**: cerrado ⇒ solo recojo y `isPreOrder: true`.
+- El pedido que va al ERP se **reconstruye con lista blanca** (misma forma que la de arriba): se descartan campos desconocidos, se recortan textos, se quitan caracteres de control, `orderDate` lo pone el servidor y `locationLink` solo se acepta si es un link de Google Maps con coordenadas.
 
 **Respuestas:**
 
 | Status | Origen | Body |
 | :-: | :--- | :--- |
-| 200 | ERP | `{ success: true, orderId, saleId, duplicated? }` |
-| 400 | Proxy / ERP | `{ success: false, error }` |
-| 401 | ERP | Secreto inválido |
+| 200 | Proxy | `{ success: true, orderId, duplicated }` (respuesta normalizada; la del ERP no se reenvía) |
+| 400 | Proxy | `{ success: false, error }` (regla de negocio o formato) |
+| 403 / 413 / 415 | Proxy | Origen no permitido / cuerpo muy grande / no es JSON |
+| 422 | Proxy | El ERP rechazó el pedido (detalle solo en el log del servidor) |
 | 429 | Proxy | Límite de pedidos |
-| 502 | Proxy | Error de red con el ERP |
+| 502 | Proxy | Error del ERP o de red |
 | 504 | Proxy | Timeout (15 s) |
 
 Contrato del lado ERP: [`webhook-pedidos.md`](./webhook-pedidos.md). Contrato antiguo (deprecado): [`legacy/online-orders-api.md`](./legacy/online-orders-api.md).

@@ -1,242 +1,134 @@
 import { NextResponse } from "next/server";
 import { menuItems } from "../../data/menuData.js";
-import {
-  MAX_QTY_PER_ITEM,
-  MAX_CART_ITEMS,
-  RATE_LIMIT_WINDOW_MS,
-  RATE_LIMIT_MAX_REQUESTS,
-} from "../../features/shop/constants.js";
+import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS } from "../../features/shop/constants.js";
+import { buildSkuIndex } from "../../lib/catalog.js";
+import { validateOrder } from "../../lib/orderRules.js";
+
+// Proxy al webhook del ERP. El servidor es la fuente de verdad: valida reglas de negocio
+// y reenvía solo campos conocidos (ver lib/orderRules.js y docs/webhook-pedidos.md).
 
 const REQUEST_TIMEOUT_MS = 15000;
+const MAX_BODY_BYTES = 16 * 1024;
 const DEFAULT_ERP_BASE_URL = "https://bigjack-rp.vercel.app";
 const DEFAULT_WEBHOOK_PATH = "/api/webhooks/orders";
+const GENERIC_ERROR = "No pudimos registrar tu pedido. Intenta otra vez en unos minutos o escríbenos por WhatsApp.";
 
+const catalog = buildSkuIndex(menuItems);
+
+// Límite por IP en memoria (por instancia). Para un límite global en serverless ver SEC-04.
 const ipCache = new Map();
 
-function cleanIpCache(now) {
-  for (const [key, val] of ipCache.entries()) {
-    const filtered = val.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS);
-    if (filtered.length === 0) {
-      ipCache.delete(key);
-    } else {
-      ipCache.set(key, filtered);
-    }
+function isRateLimited(ip, now) {
+  for (const [key, list] of ipCache) {
+    const recent = list.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS);
+    if (recent.length) ipCache.set(key, recent);
+    else ipCache.delete(key);
   }
+  return (ipCache.get(ip) || []).length >= RATE_LIMIT_MAX_REQUESTS;
 }
 
-const skuCatalog = new Map();
-for (const item of menuItems) {
-  if (item.available === false) continue;
-
-  if (Array.isArray(item.options)) {
-    for (const option of item.options) {
-      if (option?.sku) {
-        skuCatalog.set(option.sku.trim(), {
-          price: option.price,
-          name: `${item.name} (${option.label})`,
-        });
-      }
-    }
-  } else if (item.sku) {
-    skuCatalog.set(item.sku.trim(), {
-      price: item.price || 0,
-      name: item.name,
-    });
-  }
+function registerRequest(ip, now) {
+  ipCache.set(ip, [...(ipCache.get(ip) || []), now]);
 }
 
 function getWebhookUrl() {
-  const directUrl = process.env.WEBHOOK_ORDERS_URL;
-  if (directUrl) return directUrl;
-
+  if (process.env.WEBHOOK_ORDERS_URL) return process.env.WEBHOOK_ORDERS_URL;
   const baseUrl = process.env.ERP_BASE_URL || DEFAULT_ERP_BASE_URL;
   return `${baseUrl.replace(/\/$/, "")}${DEFAULT_WEBHOOK_PATH}`;
 }
 
 function getWebhookSecret() {
-  return (
-    process.env.WEBHOOK_MENU_SECRET ||
-    process.env.WEBHOOK_SECRET ||
-    process.env.ERP_WEBHOOK_SECRET ||
-    null
-  );
+  // WEBHOOK_MENU_SECRET es el nombre oficial; los otros quedan por compatibilidad (SEC-11).
+  return process.env.WEBHOOK_MENU_SECRET || process.env.WEBHOOK_SECRET || process.env.ERP_WEBHOOK_SECRET || null;
 }
 
-function normalizePayloadForWebhook(payload) {
-  const customerName =
-    typeof payload?.customerName === "string"
-      ? payload.customerName.trim()
-      : typeof payload?.customer?.name === "string"
-      ? payload.customer.name.trim()
-      : "";
-
-  const customerPhone =
-    typeof payload?.customerPhone === "string"
-      ? payload.customerPhone.trim()
-      : typeof payload?.customer?.phone === "string"
-      ? payload.customer.phone.trim()
-      : "";
-
-  return {
-    ...payload,
-    customerName: customerName || "Cliente online",
-    customerPhone: customerPhone || null,
-    customer: {
-      ...(payload?.customer || {}),
-      name: customerName || "Cliente online",
-      phone: customerPhone || null,
-    },
-  };
+// Solo se aceptan pedidos enviados desde el propio sitio (SEC-02).
+function isSameOrigin(request) {
+  if (request.headers.get("sec-fetch-site") === "cross-site") return false;
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+  try {
+    const originHost = new URL(origin).host;
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
+    return originHost === host;
+  } catch {
+    return false;
+  }
 }
+
+const json = (body, status) => NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
+const error = (message, status) => json({ success: false, error: message }, status);
 
 export async function POST(request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    request.headers.get("x-real-ip") ||
-    "127.0.0.1";
+  if (!isSameOrigin(request)) return error("Origen no permitido.", 403);
+  if (!request.headers.get("content-type")?.includes("application/json")) {
+    return error("El pedido debe enviarse como JSON.", 415);
+  }
 
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("x-real-ip") || "local";
   const now = Date.now();
-  cleanIpCache(now);
-
-  let timestamps = ipCache.get(ip) || [];
-  timestamps = timestamps.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS);
-
-  if (timestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Has superado el límite de pedidos. Por favor, espera 15 minutos antes de volver a intentarlo.",
-      },
-      { status: 429 }
-    );
+  if (isRateLimited(ip, now)) {
+    return error("Hiciste varios pedidos seguidos. Espera 15 minutos o escríbenos por WhatsApp.", 429);
   }
 
-  const upstreamUrl = getWebhookUrl();
-  const webhookSecret = getWebhookSecret();
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) return error("El pedido es demasiado grande.", 413);
 
-  let payload;
+  let body;
   try {
-    payload = await request.json();
+    body = JSON.parse(raw);
   } catch {
-    return NextResponse.json(
-      { success: false, error: "El body debe ser JSON válido." },
-      { status: 400 }
-    );
+    return error("El pedido no tiene un formato válido.", 400);
   }
 
-  if (!Array.isArray(payload?.items) || payload.items.length === 0) {
-    return NextResponse.json(
-      { success: false, error: "El pedido debe incluir items." },
-      { status: 400 }
-    );
-  }
+  const result = validateOrder(body, { catalog, now: new Date(now) });
+  if (!result.ok) return error(result.error, result.status);
 
-  if (!payload?.eventId || typeof payload.eventId !== "string") {
-    return NextResponse.json(
-      { success: false, error: "El pedido debe incluir eventId para idempotencia." },
-      { status: 400 }
-    );
-  }
-
-  const hasInvalidItem = payload.items.some(
-    (item) => !item?.sku || !Number.isFinite(Number(item.quantity)) || Number(item.quantity) <= 0
-  );
-  if (hasInvalidItem) {
-    return NextResponse.json(
-      { success: false, error: "Todos los items deben incluir sku y quantity mayor a 0." },
-      { status: 400 }
-    );
-  }
-
-  let totalItemsCount = 0;
-  for (const item of payload.items) {
-    const itemSku = String(item.sku || "").trim();
-    const qty = Number(item.quantity);
-
-    if (!Number.isInteger(qty) || qty <= 0) {
-      return NextResponse.json(
-        { success: false, error: "La cantidad de cada producto debe ser un entero mayor a 0." },
-        { status: 400 }
-      );
-    }
-
-    if (qty > MAX_QTY_PER_ITEM) {
-      return NextResponse.json(
-        { success: false, error: `La cantidad máxima por producto es ${MAX_QTY_PER_ITEM} unidades.` },
-        { status: 400 }
-      );
-    }
-    totalItemsCount += qty;
-
-    const catalogItem = skuCatalog.get(itemSku);
-    if (!catalogItem) {
-      return NextResponse.json(
-        { success: false, error: `El producto con SKU ${itemSku} no existe o no está disponible.` },
-        { status: 400 }
-      );
-    }
-
-    if (item.price !== undefined && Math.abs(Number(item.price) - catalogItem.price) > 0.01) {
-      return NextResponse.json(
-        { success: false, error: `El precio para el producto ${catalogItem.name} es incorrecto.` },
-        { status: 400 }
-      );
-    }
-  }
-
-  if (totalItemsCount > MAX_CART_ITEMS) {
-    return NextResponse.json(
-      { success: false, error: `El total de productos en el pedido no puede superar las ${MAX_CART_ITEMS} unidades.` },
-      { status: 400 }
-    );
-  }
-
-  timestamps.push(now);
-  ipCache.set(ip, timestamps);
-
-  const normalizedPayload = normalizePayloadForWebhook(payload);
+  registerRequest(ip, now);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = { "Content-Type": "application/json" };
+    const secret = getWebhookSecret();
+    if (secret) headers["x-webhook-secret"] = secret;
 
-    if (webhookSecret) {
-      headers["x-webhook-secret"] = webhookSecret;
-    }
-
-    const upstream = await fetch(upstreamUrl, {
+    const upstream = await fetch(getWebhookUrl(), {
       method: "POST",
       headers,
-      body: JSON.stringify(normalizedPayload),
+      body: JSON.stringify(result.order),
       signal: controller.signal,
+      cache: "no-store",
     });
 
-    const rawText = await upstream.text();
-    let body = {};
-
+    const text = await upstream.text();
+    let data = {};
     try {
-      body = rawText ? JSON.parse(rawText) : {};
+      data = text ? JSON.parse(text) : {};
     } catch {
-      body = { success: upstream.ok, message: rawText || "Respuesta sin JSON" };
+      data = {};
     }
 
-    return NextResponse.json(body, { status: upstream.status });
-  } catch (error) {
-    if (error?.name === "AbortError") {
-      return NextResponse.json(
-        { success: false, error: "Tiempo de espera agotado al registrar tu pedido. Intenta nuevamente." },
-        { status: 504 }
-      );
+    if (!upstream.ok || data.success === false) {
+      // La respuesta del ERP se registra en el servidor; al cliente va un mensaje genérico (SEC-09).
+      console.error("[online-orders] ERP rechazó el pedido", upstream.status, text.slice(0, 500));
+      return error(GENERIC_ERROR, upstream.status >= 500 ? 502 : 422);
     }
 
-    return NextResponse.json(
-      { success: false, error: "No se pudo completar el registro del pedido en este momento." },
-      { status: 502 }
+    const orderId = data.orderId ?? data.order?.id ?? data.id ?? null;
+    return json(
+      {
+        success: true,
+        orderId: orderId != null ? String(orderId).slice(0, 64) : null,
+        duplicated: Boolean(data.duplicated),
+      },
+      200
     );
+  } catch (err) {
+    if (err?.name === "AbortError") return error("El sistema tardó demasiado. Intenta otra vez.", 504);
+    console.error("[online-orders] Error al llamar al ERP", err?.message);
+    return error(GENERIC_ERROR, 502);
   } finally {
     clearTimeout(timeoutId);
   }

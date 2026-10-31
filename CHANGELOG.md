@@ -1,5 +1,15 @@
 # Cambios
 
+## Dependencias y seguridad
+
+Fecha: 2026-10-31
+
+1. Dependencias: React 19.3.1, Tailwind 4.3.3, nodemailer 10.3.1, lucide-react 1.66, ESLint 9.39.5, opentype.js 2.0 (scripts de marca adaptados a `opentype.parse`). Producción sin vulnerabilidades.
+2. `/api/online-orders`: solo mismo origen, JSON, ≤ 16 KB; reglas de negocio y horario en el servidor (`lib/orderRules.js`, `lib/catalog.js`); pedido al ERP reconstruido con lista blanca (mismo contrato); respuesta normalizada sin filtrar datos del ERP.
+3. Content-Security-Policy y Cross-Origin-Opener-Policy (compatibles con Google Tag Manager).
+4. `eventId` con aleatoriedad criptográfica.
+5. Analytics: evitado el doble conteo de eventos cuando se usa GTM.
+
 ## Horario, OG, RUC, PedidosYa y Libro de Reclamaciones
 
 Fecha: 2026-10-31

@@ -108,6 +108,21 @@
 | BUG-09 / DEAD-10 / PERF-04 | Reto Gamer reemplazado por "Arma tu burger" (motor puro con tests, ~400 líneas en total); sin ranking falso ni datos personales. |
 | SEO-03 | Search Console verificado con la meta oficial de `bigjack.vercel.app`. |
 
+### Seguridad y dependencias (2026-10-31)
+
+| ID | Cambio |
+| :--- | :--- |
+| SEC-03 | El proxy reconstruye el pedido con lista blanca (`lib/orderRules.js`); ya no hace spread del body. |
+| SEC-05 | Reglas de negocio en el servidor: horario (Lima), pre-orden solo recojo, delivery sin efectivo, bebidas con hamburguesa, máximos y longitudes. |
+| SEC-02 | ⚠️ Parcial: mismo origen, `Content-Type` y límite de 16 KB. Falta Turnstile. |
+| SEC-07 | CSP + COOP además de las cabeceras previas. |
+| SEC-09 | Respuesta normalizada al cliente; la del ERP solo en el log del servidor. |
+| SEC-10 | `eventId` con aleatoriedad criptográfica. |
+| — | Analytics: con GTM los eventos ya no se envían dos veces (dataLayer + gtag). |
+| — | Dependencias: React 19.3.1, Tailwind 4.3.3, nodemailer 10.3.1, lucide-react 1.66, ESLint 9.39.5, opentype.js 2.0. `npm audit --omit=dev` = 0. Quedan 16 avisos **moderados solo de desarrollo** (`minimatch` < 11 en la cadena de ESLint, ReDoS con patrones controlados por nosotros); ESLint 10 no los resuelve. Riesgo aceptado. |
+
+**Pendientes de seguridad:** SEC-04 (rate-limit persistente: Upstash/Vercel KV o Vercel Firewall), Turnstile (SEC-02/06), SEC-06 y validación de longitudes del Libro al reactivarlo (enero), SEC-11 (dejar solo `WEBHOOK_MENU_SECRET` cuando se confirme el nombre usado en Vercel), aviso de privacidad (LEG-04) antes de medir con GA/GTM.
+
 ## Escala de severidad
 
 | Nivel | Significado |

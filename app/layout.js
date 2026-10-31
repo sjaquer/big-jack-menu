@@ -96,7 +96,7 @@ export default function RootLayout({ children }) {
         <script
           id="gtag-init"
           dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());`,
+            __html: `window.__bjUsesGtm=true;window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());`,
           }}
         />
       )}

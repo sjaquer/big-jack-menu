@@ -4,23 +4,30 @@
 
 const CURRENCY = "PEN";
 
+function pushToDataLayer(name, params) {
+  if (params.items) {
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({ event: name, ecommerce: params });
+  } else {
+    window.dataLayer.push({ event: name, ...params });
+  }
+}
+
+// Un solo canal por evento para no contarlo dos veces en GA4:
+// con Google Tag Manager → dataLayer; sin GTM → gtag; si solo hay dataLayer → dataLayer.
 export function track(name, params = {}) {
   if (typeof window === "undefined") return;
 
-  // Google Tag Manager (dataLayer): formato oficial para GA4 eCommerce y eventos GTM
-  if (Array.isArray(window.dataLayer)) {
-    if (params.items) {
-      window.dataLayer.push({ ecommerce: null });
-      window.dataLayer.push({ event: name, ecommerce: params });
-    } else {
-      window.dataLayer.push({ event: name, ...params });
-    }
+  const usesGtm = window.__bjUsesGtm === true;
+  if (usesGtm && Array.isArray(window.dataLayer)) {
+    pushToDataLayer(name, params);
+    return;
   }
-
-  // Google Analytics directo (gtag) si está disponible
   if (typeof window.gtag === "function") {
     window.gtag("event", name, params);
+    return;
   }
+  if (Array.isArray(window.dataLayer)) pushToDataLayer(name, params);
 }
 
 // Ítem GA4 desde un ítem de carrito ({ sku, name, optionLabel, category, price, quantity }).

@@ -58,15 +58,18 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 
 ## Fase 2 — API de pedidos: el servidor manda 🔒 (D4)
 
-- [ ] **2.1** Crear `app/lib/catalog.js` (índice de SKUs activos con precio y nombre) y usarlo en `route.js` y `submitOrder.js`. [QLT-02]
-- [ ] **2.2** Crear `app/lib/orderRules.js` con las reglas de negocio (horario en `America/Lima`, pre-orden solo recojo, delivery sin efectivo, complementos, máximos, longitudes). Usarlo en cliente **y** servidor. [SEC-05, BUG-05]
-- [ ] **2.3** Construir en servidor el payload saliente con lista blanca de campos (no hacer spread del body). [SEC-03]
-- [ ] **2.4** Normalizar la respuesta al cliente (`{ success, orderId, duplicated, message }`) y loguear la respuesta cruda del ERP en servidor. [SEC-09]
-- [ ] **2.5** `eventId` con `crypto.randomUUID()`; mantener el mismo id en reintentos del mismo intento de compra. [SEC-10]
+- [x] **2.1** Crear `app/lib/catalog.js` (índice de SKUs activos con precio y nombre) y usarlo en `route.js` y `submitOrder.js`. [QLT-02]
+- [x] **2.2** Crear `app/lib/orderRules.js` con las reglas de negocio (horario en `America/Lima`, pre-orden solo recojo, delivery sin efectivo, complementos, máximos, longitudes). Usarlo en cliente **y** servidor. [SEC-05, BUG-05]
+- [x] **2.3** Construir en servidor el payload saliente con lista blanca de campos (no hacer spread del body). [SEC-03]
+- [x] **2.4** Normalizar la respuesta al cliente (`{ success, orderId, duplicated, message }`) y loguear la respuesta cruda del ERP en servidor. [SEC-09]
+- [x] **2.5** `eventId` con `crypto.randomUUID()`; mantener el mismo id en reintentos del mismo intento de compra. [SEC-10]
+  - Hecho 2026-10-31 (2.1–2.5): `lib/catalog.js` y `lib/orderRules.js` (con tests) usados por `route.js`; pedido saliente con lista blanca y la misma forma (contrato intacto); horario y pre-orden decididos en el servidor; respuesta normalizada `{ success, orderId, duplicated }` y log del ERP en servidor; `eventId` con `crypto.getRandomValues` (mismo formato `menu-AAAAMMDD-xxxxxx`). Pendiente: que `submitOrder.js` (cliente) también use `orderRules` para no duplicar reglas.
 - [ ] **2.6** Verificación de `Origin` + Turnstile en el checkout. [SEC-02]
+  - Parcial 2026-10-31: verificación de `Origin`/`Sec-Fetch-Site`, `Content-Type` y tamaño del cuerpo. Falta Turnstile (requiere crear la cuenta de Cloudflare y las claves).
 - [ ] **2.7** Rate-limit persistente (Upstash/Vercel KV o Vercel Firewall). [SEC-04]
 - [ ] **2.8** `app/lib/env.js`: un nombre por variable, validación al arranque, sin fallbacks `NEXT_PUBLIC_` para secretos. Actualizar `.env.example`. [SEC-11, OPS-03]
 - [x] **2.9** Cabeceras de seguridad en `next.config.mjs`. [SEC-07]
+  - 2026-10-31: CSP agregada (permite Google Tag Manager/Analytics; probada en build de producción con GTM sin violaciones) + `Cross-Origin-Opener-Policy`. Si se agregan en GTM etiquetas de otros proveedores, sumar sus dominios en `next.config.mjs`.
   - Hecho 2026-10-31: `nosniff`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, HSTS y `poweredByHeader: false`. CSP pendiente (requiere probar el embed de Maps y scripts de Next).
 - *Aceptación:* `curl` directo al endpoint con campos extra, fuera de horario, con delivery+efectivo o solo bebidas → `400`; con origen ajeno → `403`; pedido válido desde la UI → `200` y llega al ERP de **staging**.
 

@@ -59,4 +59,13 @@ describe("track", () => {
       ])
     );
   });
+
+  it("con GTM no duplica el evento por gtag", () => {
+    const dataLayer = [];
+    const gtag = vi.fn((...args) => dataLayer.push(args));
+    vi.stubGlobal("window", { dataLayer, gtag, __bjUsesGtm: true });
+    analytics.addToCart(product, product.options[0], 1);
+    expect(gtag).not.toHaveBeenCalled();
+    expect(dataLayer.filter((entry) => entry.event === "add_to_cart")).toHaveLength(1);
+  });
 });

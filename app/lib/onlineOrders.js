@@ -5,10 +5,13 @@ function normalizePaymentMethod(method) {
   return value || "efectivo";
 }
 
+// Id único por intento de pedido (idempotencia en el ERP). Aleatoriedad criptográfica (SEC-10);
+// mismo formato de siempre: menu-AAAAMMDD-xxxxxx.
 function buildEventId() {
-  const now = new Date();
-  const date = now.toISOString().slice(0, 10).replace(/-/g, "");
-  const nonce = Math.random().toString(36).slice(2, 8);
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const bytes = new Uint8Array(6);
+  globalThis.crypto.getRandomValues(bytes);
+  const nonce = Array.from(bytes, (b) => "abcdefghijklmnopqrstuvwxyz0123456789"[b % 36]).join("");
   return `menu-${date}-${nonce}`;
 }
 

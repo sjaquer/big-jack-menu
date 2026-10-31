@@ -2,10 +2,16 @@ const fs = require('fs');
 const sharp = require('sharp');
 const opentype = require('opentype.js');
 
+// Carga una fuente desde disco (API estable de opentype.js 1.x y 2.x).
+const loadFont = (file) => {
+  const data = fs.readFileSync(file);
+  return opentype.parse(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+};
+
 // Ancho real de un texto con Poppins (para ubicar el texto que va a continuación).
 const poppinsMetrics = {
-  600: opentype.loadSync('scripts/fonts/Poppins-SemiBold.ttf'),
-  700: opentype.loadSync('scripts/fonts/Poppins-Bold.ttf'),
+  600: loadFont('scripts/fonts/Poppins-SemiBold.ttf'),
+  700: loadFont('scripts/fonts/Poppins-Bold.ttf'),
 };
 const textWidth = (text, size, weight = 600) => poppinsMetrics[weight].getAdvanceWidth(text, size);
 
