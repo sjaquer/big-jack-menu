@@ -82,7 +82,7 @@ export const metadata = {
       "max-snippet": -1,
     },
   },
-  verification: { google: GOOGLE_SITE_VERIFICATION },
+  verification: GOOGLE_SITE_VERIFICATION ? { google: GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
 export default function RootLayout({ children }) {

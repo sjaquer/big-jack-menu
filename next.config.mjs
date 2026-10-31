@@ -12,6 +12,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  productionBrowserSourceMaps: false,
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
