@@ -1,5 +1,15 @@
 # Cambios
 
+## Logo v3: wordmark chorreante y sello "Central de Potencia"
+
+Fecha: 2026-10-31
+
+1. Nuevo wordmark BIG JACK con letras gordas y redondeadas, rebote de rótulo y queso que chorrea; versiones horizontal y apilada en amarillo, negro, blanco y rojo.
+2. Isotipo: sello "Central de Potencia" (completo, simple y a una tinta) y monograma "B" para favicon.
+3. Íconos del sitio regenerados (favicon.ico 16/32/48, icon.svg, apple-icon, manifest 192/512) y OG con el logo nuevo.
+4. Piezas para redes: avatar, perfil de WhatsApp, portada de Facebook, cabecera de X y fondo de historia.
+5. Todo se genera con `npm run brand` (`scripts/brand/`); fuente base Titan One (OFL) en `scripts/fonts/`.
+
 ## Google Search Console, Analytics, página de links y nuevo minijuego
 
 Fecha: 2026-10-31

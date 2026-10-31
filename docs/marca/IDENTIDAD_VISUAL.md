@@ -26,24 +26,30 @@ Toda pieza de BIG JACK está en uno de dos modos. En el feed se **alternan**, pa
 
 ---
 
-## 2. Logotipo ✅
+## 2. Logotipo ✅ (v3, 2026-10-31)
 
-**Wordmark "BIG JACK"** en **Parkinsans Bold**, espacio entre letras −120. Existen vectores (🔒 definir dónde se guardan y compartirlos: [B12](./MANUAL_DE_MARCA.md#12-decisiones-pendientes)).
+**Wordmark "BIG JACK"**: letras gordas y redondeadas (base: Titan One, licencia OFL, convertida a trazos y modificada), apretadas, con un leve rebote y giro por letra (como rótulo pintado a mano) y **queso que chorrea** de los palos de la I, la A y la K. Nunca una gota bajo la C (se leería "Ç"). Reemplaza al wordmark anterior en Parkinsans, que era rígido y tenía letras fundidas.
 
-| Versión | Descripción | Uso |
+Todos los archivos están en [`public/brand/`](../../public/brand/) (también en `https://bigjack.vercel.app/brand/…`) y se regeneran con `npm run brand` (código en `scripts/brand/`). No editar los SVG a mano: cambiar el script.
+
+| Versión | Archivo | Uso |
 | :--- | :--- | :--- |
-| **Apilada** | BIG / JACK en dos líneas | Principal: avatar, empaque, piezas verticales. |
-| **Horizontal** | BIGJACK en una línea | Headers, banners, espacios bajos. |
-| **Bicolor** | BIG blanco + JACK rojo, apilada | Sobre negro, piezas intensas. |
-| **Avatar** | Apilada roja sobre círculo amarillo (la que usa Instagram hoy) | Avatar de redes. ✅ Se mantiene. |
-| **Con cuernos** | Horizontal blanco sobre cuernos rojos en V + "MENOS CARTÓN. MÁS CARNE. LEGAL." | Cierre de videos, campañas. |
+| **Horizontal** | `logo-horizontal.svg` (amarillo) · `-negro` · `-blanco` | Header web, banners, portadas. |
+| **Apilada** | `logo-apilado.svg` (amarillo) · `-negro` · `-blanco` · `-rojo` | Avatar, empaque, piezas verticales. Rojo solo sobre amarillo. |
+| **Isotipo: sello "Central de Potencia"** | `sello.svg` | Aro negro con "PJE. LARRABURE 142 ★ CENTRAL DE POTENCIA", centro amarillo con el apilado en rojo. Avatar de redes, stickers, empaque. |
+| **Sello simple** | `sello-simple.svg` | Sin texto en el aro: íconos de app y tamaños menores a ~200 px. |
+| **Sello a una tinta** | `sello-negro.svg` · `sello-blanco.svg` | Sello de goma, bolsa kraft, aluminio (texto calado). |
+| **Monograma "B"** | `monograma.svg` | Solo favicon (16–48 px). |
+| **Redes** | `redes/avatar-sello.png` (1080), `avatar-logo.png`, `perfil-whatsapp.png` (640), `portada-facebook.png` (1640×624), `cabecera-x.png` (1500×500), `historia-fondo.png` (1080×1920) | Listos para subir. |
 
-**Combinaciones permitidas:** negro sobre amarillo · amarillo sobre negro · rojo sobre amarillo (avatar) · blanco sobre negro o foto oscura · bicolor sobre negro · negro sobre kraft/aluminio.
+**Color:** amarillo `#FCC900` y negro `#0F0F12` como base; rojo `#B22222` como acento (centro del sello, apilado sobre amarillo).
 
-**Área de reserva:** margen libre igual a la altura de la "I".
-**Tamaño mínimo:** apilada 64 px / 18 mm; horizontal 96 px / 25 mm.
+**Combinaciones permitidas:** amarillo sobre negro · negro sobre amarillo · rojo sobre amarillo · blanco sobre negro o foto oscura · una tinta negra sobre kraft/aluminio.
 
-**El logo no se ensucia.** Puede ir sobre una foto sucia, pero nunca con texturas encima, sombras, degradados, 3D, contornos ni neón. Tampoco blanco sobre amarillo ni rojo sobre negro.
+**Área de reserva:** margen libre igual al grosor del palo de la "I".
+**Tamaño mínimo:** horizontal 96 px / 25 mm; apilada 64 px / 18 mm; sello completo 200 px / 30 mm (debajo, usar sello simple).
+
+**El logo no se ensucia.** Puede ir sobre una foto sucia, pero nunca con texturas encima, sombras, degradados, 3D, contornos ni neón. Tampoco blanco sobre amarillo ni rojo sobre negro. Las gotas son parte del logo: no se quitan ni se alargan.
 
 ---
 
@@ -91,7 +97,7 @@ Toda pieza de BIG JACK está en uno de dos modos. En el feed se **alternan**, pa
 
 | Rol | Fuente | Reglas |
 | :--- | :--- | :--- |
-| **Logotipo** | Parkinsans Bold | Solo el wordmark. |
+| **Logotipo** | Trazos propios (base Titan One, OFL) | Solo el wordmark; no se escribe con la fuente, se usa el SVG. |
 | **Titulares** | **Anton** | MAYÚSCULAS, tracking −2 % a −5 %, interlineado 0.85–0.9. |
 | **Texto y etiquetas** | **Poppins** 400–800 | Cuerpo en tipo oración. Etiquetas en 800 + MAYÚSCULAS + tracking +10 %. |
 | **Garabato** | A mano (plumón blanco o negro) | Flechas, círculos, contornos sobre la burger, notas del tío. Se dibuja, no se tipea. |

@@ -55,8 +55,9 @@ app/
 ├── actions.js                   # Server Action: sendComplaint
 ├── api/online-orders/route.js   # Proxy al webhook del ERP
 ├── robots.js · sitemap.js · manifest.js · llms.txt/route.js · not-found.js
-public/images/                   # Fotos .webp, burger-hero.webp, og-bigjack.jpg, logos
-scripts/                         # generate-og.js, test-webhook-orders.ps1 (⚠️ OPS-01)
+public/images/                   # Fotos .webp, burger-hero.webp, og-bigjack.jpg
+public/brand/                    # Logos SVG (horizontal, apilado, sello, monograma) y PNG para redes
+scripts/                         # brand/ (kit de marca: npm run brand), generate-og.js (npm run og), test-webhook-orders.ps1 (⚠️ OPS-01)
 ```
 
 ## 3. Rutas

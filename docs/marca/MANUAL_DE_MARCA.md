@@ -512,7 +512,7 @@ CHECK: datos verificados [sí/no] · producto real [sí/no] · riesgos [ninguno 
 | B9 | Autoría de "metal y melancolía" | ✅ Se atribuye al documental de Honigmann (1994). |
 | B10 | Si Yape/Plin falla en un delivery, ¿qué se ofrece? (delivery no acepta efectivo) | 🔒 Pendiente |
 | B11 | ¿Quién aprueba piezas de nivel 3, sátira política y pauta pagada? | 🔒 Pendiente (urgente con el picantómetro) |
-| B12 | Vectores y Pantone | ✅ Existen vectores. 🔒 Falta definir dónde se guardan y los Pantone. |
+| B12 | Vectores y Pantone | ✅ Logo v3 vectorizado en `public/brand/` (generado con `npm run brand`). 🔒 Faltan los Pantone. |
 | B13 | Frecuencia de publicación y quién publica. | 🔒 Pendiente |
 | B14 | Referencia de cómo llegar (esquina, paradero, punto conocido). | 🔒 Pendiente |
 
