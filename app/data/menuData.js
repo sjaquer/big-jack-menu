@@ -48,19 +48,20 @@ export const restaurantInfo = {
   },
 };
 
-// Textos de cada categoría para la carta (las claves son los valores de `item.category`).
+// Textos de cada categoría para la carta (las claves son los valores de `item.category`,
+// que funcionan como identificadores internos: no cambiarlas).
 export const categoryInfo = {
   "LAS INTOCABLES": {
     id: "hamburguesas",
-    title: "Las Intocables",
+    title: "Hamburguesas",
     navLabel: "Hamburguesas",
-    subtitle: "Hamburguesas gruesas a la plancha.",
+    subtitle: "Medallón grueso de carne a la plancha. Simple o doble.",
   },
   GUARNICIONES: {
-    id: "guarniciones",
-    title: "Guarniciones",
+    id: "acompanamientos",
+    title: "Acompañamientos",
     navLabel: "Papas",
-    subtitle: "Papas para acompañar o para compartir.",
+    subtitle: "Para acompañar o para compartir.",
   },
   BEBIDAS: {
     id: "bebidas",
@@ -70,125 +71,120 @@ export const categoryInfo = {
   },
 };
 
-export const categories = [
-  "LAS INTOCABLES",
-  "GUARNICIONES",
-  "BEBIDAS"
-];
+export const categories = ["LAS INTOCABLES", "GUARNICIONES", "BEBIDAS"];
 
+// Los SKU deben existir en el ERP. Cambiar `name` o `description` no afecta al ERP;
+// cambiar `slug` exige agregar una redirección en next.config.mjs.
 export const menuItems = [
   {
     id: 1,
     sku: "PRD-LAB-JFSY",
-    slug: "la-bacon",
+    slug: "hamburguesa-con-tocino",
     category: "LAS INTOCABLES",
-    name: "La Bacon",
-    description: "Pan brillante, medallón grueso de carne, queso derretido, tira de bacon crocante, pepinillos y salsa Big Jack.",
+    name: "Hamburguesa con Tocino",
+    description: "Medallón grueso de carne, queso derretido, tocino crocante, pepinillos y salsa de la casa.",
     image: "/images/baconjack.webp",
     popular: true,
     options: [
-      { id: "simple", sku: "PRD-LAB-JFSY", label: "Clásica (1 carne) - la de siempre", price: 17.90 },
-      { id: "doble", sku: "PRD-LAB-JXVH", label: "Doble (2 carnes) - para llenarse", price: 26.90 }
-    ]
+      { id: "simple", sku: "PRD-LAB-JFSY", label: "Simple (1 carne)", price: 17.90 },
+      { id: "doble", sku: "PRD-LAB-JXVH", label: "Doble (2 carnes)", price: 26.90 },
+    ],
   },
   {
     id: 2,
     sku: "PRD-LAR-LUS0",
-    slug: "la-royal-con-huevo",
+    slug: "hamburguesa-royal",
     category: "LAS INTOCABLES",
-    name: "La Real con Huevo",
-    description: "Medallón de carne a la plancha, queso fundido, jamón inglés sellado y huevo de yema cremosa con nuestra salsa especial.",
+    name: "Hamburguesa Royal",
+    description: "Medallón de carne, queso fundido, jamón y huevo frito con la yema cremosa.",
     image: "/images/royaljack.webp",
     popular: false,
     options: [
-      { id: "simple", sku: "PRD-LAR-LUS0", label: "Clásica (1 carne) - para el antojo", price: 15.90 },
-      { id: "doble", sku: "PRD-LAR-N4R4", label: "Doble (2 carnes) - full power", price: 22.90 }
-    ]
+      { id: "simple", sku: "PRD-LAR-LUS0", label: "Simple (1 carne)", price: 15.90 },
+      { id: "doble", sku: "PRD-LAR-N4R4", label: "Doble (2 carnes)", price: 22.90 },
+    ],
   },
   {
     id: 4,
     sku: "PRD-ALO-KC88",
-    slug: "la-pobre-pero-fina",
+    slug: "hamburguesa-a-lo-pobre",
     category: "LAS INTOCABLES",
-    name: "La Pobre pero Fina",
-    description: "Medallón de carne jugosa, cheddar, huevo frito y plátano maduro caramelizado que combina dulce y salado.",
+    name: "Hamburguesa a lo Pobre",
+    description: "Medallón de carne, queso cheddar, huevo frito y plátano maduro. Dulce y salado a la vez.",
     image: "/images/jackpobre.webp",
     popular: false,
     options: [
-      { id: "simple", sku: "PRD-ALO-KC88", label: "Clásica (1 carne) - comfort", price: 16.90 },
-      { id: "doble", sku: "PRD-ALO-LA72", label: "Doble (2 carnes) - contundente", price: 24.90 }
-    ]
+      { id: "simple", sku: "PRD-ALO-KC88", label: "Simple (1 carne)", price: 16.90 },
+      { id: "doble", sku: "PRD-ALO-LA72", label: "Doble (2 carnes)", price: 24.90 },
+    ],
   },
   {
     id: 7,
     sku: "PRD-LAM-IPH3",
-    slug: "la-misia",
+    slug: "hamburguesa-clasica",
     category: "LAS INTOCABLES",
-    name: "La Misia",
-    description: "Hamburguesa clásica con su punto de sabor, sencilla y directa.",
+    name: "Hamburguesa Clásica",
+    description: "Medallón de carne a la plancha en pan suave. La de siempre, sin vueltas.",
     image: "/images/lamisia.webp",
     popular: false,
-    options: [{ id: "simple", sku: "PRD-LAM-IPH3", label: "Clásica (1 carne)", price: 12.90 }]
+    options: [{ id: "simple", sku: "PRD-LAM-IPH3", label: "Simple (1 carne)", price: 12.90 }],
   },
   {
     id: 20,
     sku: "PRD-PAP-FRIT",
     slug: "papas-fritas",
     category: "GUARNICIONES",
-    name: "Papas Fritas Crocantes",
-    description: "Papas amarillas crocantes por fuera y suaves por dentro, sazonadas con sal de mar y especias.",
+    name: "Papas Fritas",
+    description: "Papas amarillas crocantes por fuera y suaves por dentro, con sal y especias.",
     image: "/images/papas-fritas.webp",
     popular: true,
     options: [
-      { id: "personal", sku: "PRD-PAP-PERS", label: "Porción Personal", price: 7.00 },
-      { id: "familiar", sku: "PRD-PAP-FAMI", label: "Porción Familiar", price: 12.00 }
-    ]
-  },
-  {
-    id: 21,
-    sku: "PRD-SAL-CHIP",
-    slug: "salchipapa",
-    category: "GUARNICIONES",
-    name: "Salchipapa Clásica",
-    description: "Abundante porción de papas crocantes acompañadas de salchicha frankfurt dorada y cremas de la casa.",
-    image: "/images/salchipapa.webp",
-    popular: false,
-    options: [
-      { id: "personal", sku: "PRD-SAL-PERS", label: "Personal", price: 10.00 }
-    ]
+      { id: "personal", sku: "PRD-PAP-PERS", label: "Personal", price: 7.00 },
+      { id: "familiar", sku: "PRD-PAP-FAMI", label: "Familiar", price: 12.00 },
+    ],
   },
   {
     id: 30,
     sku: "PRD-INK-PXC0",
-    slug: "inka-cola",
+    slug: "inca-kola",
     category: "BEBIDAS",
-    name: "Inka Cola 600ml",
-    description: "Botella helada 600 ml, dulzona y chispeante.",
+    name: "Inca Kola",
+    description: "Botella de 600 ml, bien helada.",
     image: "/images/inkacola.webp",
     popular: false,
-    options: [{ id: "botella", sku: "PRD-INK-PXC0", label: "Botella 600 ml", price: 4.0 }]
+    options: [{ id: "botella", sku: "PRD-INK-PXC0", label: "Botella 600 ml", price: 4.0 }],
   },
   {
     id: 31,
     sku: "PRD-COC-QLER",
     slug: "coca-cola",
     category: "BEBIDAS",
-    name: "Coca Cola 600ml",
-    description: "Botella helada 600 ml con burbujas intensas.",
+    name: "Coca-Cola",
+    description: "Botella de 600 ml, bien helada.",
     image: "/images/cocacola.webp",
     popular: false,
-    options: [{ id: "botella", sku: "PRD-COC-QLER", label: "Botella 600 ml", price: 4.0 }]
+    options: [{ id: "botella", sku: "PRD-COC-QLER", label: "Botella 600 ml", price: 4.0 }],
   },
   {
     id: 32,
     sku: "PRD-AGU-RC7G",
-    slug: "agua-cielo-personal",
+    slug: "agua-cielo",
     category: "BEBIDAS",
-    name: "Agua Cielo Personal",
-    description: "Agua embotellada personal.",
+    name: "Agua Cielo",
+    description: "Agua de mesa en botella personal.",
     image: "/images/agua-cielo.webp",
     popular: false,
-    options: [{ id: "personal", sku: "PRD-AGU-RC7G", label: "Personal", price: 2.0 }]
-  }
+    options: [{ id: "personal", sku: "PRD-AGU-RC7G", label: "Personal", price: 2.0 }],
+  },
 ];
 
+// Slugs anteriores → nuevos (redirecciones 308 en next.config.mjs).
+export const legacySlugs = {
+  salchipapa: null, // retirada de la carta: redirige a la sección de acompañamientos
+  "la-misia": "hamburguesa-clasica",
+  "la-bacon": "hamburguesa-con-tocino",
+  "la-royal-con-huevo": "hamburguesa-royal",
+  "la-pobre-pero-fina": "hamburguesa-a-lo-pobre",
+  "inka-cola": "inca-kola",
+  "agua-cielo-personal": "agua-cielo",
+};

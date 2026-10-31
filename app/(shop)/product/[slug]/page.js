@@ -42,6 +42,7 @@ export default async function ProductPage({ params }) {
 
   const { min } = getPriceRange(product);
   const hasOptions = (product.options?.length || 0) > 1;
+  const isBurger = product.name.startsWith("Hamburguesa ");
 
   return (
     <>
@@ -59,11 +60,22 @@ export default async function ProductPage({ params }) {
           />
         </div>
 
-        <p className="mt-10 text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
-          {categoryInfo[product.category]?.title || product.category}
-        </p>
-        <h1 className="mt-3 font-anton text-[clamp(3.5rem,14vw,7rem)] uppercase leading-[0.88] text-white">
-          {product.name}
+        {!isBurger && (
+          <p className="mt-10 text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
+            {categoryInfo[product.category]?.title || product.category}
+          </p>
+        )}
+        <h1 className={`${isBurger ? "mt-10" : "mt-3"} font-anton text-[clamp(3.5rem,14vw,7rem)] uppercase leading-[0.88] text-white`}>
+          {isBurger ? (
+            <>
+              <span className="mb-2 block font-sans text-base font-semibold normal-case tracking-[0.2em] text-neutral-500">
+                Hamburguesa
+              </span>
+              {product.name.slice("Hamburguesa ".length)}
+            </>
+          ) : (
+            product.name
+          )}
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-neutral-400">{product.description}</p>
         <p className="mt-6 font-anton text-4xl text-white">

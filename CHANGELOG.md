@@ -1,5 +1,17 @@
 # Cambios
 
+## Nombres de producto normales y salchipapa retirada
+
+Fecha: 2026-10-31
+
+1. Nombres descriptivos: Hamburguesa con Tocino, Hamburguesa Royal, Hamburguesa a lo Pobre, Hamburguesa Clásica, Papas Fritas, Inca Kola, Coca-Cola, Agua Cielo. Presentaciones "Simple (1 carne)" / "Doble (2 carnes)".
+2. Descripciones reescritas (ingredientes concretos, sin adornos).
+3. Salchipapa retirada de la carta. Los carritos guardados la descartan al cargar.
+4. Nuevos slugs con redirección 308 desde los anteriores (`legacySlugs`); `/product/salchipapa` → `/#acompanamientos`.
+5. Categorías visibles: Hamburguesas, Acompañamientos, Bebidas (las claves internas no cambian).
+6. **Sin cambios de SKU ni de precio.** Avisar al equipo del ERP: nombres nuevos y `PRD-SAL-CHIP` / `PRD-SAL-PERS` ya no se venden por la web.
+7. El carrito usa los nombres y precios del catálogo al cargar (antes conservaba los guardados).
+
 ## Rediseño "menos es más", refactor de la tienda y SEO/IA
 
 Fecha: 2026-10-31

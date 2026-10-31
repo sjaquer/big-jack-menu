@@ -361,27 +361,21 @@ Regla general: **una o dos palabras de jerga por pieza**. Más que eso suena a d
 
 ### 8.3 Nombres y descripciones de producto
 
-**Convención:** `La + [algo limeño/popular]`. Femenino porque es "la hamburguesa". Corto, con personalidad, que se pueda gritar en una combi.
+**Convención (decisión del dueño, 2026-10-31):** nombres **normales y descriptivos**, como se piden en cualquier sanguchería de Lima. Una clásica es "Hamburguesa Clásica"; la de huevo y plátano es "Hamburguesa a lo Pobre". La personalidad va en las fotos y el copy, no en el nombre del producto. Esto reemplaza la convención anterior `La + [algo limeño]` y cierra [B4](#12-decisiones-pendientes).
 
-| Nombre (web) | Estado |
+| Nombre (web) | Antes |
 | :--- | :--- |
-| **La Misia** | ✅ "Misio" = sin plata. La más barata. |
-| **La Real con Huevo** | ✅ (antes Royal Jack) |
-| **La Pobre pero Fina** | ✅ (antes Jack a lo Pobre). El mejor ejemplo del contraste. |
-| **La Bacon** | 🔒 ¿"La Tocino"? Instagram ya dice "TOCINO" ([B4](#12-decisiones-pendientes)). |
-| "La Parrillera" | 🔒 Propuesta v2; hoy no está en la carta. |
+| **Hamburguesa con Tocino** | La Bacon |
+| **Hamburguesa Royal** | La Real con Huevo |
+| **Hamburguesa a lo Pobre** | La Pobre pero Fina |
+| **Hamburguesa Clásica** | La Misia |
+| **Papas Fritas** | Papas Fritas Crocantes |
+| **Inca Kola**, **Coca-Cola**, **Agua Cielo** | Inka Cola 600ml, Coca Cola 600ml, Agua Cielo Personal |
+| ~~Salchipapa~~ | Retirada de la carta (2026-10-31). |
 
-Nombres nuevos: probar en voz alta, revisar que no sea marca registrada, evitar inglés salvo chiste del tío. Cambiar el `name` en `menuData.js` no cambia el SKU, pero hay que avisar al equipo del ERP.
+Presentaciones: "Simple (1 carne)" y "Doble (2 carnes)"; papas "Personal" y "Familiar". Cambiar el `name` en `menuData.js` no cambia el SKU, pero hay que avisar al equipo del ERP; cambiar el `slug` exige una redirección (`legacySlugs` en `menuData.js`).
 
-**Descripciones:** ingredientes concretos + una frase con personalidad, máx. 20 palabras. No prometer ingredientes que no lleva.
-
-| Producto | Ejemplo (referencia, no aplicado) |
-| :--- | :--- |
-| La Misia | "Carne, queso y pan. Lo justo para el fin de mes." |
-| La Real con Huevo | "Carne, queso, jamón y huevo con la yema que chorrea. La de siempre." |
-| La Pobre pero Fina | "Carne, plátano maduro y huevo. El almuerzo de tu abuela, pero de noche." |
-| La Bacon | "Carne, queso fundido y tocino crocante. Te vas a manchar." |
-| Opción doble | "Doble carne. Para el hambre de verdad." |
+**Descripciones:** ingredientes concretos y, como mucho, una frase corta de remate; máx. 20 palabras. No prometer ingredientes que no lleva. Ejemplo aplicado: "Medallón de carne, queso cheddar, huevo frito y plátano maduro. Dulce y salado a la vez."
 
 ### 8.4 Web
 
@@ -510,7 +504,7 @@ CHECK: datos verificados [sí/no] · producto real [sí/no] · riesgos [ninguno 
 | B1 | ¿Se aprueban propósito, misión y visión de [§2.5](#25-propósito-misión-y-visión)? | 🔒 Pendiente |
 | B2 | Línea principal: "No vendemos humo…", "Lo rico está sucio", "La caleta del Centro. Nunca falla." ¿Y hashtags propios? | 🔒 Pendiente |
 | B3 | Mascota Tío Jack | ✅ Se redibuja con ilustrador (por contratar). Brief en [IDENTIDAD_VISUAL.md](./IDENTIDAD_VISUAL.md). |
-| B4 | ¿"La Bacon" o "La Tocino"? (Instagram ya usa "TOCINO" en las piezas.) ¿Vuelve "La Parrillera"? | 🔒 Pendiente |
+| B4 | Nombres de producto | ✅ Nombres normales: "Hamburguesa con Tocino", "Hamburguesa a lo Pobre"… (2026-10-31, [§8.3](#83-nombres-y-descripciones-de-producto)). |
 | B5 | Dirección | ✅ **Pje. Larrabure 142, Lima 15001.** Falta corregir Instagram ("Laburre"), `restaurantInfo`, Google y el sello. |
 | B6 | Personajes con dueño | ✅ Sin licencias. Se evocan sin copiar. |
 | B7 | Paleta de apoyo | ✅ Chicha solo en campañas. 🔒 Kraft y papel periódico para empaque: pendiente. |

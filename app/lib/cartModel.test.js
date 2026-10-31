@@ -143,4 +143,22 @@ describe("migrateLegacyCartItems", () => {
 
     expect(migrated[0].quantity).toBe(1);
   });
+
+  it("actualiza nombre, presentación y precio desde el catálogo", () => {
+    const migrated = migrateLegacyCartItems(
+      [{ productId: 1, optionId: "simple", name: "Nombre viejo", optionLabel: "Vieja", price: 1, quantity: 1 }],
+      menu
+    );
+
+    expect(migrated[0]).toMatchObject({ name: "La Bacon", optionLabel: "Clásica", price: 17.9 });
+  });
+
+  it("descarta productos que ya no están en la carta aunque tengan SKU", () => {
+    const migrated = migrateLegacyCartItems(
+      [{ productId: 21, optionId: "personal", sku: "PRD-SAL-PERS", name: "Salchipapa", quantity: 1 }],
+      menu
+    );
+
+    expect(migrated).toEqual([]);
+  });
 });

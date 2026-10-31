@@ -55,7 +55,7 @@
 ### RF-1 Carta digital (`/`)
 | ID | Requisito | Estado |
 | :--- | :--- | :-: |
-| RF-1.1 | Mostrar productos por categoría (LAS INTOCABLES, GUARNICIONES, BEBIDAS) con foto, descripción y precio "desde". | ✅ |
+| RF-1.1 | Mostrar productos por categoría (Hamburguesas, Acompañamientos, Bebidas; claves internas `LAS INTOCABLES`, `GUARNICIONES`, `BEBIDAS`) con foto, descripción y precio "desde". | ✅ |
 | RF-1.2 | Filtro por categoría con contador y búsqueda por nombre/descripción/categoría. | ✅ (sin normalizar tildes) |
 | RF-1.3 | Productos con `available: false` se muestran deshabilitados y no se pueden agregar. | ✅ |
 | RF-1.4 | Hamburguesas abren un modal para elegir versión (simple/doble); el resto se agrega directo por opción. | ✅ |

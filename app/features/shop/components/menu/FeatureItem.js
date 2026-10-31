@@ -14,6 +14,10 @@ export default function FeatureItem({ item, index = 0, quantityInCart = 0, onAdd
   const hasOptions = (item.options?.length || 0) > 1;
   const isUnavailable = item.available === false;
   const tall = index % 2 === 0;
+  // "Hamburguesa a lo Pobre" → "Hamburguesa" pequeño + "a lo Pobre" en grande.
+  const [prefix, highlight] = item.name.startsWith("Hamburguesa ")
+    ? ["Hamburguesa", item.name.slice("Hamburguesa ".length)]
+    : [null, item.name];
 
   return (
     <article aria-labelledby={`item-${item.slug}`} className="reveal">
@@ -48,8 +52,13 @@ export default function FeatureItem({ item, index = 0, quantityInCart = 0, onAdd
         id={`item-${item.slug}`}
         className={`font-anton text-5xl uppercase leading-[0.9] text-white sm:text-6xl ${item.popular ? "mt-2" : "mt-6"}`}
       >
-        <Link href={`/product/${item.slug}`} className="hover:text-bj-yellow">
-          {item.name}
+        <Link href={`/product/${item.slug}`} className="group/name hover:text-bj-yellow">
+          {prefix && (
+            <span className="mb-1 block font-sans text-sm font-semibold normal-case tracking-[0.2em] text-neutral-500 group-hover/name:text-bj-yellow">
+              {prefix}
+            </span>
+          )}
+          {highlight}
         </Link>
       </h3>
       <p className="mt-3 max-w-md text-base leading-relaxed text-neutral-400">{item.description}</p>

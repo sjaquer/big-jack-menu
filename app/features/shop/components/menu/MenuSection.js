@@ -57,7 +57,7 @@ export default function MenuSection() {
             aria-labelledby={`${section.id}-title`}
             className={section.featured ? "pt-16" : "pt-24"}
           >
-            <header className="reveal mb-10">
+            <header className={section.featured ? "sr-only" : "reveal mb-10"}>
               <h3
                 id={`${section.id}-title`}
                 className={`font-anton uppercase leading-none ${

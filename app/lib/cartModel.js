@@ -54,7 +54,7 @@ export function buildCartItem(product, option, quantity = 1) {
     category: product.category,
     name: product.name,
     optionId: option?.id || "default",
-    optionLabel: option?.label || "Presentacion unica",
+    optionLabel: option?.label || "Presentación única",
     sku: option?.sku || product.sku || null,
     price: Number(option?.price || 0),
     image: product.image,
@@ -62,6 +62,9 @@ export function buildCartItem(product, option, quantity = 1) {
   };
 }
 
+// Normaliza ítems guardados (localStorage) contra el catálogo actual:
+// el catálogo manda en nombre, presentación, precio e imagen, y se descartan
+// los productos que ya no están en la carta.
 export function migrateLegacyCartItems(items, menuItems) {
   if (!Array.isArray(items)) return [];
 
@@ -72,19 +75,21 @@ export function migrateLegacyCartItems(items, menuItems) {
       if (!entry || typeof entry !== "object") return null;
 
       const product = itemByProductId.get(entry.productId);
-      const option = product?.options?.find((opt) => opt.id === entry.optionId) || product?.options?.[0];
-      const sku = entry.sku || option?.sku || product?.sku || null;
+      if (!product) return null;
+
+      const option = product.options?.find((opt) => opt.id === entry.optionId) || product.options?.[0];
+      const sku = option?.sku || entry.sku || product.sku || null;
 
       return {
         id: entry.id || getCartItemId(entry.productId, entry.optionId),
         productId: entry.productId,
-        category: entry.category || product?.category || "OTROS",
-        name: entry.name || product?.name || "Producto",
-        optionId: entry.optionId || option?.id || "default",
-        optionLabel: entry.optionLabel || option?.label || "Presentacion unica",
+        category: product.category,
+        name: product.name,
+        optionId: option?.id || entry.optionId || "default",
+        optionLabel: option?.label || entry.optionLabel || "Presentación única",
         sku,
-        price: Number(entry.price || option?.price || 0),
-        image: entry.image || product?.image || "",
+        price: Number(option?.price ?? entry.price ?? 0),
+        image: product.image || entry.image || "",
         quantity: Math.max(1, Number(entry.quantity || 1)),
       };
     })
