@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, X } from "lucide-react";
 import Dialog from "../../../components/Dialog";
+import { analytics } from "../../../lib/analytics";
 import { formatPrice } from "../../../lib/format";
 import { useShop } from "../context/ShopContext";
 import CartFooter from "./cart/CartFooter";
@@ -98,7 +99,13 @@ export default function CartDrawer() {
         )}
       </div>
 
-      {cart.length > 0 && <CartFooter step={step} onContinue={() => setRequestedStep("checkout")} />}
+      {cart.length > 0 && <CartFooter
+          step={step}
+          onContinue={() => {
+            analytics.beginCheckout(cart);
+            setRequestedStep("checkout");
+          }}
+        />}
     </Dialog>
   );
 }

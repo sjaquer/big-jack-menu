@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { menuItems } from "../../../data/menuData";
+import { analytics } from "../../../lib/analytics";
 import { COMPLEMENT_CATEGORIES, MAX_CART_ITEMS, MAX_QTY_PER_ITEM } from "../constants";
 
 const LIMIT_MESSAGES = {
@@ -52,6 +53,7 @@ export default function useCartActions({ cartApi, showToast, showNotice, onPrima
         showNotice(`Agregamos ${result.added}: llegaste al máximo de ${MAX_QTY_PER_ITEM} por producto.`);
       }
 
+      analytics.addToCart(canonical, option, result.added);
       showToast({ type: "success", message: `Listo. ${canonical.name} ya está en tu pedido.`, duration: 2500 });
       onPrimaryAdded?.(canonical, cart);
       return true;
@@ -68,6 +70,7 @@ export default function useCartActions({ cartApi, showToast, showNotice, onPrima
         );
       }
       if (added > 0) {
+        entries.forEach(({ product, option, quantity }) => analytics.addToCart(product, option, quantity));
         showToast({ type: "success", message: "Listo. Tu pedido quedó completo.", duration: 2500 });
       }
     },
@@ -76,6 +79,8 @@ export default function useCartActions({ cartApi, showToast, showNotice, onPrima
 
   const removeItem = useCallback(
     (id) => {
+      const removedItem = cartApi.cart.find((item) => item.id === id);
+      if (removedItem) analytics.removeFromCart(removedItem);
       const result = cartApi.removeFromCart(id);
       if (result.removed.length > 0) {
         const names = [...new Set(result.removed.map((item) => item.name))].join(", ");

@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { menuItems } from "../../../data/menuData";
+import { analytics } from "../../../lib/analytics";
 import { formatPrice } from "../../../lib/format";
 import { formatPhone, whatsappUrl } from "../../../lib/site";
 import { submitOnlineOrder } from "../checkout/submitOrder";
@@ -69,6 +70,13 @@ export default function useOrderSubmit({ cart, total, form: rawForm, isOpen, onS
         whatsappSent: false,
       });
 
+      analytics.purchase({
+        orderId: response?.orderId,
+        cart: migratedCart,
+        orderType: form.orderType,
+        paymentMethod: form.paymentMethod,
+        isPreOrder,
+      });
       onSuccess?.();
     } catch (error) {
       const message = buildFriendlyOrderError(error?.message);
@@ -81,6 +89,7 @@ export default function useOrderSubmit({ cart, total, form: rawForm, isOpen, onS
 
   const openWhatsapp = useCallback(() => {
     if (!confirmation?.whatsappUrl) return;
+    analytics.whatsappOrder(confirmation.orderId);
     window.open(confirmation.whatsappUrl, "_blank", "noopener,noreferrer");
     setConfirmation((current) => (current ? { ...current, whatsappSent: true } : current));
   }, [confirmation]);

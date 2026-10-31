@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { analytics } from "../../../lib/analytics";
 import { ShoppingBag } from "lucide-react";
 import { formatPrice } from "../../../lib/format";
 import { formatPrepTime } from "../../../lib/schedule";
@@ -15,6 +16,10 @@ export default function ProductAddToCart({ product }) {
   const [quantity, setQuantity] = useState(1);
   const option = product.options?.find((entry) => entry.id === optionId) || product.options?.[0];
   const isUnavailable = product.available === false;
+
+  useEffect(() => {
+    analytics.viewItem(product);
+  }, [product]);
 
   return (
     <div className="space-y-5">

@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { menuItems } from "../../../data/menuData";
+import { analytics } from "../../../lib/analytics";
 import useCart from "../hooks/useCart";
 import useCartActions from "../hooks/useCartActions";
 import useCheckoutForm from "../hooks/useCheckoutForm";
@@ -78,23 +79,29 @@ export function ShopProvider({ children }) {
   const ui = useMemo(
     () => ({
       isCartOpen,
-      openCart: () => setIsCartOpen(true),
+      openCart: () => {
+        analytics.viewCart(cartApi.cart);
+        setIsCartOpen(true);
+      },
       closeCart: () => setIsCartOpen(false),
       sheet,
       // Hamburguesas con varias presentaciones abren la hoja de opciones;
       // el resto se agrega directo.
       requestAdd: (product, optionId) => {
         if ((product.options?.length || 0) > 1 && !optionId) {
+          analytics.viewItem(product);
           setSheet({ product, optionId: product.options[0].id });
           return;
         }
         actions.addProduct(product, optionId);
       },
-      openSheet: (product, optionId) =>
-        setSheet({ product, optionId: optionId || product.options?.[0]?.id }),
+      openSheet: (product, optionId) => {
+        analytics.viewItem(product);
+        setSheet({ product, optionId: optionId || product.options?.[0]?.id });
+      },
       closeSheet: () => setSheet(null),
     }),
-    [actions, isCartOpen, sheet]
+    [actions, cartApi.cart, isCartOpen, sheet]
   );
 
   const value = {

@@ -6,6 +6,14 @@ const FALLBACK_SITE_URL = "https://bigjack.vercel.app";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || FALLBACK_SITE_URL).replace(/\/+$/, "");
 
+// Verificación de Google Search Console para bigjack.vercel.app (es pública: va en una <meta>).
+// No quitarla: Google la revisa periódicamente para mantener la propiedad verificada.
+export const GOOGLE_SITE_VERIFICATION =
+  process.env.GOOGLE_SITE_VERIFICATION || "XXXcSKs9hnuQpt4nxbfKDzlXRvZMPRmHXZMO2zgQmEc";
+
+// ID de medición de Google Analytics 4 (G-XXXXXXX). Sin ID no se carga Analytics.
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "";
+
 export function absoluteUrl(path = "/") {
   if (/^https?:\/\//.test(path)) return path;
   const normalized = path.startsWith("/") ? path : `/${path}`;

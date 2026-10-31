@@ -3,7 +3,8 @@ import "./globals.css";
 import { restaurantInfo } from "./data/menuData";
 import JsonLd from "./components/JsonLd";
 import { buildRestaurantSchema } from "./features/shop/seo";
-import { SITE_URL } from "./lib/site";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { GA_MEASUREMENT_ID, GOOGLE_SITE_VERIFICATION, SITE_URL } from "./lib/site";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -81,10 +82,7 @@ export const metadata = {
       "max-snippet": -1,
     },
   },
-  // Se publica solo si existe el código real de Search Console (SEO-03).
-  ...(process.env.GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
-    : {}),
+  verification: { google: GOOGLE_SITE_VERIFICATION },
 };
 
 export default function RootLayout({ children }) {
@@ -94,6 +92,7 @@ export default function RootLayout({ children }) {
         <JsonLd data={buildRestaurantSchema()} />
         {children}
       </body>
+      {GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>
   );
 }
