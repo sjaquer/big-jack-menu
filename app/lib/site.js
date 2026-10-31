@@ -18,8 +18,8 @@ export const FEATURES = {
 // ID de Google Tag Manager (GTM-XXXXXXX). Sin ID no se carga Tag Manager.
 export const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "";
 
-// ID de medición de Google Analytics 4 (G-XXXXXXX). Sin ID no se carga Analytics.
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "";
+// ID de medición de Google Analytics 4 (G-XXXXXXX).
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "G-YQP6YH6PR4";
 
 export function absoluteUrl(path = "/") {
   if (/^https?:\/\//.test(path)) return path;
