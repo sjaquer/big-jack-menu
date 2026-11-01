@@ -38,13 +38,13 @@ describe("buildDeliveryPaymentReminder", () => {
 
 describe("buildFriendlyOrderError", () => {
   it("usa un mensaje por defecto para errores vacíos", () => {
-    expect(buildFriendlyOrderError(null)).toContain("No se pudo registrar tu pedido");
+    expect(buildFriendlyOrderError(null)).toContain("Algo falló de nuestro lado");
   });
 
   it("oculta detalles del webhook", () => {
-    expect(buildFriendlyOrderError("Webhook respondió 500")).toContain(
-      "problema temporal"
-    );
+    const message = buildFriendlyOrderError("Webhook respondió 500");
+    expect(message).toContain("Inténtalo otra vez");
+    expect(message).not.toMatch(/webhook/i);
   });
 
   it("conserva mensajes de negocio", () => {

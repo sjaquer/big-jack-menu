@@ -19,9 +19,17 @@ export async function generateMetadata({ params }) {
   const product = findProduct(slug);
   if (!product) return { title: "Producto no encontrado", robots: { index: false } };
 
-  const { min } = getPriceRange(product);
-  const description = `${product.description} Desde ${formatPrice(min)}. Pídela en el Centro de Lima para recojo o delivery.`;
-  const imageUrl = absoluteUrl(product.image);
+  const { min, max } = getPriceRange(product);
+  const price = min === max ? formatPrice(min) : `Desde ${formatPrice(min)}`;
+  const description = `${product.description} ${price}. Pídela en el Centro de Lima para recojo o delivery.`;
+  // Previsualización 1200×630 en JPG (scripts/generate-product-og.mjs): se ve bien en WhatsApp, Facebook y X.
+  const image = {
+    url: absoluteUrl(`/images/og/${product.slug}.jpg`),
+    width: 1200,
+    height: 630,
+    alt: `${product.name} · ${price} · ${restaurantInfo.name}`,
+    type: "image/jpeg",
+  };
 
   return {
     title: product.name,
@@ -34,13 +42,13 @@ export async function generateMetadata({ params }) {
       siteName: restaurantInfo.name,
       locale: "es_PE",
       type: "website",
-      images: [{ url: imageUrl, width: 800, height: 800, alt: product.name, type: "image/webp" }],
+      images: [image],
     },
     twitter: {
       card: "summary_large_image",
       title: `${product.name} | ${restaurantInfo.name}`,
       description,
-      images: [imageUrl],
+      images: [image],
     },
   };
 }

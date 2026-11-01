@@ -13,12 +13,12 @@ const REQUEST_TIMEOUT_MS = 15000;
 const MAX_BODY_BYTES = 16 * 1024;
 const DEFAULT_ERP_BASE_URL = "https://bigjack-rp.vercel.app";
 const DEFAULT_WEBHOOK_PATH = "/api/webhooks/orders";
-const GENERIC_ERROR = "No pudimos registrar tu pedido. Intenta otra vez en unos minutos o escríbenos por WhatsApp.";
+const GENERIC_ERROR = "Algo falló de nuestro lado, no del tuyo. Inténtalo otra vez o escríbenos al WhatsApp.";
 
 const catalog = buildSkuIndex(menuItems);
 // Contra pedidos en masa: además del máximo por ventana, un pedido cada 20 s por IP.
 const MIN_INTERVAL_MS = 20000;
-const BOT_ERROR = "No pudimos verificar tu pedido. Recarga la página e inténtalo otra vez.";
+const BOT_ERROR = "No pudimos confirmar que eres tú y no un robot. Recarga la página e inténtalo otra vez.";
 
 if (!isTurnstileEnabled()) {
   console.warn("[online-orders] Turnstile desactivado: falta TURNSTILE_SECRET_KEY.");

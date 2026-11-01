@@ -6,7 +6,7 @@ export default function FaqSection() {
   return (
     <section aria-labelledby="faq-title" className="mx-auto max-w-3xl px-5 pb-32">
       <h2 id="faq-title" className="reveal mb-8 font-anton text-4xl uppercase text-white sm:text-5xl">
-        Preguntas
+        Lo que siempre nos preguntan
       </h2>
       <div className="divide-y divide-neutral-800 border-y border-neutral-800">
         {getFaqItems().map((item) => (

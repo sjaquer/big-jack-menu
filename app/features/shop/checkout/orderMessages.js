@@ -28,11 +28,11 @@ export function buildDeliveryPaymentReminder(selectedMethod, businessNumber) {
 }
 
 export function buildFriendlyOrderError(rawMessage) {
-  const fallback = "No se pudo registrar tu pedido. Intenta nuevamente en unos minutos.";
+  const fallback = "Algo falló de nuestro lado, no del tuyo. Inténtalo otra vez o escríbenos al WhatsApp.";
   if (!rawMessage || typeof rawMessage !== "string") return fallback;
 
   if (/webhook/i.test(rawMessage)) {
-    return "No pudimos registrar tu pedido por un problema temporal. Intenta nuevamente en unos minutos.";
+    return "Se nos cruzaron los cables un momento. Inténtalo otra vez en unos minutos o escríbenos al WhatsApp.";
   }
 
   return rawMessage;
@@ -84,7 +84,7 @@ export function buildWhatsappOrderMessage({
   const lines = [
     "🍔 *¡NUEVO PEDIDO REGISTRADO!* 🍔",
     "",
-    "¡Hola *BIG JACK*! Acabo de registrar mi pedido desde el menú digital. Aquí tienes el detalle:",
+    "¡Hola, *BIG JACK*! 👋🏻 Te mando mi pedido de la carta web:",
     "",
     "━━━━━━━━━━━━━━━━━━━",
     "📝 *DETALLE DEL PEDIDO*",
@@ -103,7 +103,7 @@ export function buildWhatsappOrderMessage({
   if (notesBlock) lines.push(notesBlock);
   if (paymentReminderBlock) lines.push(paymentReminderBlock);
 
-  lines.push("", "━━━━━━━━━━━━━━━━━━━", "_Quedo atento(a) a su confirmación por este WhatsApp._");
+  lines.push("", "━━━━━━━━━━━━━━━━━━━", "_Quedo atento(a) a la confirmación por aquí. ¡Gracias!_");
 
   return lines.join("\n");
 }

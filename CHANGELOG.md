@@ -1,5 +1,17 @@
 # Cambios
 
+## Voz de marca, previsualizaciones y pulido para producción
+
+Fecha: 2026-10-31
+
+1. Preguntas frecuentes reescritas con la voz del Tío Jack (8 preguntas, datos desde `menuData.js`); se publican igual como FAQPage.
+2. Textos de la web con la voz de la marca: errores ("Algo falló de nuestro lado, no del tuyo"), confirmación ("…y entra a la plancha"), subtítulos de la carta, ubicación, avisos del carrito y mensaje de WhatsApp.
+3. Previsualización por producto: `public/images/og/<slug>.jpg` (1200×630, ~40–75 KB) con foto, nombre, precio y logo; se regeneran antes de cada build (`prebuild` → `npm run og`).
+4. Páginas de error con la marca (`app/error.js`, `app/global-error.js`).
+5. Íconos: se quitó la declaración duplicada; Next usa `favicon.ico`, `icon.svg` y `apple-icon.png` (180 px); `public/apple-touch-icon.png` también sale de `npm run brand`.
+6. Kit de redes exportado a su tamaño real (antes salían a ~4× y pesaban mucho).
+7. `opentype.js` se mantiene en 1.3.4: la 2.0 genera trazos inválidos en textos completos (rompía portadas y OG).
+
 ## Cloudflare Turnstile en el checkout
 
 Fecha: 2026-10-31

@@ -153,31 +153,45 @@ export function buildProductSchema(item) {
 }
 
 // Preguntas frecuentes: se muestran en la home y se publican como FAQPage.
+// Voz del Tío Jack (picante nivel 1): directo, de barrio y sin inventar nada:
+// horario, pagos y tiempos salen de menuData.js.
 export function getFaqItems() {
-  const deliveryMethods = PAYMENT_METHODS.filter((method) => method.delivery)
-    .map((method) => method.label)
-    .join(", ");
+  const deliveryMethods = PAYMENT_METHODS.filter((method) => method.delivery).map((method) => method.label);
+  const allMethods = PAYMENT_METHODS.map((method) => method.label);
+  const list = (items) => `${items.slice(0, -1).join(", ")} o ${items[items.length - 1]}`;
 
   return [
     {
-      question: "¿Dónde queda BIG JACK?",
-      answer: `En ${formatAddress(restaurantInfo.address, { full: true })}. Puedes recoger tu pedido en el local o pedir delivery.`,
+      question: "¿Dónde queda la caleta?",
+      answer: `En ${formatAddress(restaurantInfo.address, { full: true })}. Puedes venir a recoger o pedir delivery. Si te pierdes, el botón «Cómo llegar» no falla.`,
     },
     {
-      question: "¿Qué horario tienen?",
-      answer: `${formatScheduleSummary()} (hora de Lima). Fuera de horario puedes dejar una pre-orden para recojo.`,
+      question: "¿A qué hora atienden?",
+      answer: `${formatScheduleSummary()} (hora de Lima). ¿Te agarró el hambre fuera de horario? Deja tu pre-orden y la recoges cuando abramos.`,
     },
     {
       question: "¿Cómo hago mi pedido?",
-      answer: `Arma tu pedido en esta carta, confírmalo y te llevamos a WhatsApp con el detalle. El recojo está listo en ${formatPrepTime()}. También estamos en Rappi.`,
+      answer: `Arma tu pedido en esta carta, confírmalo y te pasamos a WhatsApp con todo el detalle. Si recoges, está listo en ${formatPrepTime()}. También nos encuentras en Rappi.`,
     },
     {
-      question: "¿Qué medios de pago aceptan?",
-      answer: `${PAYMENT_METHODS.map((method) => method.label).join(", ")}. Para delivery aceptamos ${deliveryMethods}; el efectivo es solo para recojo.`,
+      question: "¿Hacen delivery?",
+      answer: "Sí, a zonas cercanas del Centro. El envío lo coordinamos por inDrive y se paga aparte: el total de la web es solo la comida.",
+    },
+    {
+      question: "¿Cómo pago?",
+      answer: `Con ${list(allMethods)}. Para delivery: ${list(deliveryMethods)}. El efectivo queda para cuando vienes a recoger.`,
     },
     {
       question: "¿Las hamburguesas son smash?",
-      answer: "No. Son hamburguesas gruesas y jugosas, con el medallón hecho a la plancha.",
+      answer: "No. Acá la carne es gruesa y se hace a la plancha, con todo su jugo. La smash es otra película.",
+    },
+    {
+      question: "¿Puedo pedir solo una gaseosa?",
+      answer: "Las bebidas van con hamburguesa. Así es la casa.",
+    },
+    {
+      question: "¿Atienden pedidos grandes, para la oficina o un evento?",
+      answer: "Claro. Para pedidos grandes escríbenos por WhatsApp y lo coordinamos de frente.",
     },
   ];
 }

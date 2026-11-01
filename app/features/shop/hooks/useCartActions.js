@@ -27,14 +27,14 @@ export default function useCartActions({ cartApi, showToast, showNotice, onPrima
     (product, optionId, quantity = 1) => {
       const canonical = findAvailable(product);
       if (!canonical) {
-        showToast({ type: "error", message: "Este producto no está disponible ahora." });
+        showToast({ type: "error", message: "Esa se nos acabó por hoy. Prueba con otra." });
         return false;
       }
 
       const option =
         canonical.options?.find((entry) => entry.id === optionId) || canonical.options?.[0];
       if (!option) {
-        showToast({ type: "error", message: "No encontramos esa presentación. Elige otra." });
+        showToast({ type: "error", message: "No encontramos esa versión. Elige otra." });
         return false;
       }
 

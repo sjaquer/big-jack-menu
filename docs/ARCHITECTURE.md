@@ -57,7 +57,7 @@ app/
 ├── robots.js · sitemap.js · manifest.js · llms.txt/route.js · not-found.js
 public/images/                   # Fotos .webp, burger-hero.webp, og-bigjack.jpg
 public/brand/                    # Logos SVG (horizontal, apilado, sello, monograma) y PNG para redes
-scripts/                         # brand/ (kit de marca: npm run brand), generate-og.js (npm run og), test-webhook-orders.ps1 (⚠️ OPS-01)
+scripts/                         # brand/ (kit de marca: npm run brand), generate-og.js + generate-product-og.mjs (npm run og; corren solos antes de cada build), test-webhook-orders.ps1 (⚠️ OPS-01)
 ```
 
 ## 3. Rutas

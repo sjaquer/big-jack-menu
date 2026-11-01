@@ -12,7 +12,7 @@ export default function LocationSection() {
 
   return (
     <section id="ubicacion" aria-labelledby="ubicacion-title" className="mx-auto max-w-3xl px-5 py-32 sm:py-40">
-      <p className="reveal text-sm text-neutral-500">Estamos en el {area}</p>
+      <p className="reveal text-sm text-neutral-500">La caleta queda en el {area}</p>
       <h2 id="ubicacion-title" className="reveal mt-4 font-anton text-[clamp(3rem,13vw,6.5rem)] uppercase leading-[0.9] text-white">
         {street}
       </h2>

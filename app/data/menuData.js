@@ -57,13 +57,13 @@ export const categoryInfo = {
     id: "hamburguesas",
     title: "Hamburguesas",
     navLabel: "Hamburguesas",
-    subtitle: "Medallón grueso de carne a la plancha. Simple o doble.",
+    subtitle: "Carne gruesa a la plancha. Simple si tienes hambre, doble si tienes más.",
   },
   GUARNICIONES: {
     id: "acompanamientos",
     title: "Acompañamientos",
     navLabel: "Papas",
-    subtitle: "Para acompañar o para compartir.",
+    subtitle: "Para acompañar. O para no compartir.",
   },
   BEBIDAS: {
     id: "bebidas",

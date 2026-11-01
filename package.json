@@ -12,7 +12,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "brand": "node scripts/brand/build.mjs",
-    "og": "node scripts/generate-og.js"
+    "og": "node scripts/generate-og.js && node scripts/generate-product-og.mjs",
+    "prebuild": "npm run og"
   },
   "dependencies": {
     "@next/third-parties": "^16.4.3",

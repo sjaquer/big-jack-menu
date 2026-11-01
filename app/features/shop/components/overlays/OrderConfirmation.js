@@ -24,8 +24,10 @@ export default function OrderConfirmation() {
               Último paso: mándalo por WhatsApp
             </h2>
             <p className="text-sm text-neutral-300">
-              {confirmation.customerName}, tu pedido ya está registrado. Envíalo por WhatsApp para
-              coordinar {confirmation.isPreOrder ? "tu recojo cuando abramos" : "la entrega"}.
+              {confirmation.customerName}, tu pedido ya está registrado.{" "}
+              {confirmation.isPreOrder
+                ? "Mándalo por WhatsApp y lo dejamos listo para cuando abramos."
+                : "Mándalo por WhatsApp y entra a la plancha."}
             </p>
           </div>
 

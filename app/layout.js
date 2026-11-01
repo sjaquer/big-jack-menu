@@ -2,6 +2,7 @@ import { Anton, Poppins } from "next/font/google";
 import "./globals.css";
 import { restaurantInfo } from "./data/menuData";
 import JsonLd from "./components/JsonLd";
+import { formatPrepTime } from "./lib/schedule";
 import { buildRestaurantSchema } from "./features/shop/seo";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { GA_MEASUREMENT_ID, GOOGLE_SITE_VERIFICATION, GTM_ID, SITE_URL } from "./lib/site";
@@ -21,8 +22,7 @@ const anton = Anton({
 });
 
 const TITLE = "BIG JACK | Hamburguesas artesanales en el Centro de Lima";
-const DESCRIPTION =
-  "Hamburguesas gruesas a la plancha en el Centro de Lima: carne de res, queso derretido y salsas de la casa. Mira la carta con precios y pide para recojo o delivery.";
+const DESCRIPTION = `Hamburguesas gruesas a la plancha en el Centro de Lima: carne de res, queso que chorrea y salsas de la casa. Arma tu pedido y recógelo en ${formatPrepTime()} o pide delivery.`;
 const OG_IMAGE = {
   url: "/images/og-bigjack.jpg",
   width: 1200,
@@ -56,15 +56,7 @@ export const metadata = {
   publisher: restaurantInfo.name,
   category: "food",
   formatDetection: { email: false, address: false, telephone: false },
-  icons: {
-    icon: [
-      { url: "/favicon.ico" },
-      { url: "/web-app-manifest-192x192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "192x192", type: "image/png" },
-    ],
-  },
+  // Íconos: los genera Next desde app/favicon.ico, app/icon.svg y app/apple-icon.png (npm run brand).
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
