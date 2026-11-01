@@ -53,6 +53,8 @@ const appIcon = (scale) =>
 
 write(path.join(ROOT, "app/icon.svg"), monogramSvg());
 await png(appIcon(0.86), path.join(ROOT, "app/apple-icon.png"), 180);
+// Algunos navegadores y apps piden /apple-touch-icon.png directo en la raíz.
+await png(appIcon(0.86), path.join(ROOT, "public/apple-touch-icon.png"), 180);
 await png(appIcon(0.8), path.join(ROOT, "public/web-app-manifest-192x192.png"), 192);
 await png(appIcon(0.8), path.join(ROOT, "public/web-app-manifest-512x512.png"), 512);
 
@@ -123,6 +125,7 @@ const social = [
     canvas(1080, 1920, COLORS.yellow, place(sealSvg(), 240, 300, 600, 600) + place(wordmarkSvg(stacked, { fill: COLORS.black }).svg(), 190, 1050, 700, 500)),
   ],
 ];
-for (const [file, svg] of social) await png(svg, path.join(SOCIAL, file));
+// Cada pieza se exporta a su tamaño exacto (el ancho declarado en el SVG).
+for (const [file, svg] of social) await png(svg, path.join(SOCIAL, file), Number(svg.match(/width="(\d+)"/)[1]));
 
 console.log("\nKit de marca listo en public/brand/");
