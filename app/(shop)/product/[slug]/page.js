@@ -76,6 +76,9 @@ export default async function ProductPage({ params }) {
             sizes="(max-width: 768px) 100vw, 768px"
             className="object-cover"
           />
+          <span className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-[11px] font-medium tracking-wider text-neutral-400 backdrop-blur-sm">
+            * Imagen referencial
+          </span>
         </div>
 
         {!isBurger && (

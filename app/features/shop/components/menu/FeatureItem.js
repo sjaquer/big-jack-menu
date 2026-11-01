@@ -43,6 +43,9 @@ export default function FeatureItem({ item, index = 0, quantityInCart = 0, onAdd
             {quantityInCart} en tu pedido
           </span>
         )}
+        <span className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-medium tracking-wider text-neutral-400 backdrop-blur-sm">
+          * Imagen referencial
+        </span>
       </button>
 
       {item.popular && (

@@ -20,6 +20,9 @@ function SheetContent({ product, initialOptionId, onClose, onAdd }) {
     <>
       <div className="relative aspect-[16/10] w-full shrink-0 bg-black sm:aspect-[16/9]">
         <Image src={product.image} alt={product.name} fill sizes="(max-width: 640px) 100vw, 512px" className="object-cover" />
+        <span className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium tracking-wider text-neutral-400 backdrop-blur-sm">
+          * Imagen referencial
+        </span>
         <button
           type="button"
           onClick={onClose}

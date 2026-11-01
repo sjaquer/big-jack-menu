@@ -74,7 +74,7 @@ async function render(item, logo) {
     .map((line, i) => textPath(anton, line, LEFT, nameTop + size * 0.95 * (i + 1), size, i === lines.length - 1 ? YELLOW : "#FFFFFF"))
     .join("");
   const priceY = nameTop + size * 0.95 * lines.length + 44;
-  const footer = `${restaurantInfo.address.street} · ${restaurantInfo.address.area}   ·   ${new URL(SITE_URL).host}`;
+  const footer = `${restaurantInfo.address.street} · ${restaurantInfo.address.area}   ·   ${new URL(SITE_URL).host}   ·   * Imagen referencial`;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <defs>
