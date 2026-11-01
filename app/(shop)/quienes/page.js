@@ -6,6 +6,21 @@ export const metadata = {
   title: "Quiénes somos",
   description: `${restaurantInfo.name}: hamburguesas gruesas a la plancha en el ${restaurantInfo.address.area}. Carne de res, queso derretido y trato directo, sin floro.`,
   alternates: { canonical: "/quienes" },
+  openGraph: {
+    title: `Quiénes somos | ${restaurantInfo.name}`,
+    description: `La caleta del Centro: hamburguesas gruesas a la plancha, carne 100% de res y salsas de la casa en el ${restaurantInfo.address.area}.`,
+    url: "/quienes",
+    siteName: restaurantInfo.name,
+    locale: "es_PE",
+    type: "website",
+    images: [{ url: "/images/og-bigjack.jpg", width: 1200, height: 630, alt: `${restaurantInfo.name} - Quiénes somos` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Quiénes somos | ${restaurantInfo.name}`,
+    description: `La caleta del Centro: hamburguesas gruesas a la plancha en el ${restaurantInfo.address.area}.`,
+    images: ["/images/og-bigjack.jpg"],
+  },
 };
 
 const PRINCIPLES = [

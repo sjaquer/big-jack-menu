@@ -56,6 +56,15 @@ export const metadata = {
   publisher: restaurantInfo.name,
   category: "food",
   formatDetection: { email: false, address: false, telephone: false },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/web-app-manifest-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,

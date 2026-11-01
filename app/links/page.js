@@ -11,6 +11,21 @@ export const metadata = {
   title: "Enlaces",
   description: `Enlaces oficiales de ${restaurantInfo.name}: carta online, WhatsApp, Rappi, ubicación en el ${restaurantInfo.address.area} y redes.`,
   alternates: { canonical: "/links" },
+  openGraph: {
+    title: `Enlaces oficiales | ${restaurantInfo.name}`,
+    description: `Carta online, WhatsApp directo, delivery y ubicación en el ${restaurantInfo.address.area}.`,
+    url: "/links",
+    siteName: restaurantInfo.name,
+    locale: "es_PE",
+    type: "website",
+    images: [{ url: "/images/og-bigjack.jpg", width: 1200, height: 630, alt: `${restaurantInfo.name} - Enlaces oficiales` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Enlaces oficiales | ${restaurantInfo.name}`,
+    description: `Carta online, WhatsApp directo, delivery y ubicación en el ${restaurantInfo.address.area}.`,
+    images: ["/images/og-bigjack.jpg"],
+  },
 };
 
 const DELIVERY_APPS = [

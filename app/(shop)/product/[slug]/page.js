@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { categoryInfo, menuItems } from "../../../data/menuData";
+import { categoryInfo, menuItems, restaurantInfo } from "../../../data/menuData";
 import { formatPrice, getPriceRange } from "../../../lib/format";
+import { absoluteUrl } from "../../../lib/site";
 import JsonLd from "../../../components/JsonLd";
 import { buildProductSchema } from "../../../features/shop/seo";
 import RelatedProducts from "../../../features/shop/components/RelatedProducts";
@@ -20,18 +21,27 @@ export async function generateMetadata({ params }) {
 
   const { min } = getPriceRange(product);
   const description = `${product.description} Desde ${formatPrice(min)}. Pídela en el Centro de Lima para recojo o delivery.`;
+  const imageUrl = absoluteUrl(product.image);
 
   return {
     title: product.name,
     description,
     alternates: { canonical: `/product/${product.slug}` },
     openGraph: {
-      title: product.name,
+      title: `${product.name} | ${restaurantInfo.name}`,
       description,
       url: `/product/${product.slug}`,
-      images: [{ url: product.image, alt: product.name }],
+      siteName: restaurantInfo.name,
+      locale: "es_PE",
+      type: "website",
+      images: [{ url: imageUrl, width: 800, height: 800, alt: product.name, type: "image/webp" }],
     },
-    twitter: { card: "summary_large_image", images: [product.image] },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | ${restaurantInfo.name}`,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 
