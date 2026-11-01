@@ -19,7 +19,7 @@ export const FEATURES = {
 export const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "";
 
 // ID de medición de Google Analytics 4 (G-XXXXXXX).
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "G-WV556SXB8F";
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "G-YQP6YH6PR4";
 
 export function absoluteUrl(path = "/") {
   if (/^https?:\/\//.test(path)) return path;
