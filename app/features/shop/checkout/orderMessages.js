@@ -82,7 +82,7 @@ export function buildWhatsappOrderMessage({
     : "";
 
   const lines = [
-    "🍔 *¡NUEVO PEDIDO REGISTRADO!* 🍔",
+    "🍔 *¡NUEVO PEDIDO!* 🍔",
     "",
     "¡Hola, *BIG JACK*! 👋🏻 Te mando mi pedido de la carta web:",
     "",

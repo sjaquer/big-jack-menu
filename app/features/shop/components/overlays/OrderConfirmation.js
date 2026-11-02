@@ -18,13 +18,13 @@ export default function OrderConfirmation() {
           <div className="space-y-2 border-b border-neutral-800 p-5">
             <p className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-green-400">
               <CheckCircle2 size={16} aria-hidden="true" />
-              {confirmation.duplicated ? "Este pedido ya estaba registrado" : "Pedido recibido"}
+              {confirmation.duplicated ? "Este pedido ya estaba registrado" : "Pedido listo"}
             </p>
             <h2 id="confirmation-title" className="font-anton text-3xl uppercase leading-none text-white">
               Último paso: mándalo por WhatsApp
             </h2>
             <p className="text-sm text-neutral-300">
-              {confirmation.customerName}, tu pedido ya está registrado.{" "}
+              {confirmation.customerName}, tu pedido está listo.{" "}
               {confirmation.isPreOrder
                 ? "Mándalo por WhatsApp y lo dejamos listo para cuando abramos."
                 : "Mándalo por WhatsApp y entra a la plancha."}

@@ -1,5 +1,12 @@
 # Webhook de pedidos
 
+> **⚠️ DESACTIVADO por ahora.** El envío al webhook del ERP está apagado con el flag
+> `FEATURES.erpOrders` (ver `app/lib/site.js`). Mientras tanto, **todos los pedidos se
+> coordinan por WhatsApp**: el checkout valida y arma el pedido igual, pero en vez de
+> llamar al ERP abre WhatsApp con el detalle. El código del webhook (`/api/online-orders`
+> y `app/lib/onlineOrders.js`) y el Turnstile quedan intactos; para reactivarlos basta
+> poner `erpOrders: true`. Más adelante esto se reemplazará por la API del ERP.
+
 Este proyecto envia los pedidos al webhook del ERP.
 
 ## Endpoint
