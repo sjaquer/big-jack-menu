@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { formatPrice } from "../../../../lib/format";
 import { useShop } from "../../context/ShopContext";
@@ -49,6 +50,16 @@ export default function CartFooter({ step, onContinue }) {
           </>
         )}
       </button>
+
+      {isCheckout && (
+        <p className="mt-3 text-center text-[11px] text-neutral-500">
+          Tus datos se usan para procesar tu pedido. Consulta nuestra{" "}
+          <Link href="/privacidad" target="_blank" className="underline hover:text-white">
+            política de privacidad
+          </Link>
+          .
+        </p>
+      )}
     </div>
   );
 }

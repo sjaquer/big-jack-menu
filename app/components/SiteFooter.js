@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/quienes", label: "Quiénes somos" },
   { href: "/links", label: "Enlaces" },
   { href: "/reto-gamer", label: "Arma tu burger" },
+  { href: "/privacidad", label: "Privacidad" },
 ];
 
 export default function SiteFooter() {
@@ -56,6 +57,10 @@ export default function SiteFooter() {
             )}
           </ul>
         </nav>
+
+        <p className="text-xs text-neutral-500">
+          * Las imágenes y presentaciones de los productos mostrados en esta web son de carácter referencial.
+        </p>
 
         <p className="text-xs leading-relaxed text-neutral-600">
           © {new Date().getFullYear()} {restaurantInfo.legalName}
