@@ -1,5 +1,15 @@
 # Cambios
 
+## Bodegón aéreo 1:1, política de privacidad y cumplimiento legal
+
+Fecha: 2026-11-01
+
+1. **Fotografía de producto unificada (Bodegón Aéreo 1:1):** Las 4 hamburguesas de la carta (Clásica, Con Tocino, Royal y A lo Pobre) migraron a la estética de flash duro con fondo negro puro y gotas/migas suspendidas, con presentación simple (1 carne) como base comparable.
+2. **Aviso legal de imágenes referenciales (`*`):** Se integró el micro-aviso `* Imagen referencial` con fondo desenfocado en las tarjetas de la carta (`FeatureItem`), modal de producto (`ProductSheet`), página de producto (`/product/[slug]`), pie de página (`SiteFooter`) y tarjetas Open Graph para redes.
+3. **Página de Política de Privacidad (`/privacidad` - LEG-04):** Redactada conforme a la Ley N.° 29733 (Perú), detallando responsable, finalidades, uso de `localStorage` para recordar datos, medidas de seguridad contra bots y ejercicio de derechos ARCO vía WhatsApp.
+4. **Consentimiento en checkout y navegación:** Enlace y aviso de privacidad añadidos en el paso de confirmación del pedido (`CartFooter`) y navegación del pie de página (`SiteFooter`); ruta agregada al `sitemap.xml`.
+5. **Limpieza y archivo de assets:** Archivo de imágenes fuente en `archive/raw-photos/` y eliminación de imágenes de respaldo antiguas en `public/` para optimizar el bundle de producción.
+
 ## Voz de marca, previsualizaciones y pulido para producción
 
 Fecha: 2026-10-31

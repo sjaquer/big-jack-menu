@@ -121,7 +121,7 @@
 | — | Analytics: con GTM los eventos ya no se envían dos veces (dataLayer + gtag). |
 | — | Dependencias: React 19.3.1, Tailwind 4.3.3, nodemailer 10.3.1, lucide-react 1.66, ESLint 9.39.5. `opentype.js` se queda en 1.3.4 (la 2.0 genera trazos con `NaN` en textos completos). `npm audit --omit=dev` = 0. Quedan 16 avisos **moderados solo de desarrollo** (`minimatch` < 11 en la cadena de ESLint, ReDoS con patrones controlados por nosotros); ESLint 10 no los resuelve. Riesgo aceptado. |
 
-**Pendientes de seguridad:** SEC-04 (rate-limit persistente: Upstash/Vercel KV o Vercel Firewall), Turnstile en el Libro (SEC-06, al reactivarlo), SEC-06 y validación de longitudes del Libro al reactivarlo (enero), SEC-11 (dejar solo `WEBHOOK_MENU_SECRET` cuando se confirme el nombre usado en Vercel), aviso de privacidad (LEG-04) antes de medir con GA/GTM.
+**Pendientes de seguridad:** SEC-04 (rate-limit persistente: Upstash/Vercel KV o Vercel Firewall), Turnstile en el Libro (SEC-06, al reactivarlo), SEC-06 y validación de longitudes del Libro al reactivarlo (enero), SEC-11 (dejar solo `WEBHOOK_MENU_SECRET` cuando se confirme el nombre usado en Vercel). LEG-04 resuelto con `/privacidad`.
 
 ## Escala de severidad
 
@@ -244,10 +244,10 @@
 - **Impacto:** publicidad engañosa (Ley 29571); reclamos de clientes.
 - **Recomendación:** eliminar el texto o derivarlo de un campo `option.description` en `menuData.js`.
 
-### LEG-04 — Sin aviso de privacidad para datos personales · **Media**
+### LEG-04 — Sin aviso de privacidad para datos personales · **Media** · ✅ Resuelto
 - **Dónde:** checkout (`CartDrawer.js`), Libro de Reclamaciones, Reto Gamer (nombre + WhatsApp).
 - **Evidencia:** se recolectan nombre, teléfono, dirección, ubicación GPS, DNI, email. No hay política de privacidad ni consentimiento. Además nombre/teléfono/dirección se guardan en `localStorage` (`page.js:263-278`).
-- **Recomendación:** página `/privacidad`, texto de consentimiento en formularios, documentar retención.
+- **Resolución:** página `/privacidad` creada conforme a la Ley N.° 29733 de Protección de Datos Personales de Perú; consentimiento y enlace directo agregados en checkout (`CartFooter.js`) y enlace en pie de página (`SiteFooter.js`); aviso legal de imágenes referenciales integrado en vistas y pie de página.
 
 ---
 

@@ -53,7 +53,8 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 - [ ] **1.6** Validación de servidor (DNI/CE, email, teléfono, longitudes máximas) + Turnstile + rate-limit. [SEC-06]
 - [x] **1.7** `<label htmlFor>` en todos los campos. [A11Y-02]
   - Hecho 2026-10-31: `htmlFor`/`id` en todos los campos y `radiogroup` en tipo de registro.
-- [ ] **1.8** Página `/privacidad` y texto de consentimiento en checkout, libro y juego. [LEG-04]
+- [x] **1.8** Página `/privacidad` y texto de consentimiento en checkout, libro y juego. [LEG-04]
+  - Hecho 2026-11-01: página `/privacidad` creada conforme a la Ley N.° 29733 (responsable, datos, localStorage, finalidades y derechos ARCO), enlace y aviso de fotos referenciales en el pie de página, aviso de consentimiento en checkout y ruta en `sitemap.js`.
 - *Aceptación:* enviar reclamo → llega correo al negocio **y** al consumidor con el mismo número; sin credenciales en prod → error visible.
 
 ## Fase 2 — API de pedidos: el servidor manda 🔒 (D4)
