@@ -5,7 +5,7 @@ import { menuItems } from "../../../data/menuData";
 import { analytics } from "../../../lib/analytics";
 import { formatPrice } from "../../../lib/format";
 import { getTurnstileToken, resetTurnstile, turnstileEnabled } from "../../../lib/turnstileClient";
-import { formatPhone, whatsappUrl } from "../../../lib/site";
+import { FEATURES, formatPhone, whatsappUrl } from "../../../lib/site";
 import { submitOnlineOrder } from "../checkout/submitOrder";
 import {
   buildDeliveryPaymentReminder,
@@ -46,7 +46,7 @@ export default function useOrderSubmit({ cart, total, form: rawForm, isOpen, onS
         deliveryDetails: form.deliveryDetails,
         locationLink: form.locationLink,
         notes: form.notes,
-        getTurnstileToken: turnstileEnabled ? getTurnstileToken : undefined,
+        getTurnstileToken: FEATURES.erpOrders && turnstileEnabled ? getTurnstileToken : undefined,
       });
 
       const businessPhone = formatPhone();

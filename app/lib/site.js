@@ -13,6 +13,10 @@ export const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION || 
 export const FEATURES = {
   // Libro de Reclamaciones desactivado hasta nuevo aviso (vuelve en enero 2027, ver REMEDIATION_PLAN.md).
   complaintsBook: false,
+  // Envío de pedidos al ERP por webhook. DESACTIVADO por ahora: todos los pedidos se
+  // coordinan por WhatsApp. El código del webhook (/api/online-orders y lib/onlineOrders)
+  // queda intacto; vuelve a ponerse en true cuando esté lista la API del ERP.
+  erpOrders: false,
 };
 
 // ID de Google Tag Manager (GTM-XXXXXXX). Sin ID no se carga Tag Manager.

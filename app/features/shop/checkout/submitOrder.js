@@ -1,5 +1,6 @@
 import { buildOnlineOrderPayload, createOnlineOrder } from "../../../lib/onlineOrders";
 import { hasMissingSku, migrateLegacyCartItems } from "../../../lib/cartModel";
+import { FEATURES } from "../../../lib/site";
 import { MAX_QTY_PER_ITEM, MAX_CART_ITEMS } from "../constants";
 
 function getActiveMenuSkus(menuItems = []) {
@@ -91,6 +92,12 @@ export async function submitOnlineOrder({
     .map((value) => (value || "").trim())
     .filter(Boolean)
     .join(" | ");
+
+  // ERP desactivado (FEATURES.erpOrders): el pedido se valida y arma igual, pero no se
+  // envía al webhook. El cliente lo confirma por WhatsApp. Reactivar cuando exista la API.
+  if (!FEATURES.erpOrders) {
+    return { response: null, migratedCart };
+  }
 
   const payload = buildOnlineOrderPayload({
     cart: migratedCart,

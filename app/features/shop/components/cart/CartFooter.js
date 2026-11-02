@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { formatPrice } from "../../../../lib/format";
+import { FEATURES } from "../../../../lib/site";
 import { useShop } from "../../context/ShopContext";
 import TurnstileWidget from "./TurnstileWidget";
 
@@ -24,7 +25,7 @@ export default function CartFooter({ step, onContinue }) {
         <p className="font-anton text-4xl leading-none text-white">{formatPrice(total)}</p>
       </div>
 
-      {isCheckout && <TurnstileWidget />}
+      {isCheckout && FEATURES.erpOrders && <TurnstileWidget />}
 
       {isCheckout && order.submitError && (
         <p role="alert" className="mt-4 text-sm text-red-300">
