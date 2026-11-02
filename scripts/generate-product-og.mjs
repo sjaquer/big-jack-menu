@@ -101,7 +101,7 @@ async function render(item, logo) {
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const logo = logoMarkup();
-  for (const item of menuItems) {
+  for (const item of menuItems.filter((i) => i.available !== false)) {
     const jpg = await render(item, logo);
     fs.writeFileSync(path.join(OUT, `${item.slug}.jpg`), jpg);
     console.log(`✓ public/images/og/${item.slug}.jpg (${Math.round(jpg.length / 1024)} KB)`);
