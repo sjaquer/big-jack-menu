@@ -1,5 +1,16 @@
 # Cambios
 
+## Documentación, README y preparación de GitHub
+
+Fecha: 2026-11-02
+
+1. **README reescrito** con el estado real del producto (pedidos por WhatsApp, ERP detrás de `FEATURES.erpOrders`), stack, scripts, estructura, reglas de negocio, variables de entorno, calidad y despliegue.
+2. **Documentación sincronizada con el código**: PRD, arquitectura, auditoría, plan de remediación, diseño, página de enlaces y contrato del webhook. Se corrigieron estados de requisitos y hallazgos ya cerrados.
+3. **Índice de documentación** (`docs/README.md`) con fechas de revisión y enlaces a las nuevas guías de colaboración.
+4. **Guías de repositorio**: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, plantillas de issues y de pull request.
+5. **Kit de GitHub** (`.github/GITHUB_SETUP.md`): textos listos para pegar en About, topics, labels, milestones, release y social preview.
+6. Sin cambios de comportamiento, SKUs, precios ni contrato con el ERP.
+
 ## Bodegón aéreo 1:1, política de privacidad y cumplimiento legal
 
 Fecha: 2026-11-01

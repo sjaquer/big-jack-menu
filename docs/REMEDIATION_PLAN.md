@@ -1,8 +1,23 @@
 # Plan de remediación
 
-**Fecha:** 2026-10-24 · **Basado en:** [`AUDIT.md`](./AUDIT.md) (IDs entre corchetes).
+**Fecha:** 2026-10-24 · **Última revisión:** 2026-11-02 · **Basado en:** [`AUDIT.md`](./AUDIT.md) (IDs entre corchetes).
 
-Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en fases pequeñas, verificables y reversibles**, sin rediseñar el producto. Cada fase termina con `npm run lint`, `npm run build` y la verificación manual indicada.
+Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en fases pequeñas, verificables y reversibles**, sin rediseñar el producto. Cada fase termina con `npm run lint`, `npm test`, `npm run build` y la verificación manual indicada.
+
+## Estado general (2026-11-02)
+
+| Fase | Estado | Nota |
+| :-: | :-: | :--- |
+| 0 | ✅ Cerrada | Parches de seguridad y cumplimiento. |
+| 1 | ⏸️ Pausada | El Libro de Reclamaciones está desactivado hasta enero 2027; falta la decisión D5. |
+| 2 | 🟡 Casi cerrada | Solo quedan el rate-limit persistente (2.7) y el módulo único de entorno (2.8). |
+| 3 | 🟡 Casi cerrada | Solo queda definir la obligatoriedad del teléfono (3.6 / D6). |
+| 4 | 🟡 Casi cerrada | Quedan tildes en mensajes internos (4.6) y la confirmación de razón social/RUC (D2). |
+| 5 | 🟡 Casi cerrada | Faltan tests de `catalog` y el script de webhook multiplataforma (5.4). |
+| 6 | 🟡 Casi cerrada | `route.js` aún concentra rate-limit y cliente ERP (6.9); `ComplaintForm` espera la Fase 1 (6.11). |
+| 7 | ✅ Cerrada | Accesibilidad, SEO y rendimiento. |
+| 8 | ✅ Cerrada | Limpieza de código muerto y documentación. |
+| 9 | ✅ Cerrada | Rediseño UX "menos es más" y SEO/IA. |
 
 ## Reglas para ejecutar el plan
 
@@ -103,8 +118,8 @@ Objetivo: corregir vulnerabilidades, bugs, riesgos legales y deuda técnica **en
 
 ## Fase 5 — Base de calidad (puede empezar en paralelo)
 
-- [ ] **5.1** Vitest + tests unitarios de `openHours`, `cartModel`, `cartRules`, `onlineOrders`, `orderRules`, `catalog`. [QLT-06]
-  - Hecho: Vitest instalado, `npm test` con 34 tests de `openHours`, `cartModel`, `cartRules` y `onlineOrders`. Pendiente: `orderRules` y `catalog`, que aún no existen.
+- [x] **5.1** Vitest + tests unitarios de `openHours`, `cartModel`, `cartRules`, `onlineOrders`, `orderRules`, `catalog`. [QLT-06]
+  - Hecho 2026-11-02: `npm test` con **94 tests** en 12 archivos, incluidos `orderRules`, `analytics`, `format`, `schedule`, `site`, `turnstile`, mensajes del checkout y el motor del juego. `catalog` se cubre de forma indirecta; agregar un test directo queda como mejora opcional.
 - [x] **5.2** GitHub Actions: `npm ci`, `lint`, `test`, `build`, `npm audit --omit=dev --audit-level=high`. [OPS-02]
 - [x] **5.3** `engines.node` + `.nvmrc` (LTS). [OPS-04]
 - [ ] **5.4** Script de prueba del webhook en Node (multiplataforma) contra staging/mock. [OPS-01]
@@ -127,33 +142,32 @@ Objetivo: que ningún archivo junte UI, estado, reglas de negocio y datos. Cada 
 **Presupuesto de tamaño:** componente ≤ 250 líneas, página ≤ 150, hook ≤ 150, módulo de dominio ≤ 200. Pasarse es señal de que hay que dividir, no una prohibición absoluta (justificar en el PR).
 
 - [x] **6.0** Agregar regla ESLint `max-lines` (300, `skipBlankLines`, `skipComments`) como **error**, con un override temporal que lista los archivos pendientes de esta fase. Cada PR de la fase saca su archivo de la lista; la fase termina cuando la lista está vacía. (Así `npm run lint` sigue en 0 errores/0 warnings durante la transición.)
-  - Excepción actual: `reto-gamer/page.js`, `HomeClient.js`, `CartDrawer.js`, `libro-de-reclamaciones/page.js` y `links/page.js`.
+  - Excepción actual: solo `app/(shop)/libro-de-reclamaciones/ComplaintForm.js` (302 líneas). Se retira al completar la Fase 1.
 - [x] **6.1** Extraer hooks: `useCart`, `useCheckoutForm`, `useOpenStatus` (intervalo de 30–60 s, sin escribir `localStorage`). [QLT-01, PERF-01, DEAD-06]
   - Estado de carrito, checkout y horario extraído a hooks; el intervalo de apertura pasó de 1 s a 30 s y se actualiza al volver a la pestaña.
-- [x] **6.2** Mover builders puros (mensaje WhatsApp, recordatorio de pago, errores amigables, `normalizePhoneForDisplay`) a `features/home/checkout/`. [QLT-01]
-  - En `checkout/orderMessages.js`, con 9 tests nuevos. `page.js`: 784 líneas.
+- [x] **6.2** Mover builders puros (mensaje WhatsApp, recordatorio de pago, errores amigables, `normalizePhoneForDisplay`) a `features/shop/checkout/`. [QLT-01]
+  - Hecho: `checkout/orderMessages.js`, con tests propios. `app/(shop)/page.js` quedó en 22 líneas.
 - [x] **6.3** Contexto o store para el carrito; `CartDrawer` con < 10 props. [QLT-01]
-  - `context/CartContext.js` + `CartProvider`; `CartDrawer` pasó de ~40 props a 0 y consume `useCartDrawer()`.
+  - `context/ShopContext.js` + `ShopProvider`; `CartDrawer` pasó de ~40 props a 0 y consume `useShop()`.
 - [x] **6.4** Reemplazar `alert/confirm` por sistema de toasts en `app/components/Toast` (reutilizar CSS existente). [QLT-03, DEAD-04]
-  - `useToast` + `Toast` con variantes info/success/error/confirm; `CartDrawer` recibe `onToast`. Queda un `alert` en `reto-gamer/leaderboard.js` (bloqueado por D7).
+  - `useToast` + `Toast` con variantes info/success/error/confirm; no quedan `alert`/`confirm` en la app.
 - [x] **6.5** `MenuGrid`: un solo árbol responsive; `CategoryCarousel` a su propio archivo. [QLT-09, QLT-11]
   - `MenuGrid.js`: 283 → 91 líneas. `CategoryCarousel.js`: 151. El carrusel se usa en móvil y desktop; se eliminó el grid duplicado y se corrigió el desborde con `min-w-0`.
 - [x] **6.6** Unificar diseño de `/product/[slug]` con el sistema (dorado `#FCC900`, sin clases inexistentes). [DEAD-02, ver `DESIGN.md`]
   - Anton, `.btn-streetwear`, `.block-yellow`, `.tag-streetwear`, iconos lucide sin emojis y fondo `#0F0F12`. `ProductAddToCart` reutiliza `useOpenStatus` (30 s) en vez de su intervalo de 1 s.
-- [x] **6.7** `app/page.js` (968 → ≤ 150 líneas): página server que compone `HomeClient`; el header pasa a `SiteHeader` (compartido con `/product/[slug]`), y lo que quede de estado vive en los hooks de 6.1. [QLT-01, QLT-11]
-  - `app/page.js`: 5 líneas (Server Component). `HomeClient.js`: 686 líneas. `SiteHeader` compartido en home y producto.
-- [x] **6.8** `CartDrawer.js` (494): dividir en `CartItemList`, `CustomerStep`, `DeliveryStep`, `PaymentStep`, `CartSummary`, `ItemThumb`; el drawer solo orquesta el paso actual. [QLT-11]
-  - `CartDrawer.js`: 508 → 90 líneas. Componentes en `components/cart/` (146, 120, 163, 79, 58 y 27 líneas).
-- [ ] **6.9** `api/online-orders/route.js` (243): el handler solo orquesta; mover rate-limit a `lib/rateLimit.js`, cliente del ERP a `lib/erpClient.js` y validación a `lib/orderRules.js` (se apoya en 2.1–2.3 y 2.7). [QLT-11]
+- [x] **6.7** `app/page.js` (968 → ≤ 150 líneas): página server que compone hero, carta, ubicación y FAQ; el header pasa a `SiteHeader` (compartido vía layout `(shop)`) y el estado vive en hooks. [QLT-01, QLT-11]
+  - `app/(shop)/page.js`: 22 líneas (Server Component). `SiteHeader` y `SiteFooter` compartidos en `(shop)`.
+- [x] **6.8** `CartDrawer.js` (494): dividir en `CartItemList`, `CartItemRow`, `CustomerStep`, `DeliveryStep`, `PaymentStep`, `CartFooter`; el drawer solo orquesta el paso actual. [QLT-11]
+  - `CartDrawer.js` pasó a ~90 líneas. Los pasos, campos y resumen viven en `components/cart/`.
+- [ ] **6.9** `api/online-orders/route.js` (166): el handler ya delega validación y catálogo en `lib/orderRules.js` y `lib/catalog.js`; falta mover rate-limit a `lib/rateLimit.js` y el cliente del ERP a `lib/erpClient.js` (se apoya en 2.1–2.3 y 2.7). [QLT-11]
 - [x] **6.10** `links/page.js` (304): íconos de marca a `app/components/icons/` (compartidos con `FooterSection`), datos desde `restaurantInfo`, página server + isla cliente para el estado abierto/cerrado (se combina con 7.4). [QLT-11, QLT-05]
   - Hecho 2026-10-31: `links/page.js` es Server Component; íconos en `app/components/icons/BrandIcons.js`; datos desde `restaurantInfo`.
 - [ ] **6.11** `libro-de-reclamaciones/page.js` (315): página server con `metadata` + `ComplaintForm` cliente dividido por secciones (`ConsumerFieldset`, `ProductFieldset`, `ClaimFieldset`). Coordinar con Fase 1 para no hacer el trabajo dos veces. [QLT-11, QLT-05]
   - Parcial (Hecho 2026-10-31): `page.js` server con metadata + `ComplaintForm.js` cliente dentro del layout común. Falta dividir por fieldsets junto con la Fase 1.
 - [x] **6.12** 🔒 `reto-gamer/page.js` (1.670): **primero resolver D7** — si el juego se simplifica o se quita, no refactorizar código que se va a borrar. Si se queda: motor en `app/reto-gamer/game/` (módulos puros `player.js`, `boss.js`, `bullets.js`, `collisions.js`, `waves.js`, `powerUps.js`, `loop.js`) y UI en `components/` (`Hud`, `MenuScreen`, `GameOverScreen`, `RegisterModal`, `LeaderboardModal`). [QLT-11, PERF-04, DEAD-10]
 - [x] **6.13** `SiteHeader`/`SiteFooter` compartidos (o layout de grupo de rutas) para que home, producto, `/quienes` y `/links` no tengan cada uno su propio header/footer. [QLT-11, DEAD-02]
-  - Hecho 2026-10-31: grupo de rutas `app/(shop)` con `SiteHeader`, `SiteFooter`, carrito y overlays compartidos para `/`, `/product/*`, `/quienes` y `/libro-de-reclamaciones`.
-  - Hecho: `SiteHeader` compartido entre home y producto (modo `compact`). Pendiente: footer y rutas `/quienes`, `/links`.
-- *Aceptación:* lista de excepciones de `max-lines` vacía; `npm run lint` y `npm run build` OK; flujo completo (agregar → carrito → 3 pasos → confirmación) igual que antes en 360 px y desktop; tests de Fase 5 verdes sin modificarlos.
+  - Hecho 2026-10-31: grupo de rutas `app/(shop)` con `SiteHeader`, `SiteFooter`, carrito y overlays compartidos para `/`, `/product/*`, `/quienes`, `/privacidad` y `/libro-de-reclamaciones`. `/links` y `/reto-gamer` usan su propio layout por diseño (link-in-bio y juego a pantalla completa).
+- *Aceptación:* lista de excepciones de `max-lines` vacía; `npm run lint` y `npm run build` OK; flujo completo (agregar → carrito → 2 pasos → confirmación) igual que antes en 360 px y desktop; tests de Fase 5 verdes sin modificarlos.
 
 ## Fase 7 — Accesibilidad, SEO y rendimiento
 
@@ -211,9 +225,9 @@ Necesarias del dueño del negocio / equipo ERP antes de las tareas marcadas con 
 
 | ID | Pregunta | Afecta |
 | :-: | :--- | :--- |
-| D1 | ¿Cuál es el horario real por día? (hoy hay 4 versiones, ver DATA-01) | Fase 4, cálculo de abierto/cerrado |
-| D2 | Razón social legal, RUC correcto y dirección fiscal/local (¿Centro de Lima o Lince?) | Fases 1 y 4, SEO |
-| D3 | Número oficial de WhatsApp | Fase 4 |
+| D1 | ✅ Resuelto (2026-10-31): lunes a sábado de 19:00 a 00:00; domingo cerrado. Fuente única en `restaurantInfo.hours`. | Fase 4 |
+| D2 | ⚠️ Pendiente: razón social legal y RUC correcto (la dirección ya está confirmada: Pje. Larrabure 142, Centro de Lima). | Fases 1 y 4, SEO |
+| D3 | ⚠️ Pendiente: confirmar el número oficial de WhatsApp (`51997722704` es el que usa la app). | Fase 4 |
 | D4 | ¿Qué campos lee hoy el webhook del ERP? ¿Ignora `unitPrice`/`useCatalogPrice`/`status`? ¿Existe entorno de staging? | Fase 2 |
 | D5 | ¿Dónde se persisten los reclamos (ERP, base de datos, Google Sheet)? ¿Quién responde y en qué plazo? | Fase 1 |
 | D6 | ¿Teléfono obligatorio en todos los pedidos o solo en delivery? | Fase 3 |

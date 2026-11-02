@@ -1,148 +1,46 @@
-> ⚠️ **Parcialmente desactualizado (revisado 2026-10-24).** La página actual no tiene "Programa de Lealtad", el WhatsApp vigente es el de `restaurantInfo.contact.whatsapp` (`51997722704`, a confirmar — decisión D3), y los enlaces se editan en el array `categories` de `app/links/page.js`. Ver DATA-03 y DATA-05 en [`AUDIT.md`](./AUDIT.md).
+# Página de enlaces (`/links`) — Big Jack
 
-# Página de Links - Big Jack
+**Última revisión:** 2026-11-02
 
-## 📍 Acceso
-- **URL:** `/links`
-- **Propósito:** Página tipo Linktree para centralizar todos los enlaces y CTAs de Big Jack
+## Propósito
 
-## 🎯 Objetivos principales
+Página tipo link-in-bio para centralizar los enlaces y CTAs de BIG JACK. Es el destino de la bio de Instagram/TikTok, los QR del local y los mensajes de WhatsApp. Es un **Server Component** con una sola isla cliente (`OpenStatusBadge`) para mostrar el estado abierto/cerrado real.
 
-1. **Reseñas Google Maps** (CTA principal destacado)
-   - Link directo: https://g.page/r/CRukRtdfadmpEAE/review
-   - Diseño hero con gradiente llamativo
-   - Mensaje claro invitando a dejar reseña
+## Contenido actual
 
-2. **Programa de Lealtad**
-   - Sección visual con beneficios (descuentos, puntos, recompensas)
-   - CTA para preguntar por WhatsApp
+| Sección | Qué muestra |
+| :--- | :--- |
+| **Cabecera** | Logo, "Hamburguesas a la plancha · Centro de Lima" y estado abierto/cerrado real. |
+| **CTA principal** | "Ver la carta y pedir" → `/`. |
+| **WhatsApp** | "Pedir por WhatsApp" con el número de `restaurantInfo.contact.whatsapp`. |
+| **Pide por app** | Rappi (`restaurantInfo.deliveryApps.rappi`). PedidosYa se retiró el 2026-10-31. |
+| **Información** | Cómo llegar (Google Maps), horario, dejar reseña, "Arma tu burger" (`/reto-gamer`) y quiénes somos (`/quienes`). |
+| **Redes** | Instagram y TikTok. |
+| **Pie** | Razón social (y RUC cuando esté confirmado) y enlace al Libro de Reclamaciones solo si `FEATURES.complaintsBook` está activo. |
 
-3. **Enlaces principales**
-   - Ver Menú Digital (/)
-   - WhatsApp
-   - PedidosYa Delivery
-   - Redes sociales (Instagram, TikTok, Google Maps)
+## Datos y personalización
 
-## 🎨 Características de diseño
+Todos los datos salen de `app/data/menuData.js` y `app/lib/site.js`; no se escriben URLs ni teléfonos a mano.
 
-### Visual
-- Fondo degradado oscuro con elementos decorativos
-- Avatar circular con logo/emoji
-- Tarjetas con gradientes únicos para cada link
-- Iconos de lucide-react
-- Animaciones suaves (fade-in, slide-in)
-- Responsive mobile-first
+| Qué cambiar | Dónde |
+| :--- | :--- |
+| WhatsApp, Instagram, TikTok, Maps, reseña, Rappi | `restaurantInfo` en `app/data/menuData.js` |
+| Horario | `restaurantInfo.hours` (se formatea con `lib/schedule.js`) |
+| Orden o textos de las filas de información | Arreglo `INFO` en `app/links/page.js` |
+| Apps de delivery | Arreglo `DELIVERY_APPS` y `restaurantInfo.deliveryApps` |
+| Redes | Arreglo `SOCIAL` y `lib/site.js` |
 
-### UX
-- CTAs claros con descripciones
-- Hover states y transiciones suaves
-- Loading state inicial
-- Enlaces externos abren en nueva pestaña
-- Accesible desde footer del menú principal
+## Metadata y SEO
 
-## 📱 Secciones
+La página define `title`, `description`, `canonical` y Open Graph propios. No está pensada para competir en búsquedas: su función es convertir tráfico de redes y QR en pedidos.
 
-1. **Header/Profile**
-   - Logo/avatar Big Jack
-   - Nombre y slogan
-   - Ubicación y horarios resumidos
+## Analítica
 
-2. **CTA Hero - Review**
-   - Destacado con gradiente amarillo-naranja-rojo
-   - Badge "¡Necesitamos tu opinión!"
-   - Botón principal blanco
+Los clics salientes (WhatsApp, Rappi, Instagram, TikTok, Maps) se miden con la **medición mejorada** de GA4. No hay eventos personalizados en esta ruta.
 
-3. **Links principales**
-   - Menú Digital
-   - WhatsApp
-   - PedidosYa
-   - Cada uno con icono, título, descripción y chevron
+## Notas de diseño
 
-4. **Programa de Lealtad**
-   - 3 tarjetas de beneficios
-   - Diseño grid responsive
-   - CTA secundario
-
-5. **Redes Sociales**
-   - Grid de 3 columnas
-   - Instagram, TikTok, Google Maps
-   - Colores branded
-
-6. **Footer**
-   - Mensaje de amor
-   - Copyright y RUC
-   - Link de regreso al menú
-
-## 🔗 Links integrados
-
-```javascript
-// Review principal
-https://g.page/r/CRukRtdfadmpEAE/review
-
-// Menú
-/
-
-// WhatsApp
-https://wa.me/51970513912
-
-// PedidosYa
-https://www.pedidosya.com.pe/restaurantes/lima/big-jack-...
-
-// Instagram
-https://instagram.com/bigjackpe
-
-// TikTok
-(desde menuData.js)
-
-// Google Maps
-(desde menuData.js)
-```
-
-## 💡 Cómo usarlo
-
-### Compartir con clientes
-1. Envía el link `/links` por WhatsApp después de cada pedido
-2. Añádelo a tus stories/bio de Instagram y TikTok
-3. Usa QR code impreso en local apuntando a `/links`
-
-### Incentivar reseñas
-- El diseño prioriza el CTA de review en Google
-- Puedes ofrecer descuentos a cambio de reseñas verificadas
-- El mensaje es amigable y no agresivo
-
-### Programa de lealtad
-- Usa la sección para comunicar beneficios
-- Los clientes preguntan por WhatsApp para unirse
-- Actualiza los beneficios editando el array `benefits` en el código
-
-## 🛠️ Personalización
-
-Edita `app/links/page.js`:
-
-```javascript
-// Cambiar orden de links
-const mainLinks = [...];
-
-// Editar beneficios del programa
-const benefits = [...];
-
-// Modificar redes sociales
-const socialLinks = [...];
-```
-
-## 📊 Métricas sugeridas
-
-Trackea en Google Analytics:
-- Clicks al link de review
-- Clicks a redes sociales
-- Tiempo en página
-- Conversión a menú digital
-
-## 🚀 Mejoras futuras
-
-- [ ] Integrar contador de reseñas actual
-- [ ] Sistema de referidos con código único
-- [ ] Sección de testimonios destacados
-- [ ] Galería de fotos de clientes
-- [ ] Formulario de suscripción a newsletter
-- [ ] Calendario de eventos/promociones
+- Formato link-in-bio: una columna `max-w-md`, botones grandes y objetivos táctiles ≥ 44 px.
+- Sin spinner ni estado de carga: la página es estática y el estado abierto/cerrado se hidrata.
+- Sin "Programa de Lealtad", rating fijo ni badge "Premium" (eliminados en la auditoría DATA-05).
+- El enlace de reseñas usa `restaurantInfo.contact.googleReviewLink`.

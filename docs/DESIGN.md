@@ -1,6 +1,6 @@
 # Sistema de diseño — Big Jack Menu
 
-**Fecha:** 2026-10-31 · Documenta el lenguaje visual **actual** y las reglas para mantenerlo coherente. Los desvíos detectados están al final y en [`AUDIT.md`](./AUDIT.md).
+**Fecha:** 2026-11-02 · Documenta el lenguaje visual **actual** y las reglas para mantenerlo coherente. Los desvíos detectados están al final y en [`AUDIT.md`](./AUDIT.md).
 
 ## 1. Concepto
 
@@ -11,7 +11,7 @@
 Principios:
 1. **Una idea por pantalla.** Nada de pastillas, etiquetas `[ CORCHETES ]`, contadores, badges ni subtítulos de relleno. Si un elemento no ayuda a pedir, no va.
 2. **Jerarquía por tamaño, no por cajas.** Titulares en Anton de 4–15 rem (`clamp()`), cuerpo en Poppins 16–18 px, rótulos en 12 px con `tracking` amplio y gris. Evitar tarjetas con borde para agrupar: separar con espacio (`py-24`/`py-32`) o una línea fina.
-3. **Variación de ritmo.** Las hamburguesas se muestran grandes (foto a todo el ancho, alternando formato 4:5 / 1:1); papas y bebidas en filas compactas. El cambio de tamaño guía la vista.
+3. **Variación de ritmo.** Las hamburguesas se muestran grandes (foto a todo el ancho, alternando formato 4:5 / 1:1); las bebidas, en filas compactas. El cambio de tamaño guía la vista.
 4. **Movimiento con propósito.** El hero se cuenta con el scroll; las secciones aparecen con un fundido (`.reveal`). Siempre con alternativa en `prefers-reduced-motion`.
 5. **Pulgar primero.** Objetivos táctiles ≥ 44 px, acción principal abajo en móvil (barra "Ver pedido").
 6. **Contraste alto:** amarillo sobre negro; texto negro sobre amarillo (nunca blanco sobre amarillo).
@@ -52,7 +52,7 @@ Escala habitual: H1 hero `text-4xl → sm:text-7xl → md:text-8xl`; títulos de
 | Radio tarjetas/paneles | `rounded-2xl` / `rounded-3xl` |
 | Píldoras/badges | `rounded-full` |
 | Bordes de marca | 2–3 px (`border-2`, `border-3`) |
-| Contenedor | `max-w-6xl` / `max-w-7xl`, `px-4 sm:px-6` |
+| Contenedor | `max-w-3xl` en la carta y el footer; `max-w-md` en `/links`; `px-5` |
 | Táctil mínimo | 44 px (`min-h-[44px]`); CTAs principales 56–72 px |
 
 ### 2.4 Fondo
@@ -110,5 +110,6 @@ Escala habitual: H1 hero `text-4xl → sm:text-7xl → md:text-8xl`; títulos de
 | Dónde | Desvío |
 | :--- | :--- |
 | `/libro-de-reclamaciones` | Formulario largo con bloques numerados y bordes: se mantiene por claridad legal (tono neutro). Pendiente de Fase 1. |
-| `/reto-gamer` | Paleta neón propia del juego (D7 pendiente). |
+| `/reto-gamer` | Paleta propia del minijuego "Arma tu burger" (decisión D7 resuelta: es un juego para la espera, sin premios). |
 | `/links` | Lista de botones (formato link-in-bio); ya sin colores de terceros ni etiquetas. |
+| `/privacidad` | Texto legal en tono neutro, sin recursos de marca más allá de títulos y color de acento. |

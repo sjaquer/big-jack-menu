@@ -1,0 +1,87 @@
+name: Reportar un bug
+description: Algo no funciona como debería en la carta, el carrito o el checkout.
+title: "fix: "
+labels: ["type: fix", "status: needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar. **No incluyas credenciales, datos personales ni detalles explotables**; para seguridad usa [SECURITY.md](../SECURITY.md).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del problema
+      description: ¿Qué pasa y dónde?
+      placeholder: Al agregar una bebida sin hamburguesa...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      placeholder: |
+        1. Abrir la carta en móvil
+        2. Agregar una Coca-Cola
+        3. Ver el mensaje
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultado actual
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afectada
+      multiple: true
+      options:
+        - Carta / productos
+        - Carrito
+        - Checkout / entrega
+        - Pago
+        - Confirmación / WhatsApp
+        - API / webhook
+        - Página de enlaces
+        - Juego
+        - SEO / metadata
+        - Accesibilidad
+        - Diseño / estilos
+        - Documentación
+        - Otro
+
+  - type: input
+    id: environment
+    attributes:
+      label: Entorno
+      description: Navegador, dispositivo, ancho de pantalla y si es local o producción.
+      placeholder: iPhone 13 / Safari 18 / 390 px / producción
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Capturas, logs o contexto adicional
+      description: Puedes arrastrar imágenes aquí. No incluyas datos personales ni secretos.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmaciones
+      options:
+        - label: Revisé que no exista un issue igual.
+          required: true
+        - label: No incluí credenciales ni datos personales.
+          required: true

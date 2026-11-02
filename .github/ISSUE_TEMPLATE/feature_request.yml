@@ -1,0 +1,73 @@
+name: Proponer una mejora
+description: Una idea para la carta, el checkout, la marca o la operación.
+title: "feat: "
+labels: ["type: feat", "status: needs-info"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de proponer, revisa [`docs/PRD.md`](../docs/PRD.md) y [`docs/REMEDIATION_PLAN.md`](../docs/REMEDIATION_PLAN.md). Los cambios que tocan SKUs, precios o el contrato del ERP necesitan confirmación del dueño y del equipo ERP.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: ¿Qué problema resuelve?
+      description: Describe la necesidad del cliente o del negocio.
+      placeholder: Hoy el cliente no puede...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta
+      description: ¿Cómo lo resolverías? No hace falta detalle técnico.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Opcional.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      multiple: true
+      options:
+        - Carta / productos
+        - Carrito
+        - Checkout / entrega
+        - Pago
+        - Confirmación / WhatsApp
+        - API / webhook / ERP
+        - Página de enlaces
+        - Juego
+        - SEO / contenido
+        - Accesibilidad
+        - Diseño / marca
+        - Analítica
+        - Documentación / tooling
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impacto esperado
+      options:
+        - Alto (más pedidos o menos errores)
+        - Medio (mejor experiencia)
+        - Bajo (detalle o higiene)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmaciones
+      options:
+        - label: Revisé que no exista una propuesta igual.
+          required: true
+        - label: Entiendo que los cambios de SKU, precio o contrato del ERP requieren coordinación adicional.
+          required: true

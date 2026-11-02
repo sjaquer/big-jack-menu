@@ -1,0 +1,9 @@
+# Dueño por defecto del repositorio.
+* @sjaquer
+
+# Áreas sensibles que requieren revisión del mantenedor.
+/app/api/ @sjaquer
+/app/lib/orderRules.js @sjaquer
+/app/data/menuData.js @sjaquer
+/docs/webhook-pedidos.md @sjaquer
+/.github/ @sjaquer

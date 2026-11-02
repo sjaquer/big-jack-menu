@@ -1,22 +1,58 @@
 # Auditoría técnica — Big Jack Menu
 
-**Fecha:** 2026-10-24
-**Alcance:** todo el repositorio (`app/`, `public/`, `scripts/`, `docs/`, configuración y dependencias) en el commit `cff53d7`.
-**Método:** lectura completa del código fuente (≈7.3k líneas), `npm run lint`, `npm run build`, `npm audit --omit=dev`, `npm outdated`, búsqueda de símbolos/clases sin uso y de secretos en el historial de git.
+**Fecha original:** 2026-10-24 · **Última actualización:** 2026-11-02
+**Alcance:** todo el repositorio (`app/`, `public/`, `scripts/`, `docs/`, configuración y dependencias). La auditoría original se hizo sobre el commit `cff53d7`; el estado actual se verificó sobre `master`.
+**Método:** lectura completa del código fuente, `npm run lint`, `npm test`, `npm run build`, `npm audit --omit=dev`, `npm outdated`, búsqueda de símbolos/clases sin uso y de secretos en el historial de git.
 
 > Este documento **reemplaza** como fuente de verdad a `docs/SECURITY_AND_TECH_DEBT.md` y `docs/UI_UX_OVERHAUL_WALKTHROUGH.md`, que contienen afirmaciones que no se cumplen en el código actual (ver [DOC-01](#doc-01)).
-> El plan para corregir cada hallazgo está en [`REMEDIATION_PLAN.md`](./REMEDIATION_PLAN.md).
+> El plan para corregir cada hallazgo está en [`REMEDIATION_PLAN.md`](./REMEDIATION_PLAN.md). Las fichas de abajo conservan el diagnóstico original; el estado ✅/⚠️/❌ refleja la verificación del **2026-11-02**.
 
 ## Estado de verificación
 
 | Chequeo | Resultado |
 | :--- | :--- |
-| `npm run build` | ✅ Compila (24 rutas, 1 dinámica: `/api/online-orders`). |
+| `npm run build` | ✅ Compila (rutas estáticas + `/api/online-orders` dinámica). |
 | `npm run lint` | ✅ 0 errores, 0 advertencias. |
-| `npm audit --omit=dev` | ✅ 0 vulnerabilidades (resuelto en Fase 0, ver [SEC-01](#sec-01)). |
-| Tests automatizados | ❌ No existen. |
-| CI | ❌ No existe. |
+| `npm test` | ✅ 94 tests en 12 archivos (Vitest). |
+| `npm audit --omit=dev` | ✅ 0 vulnerabilidades. Quedan avisos moderados de desarrollo en la cadena de ESLint (riesgo aceptado). |
+| CI | ✅ `.github/workflows/ci.yml` (lint, test, build, audit). |
 | Secretos en historial git | ✅ No se encontraron credenciales reales. |
+
+## Estado actual de hallazgos (2026-11-02)
+
+### Cerrados
+
+| Área | IDs cerrados |
+| :--- | :--- |
+| Seguridad | SEC-01, SEC-02, SEC-03, SEC-05, SEC-07, SEC-08, SEC-09, SEC-10, SEC-12 |
+| Legal | LEG-01, LEG-03, LEG-04 |
+| Bugs | BUG-01, BUG-02, BUG-03, BUG-04, BUG-05, BUG-06, BUG-08, BUG-09, BUG-10 |
+| Datos | DATA-01, DATA-03, DATA-04, DATA-05, DATA-06 |
+| Código muerto | DEAD-01 … DEAD-10 |
+| Calidad | QLT-01, QLT-02, QLT-03, QLT-05, QLT-06, QLT-08, QLT-09 |
+| Rendimiento | PERF-01, PERF-02, PERF-03, PERF-04 |
+| Accesibilidad | A11Y-01, A11Y-02, A11Y-03, A11Y-04 |
+| SEO | SEO-01, SEO-02, SEO-03, SEO-04 |
+| Operación | OPS-02, OPS-03, OPS-04 |
+| Documentación | DOC-01, DOC-02 |
+
+### Abiertos o parciales
+
+| ID | Estado | Qué falta |
+| :--- | :-: | :--- |
+| SEC-04 | ⚠️ | Rate-limit persistente (Upstash/Vercel KV o Vercel Firewall). Hoy es un `Map` en memoria por instancia. |
+| SEC-06 | ⚠️ | Turnstile, rate-limit y validación de longitudes en el Libro de Reclamaciones. Se resuelve al reactivarlo (enero 2027). |
+| SEC-11 | ⚠️ | Dejar un solo nombre por variable secreta cuando se confirme el usado en Vercel. |
+| LEG-02 | ⚠️ | Libro conforme: número correlativo, copia al consumidor, fecha del incidente, campos del reglamento y persistencia (Fase 1). |
+| BUG-07 | ⚠️ | Decidir si el teléfono es obligatorio (D6). Hoy es opcional en UI, cliente y servidor. |
+| DATA-02 | ⚠️ | Confirmar razón social y RUC (D2). La dirección ya está centralizada. |
+| DATA-07 | ⚠️ | Quedan textos/comentarios sin tildes en mensajes internos (p. ej. "Vacialo", "menu" en `submitOrder.js`). |
+| QLT-04 | ⚠️ | Quedan algunos `catch` silenciosos fuera de las rutas críticas. |
+| QLT-10 | ⚠️ | Mezcla de idioma/tildes en mensajes internos del payload y del juego. |
+| QLT-07 | ⚠️ | Las categorías internas siguen siendo strings estables; migrar a `id` + `label` es opcional. |
+| QLT-11 | ⚠️ | Solo `ComplaintForm.js` (302 líneas) supera el presupuesto de 300; tiene excepción explícita en ESLint hasta la Fase 1. |
+| OPS-01 | ⚠️ | El script de prueba del webhook sigue siendo PowerShell; falta la versión Node multiplataforma. |
+| E.1–E.3 | ⚠️ | RUC, Libro de Reclamaciones y posible retorno de PedidosYa: enero 2027. |
 
 ## Resuelto
 
@@ -24,7 +60,7 @@
 
 | ID | Cambio |
 | :--- | :--- |
-| SEC-01 | `next@16.4.3`, `eslint-config-next@16.4.3` y `nodemailer@10.2.1`; `npm audit --omit=dev` = 0. |
+| SEC-01 | `next@16.4.3`, `eslint-config-next@16.4.3` y `nodemailer@10.3.1`; `npm audit --omit=dev` = 0. |
 | SEC-08 | Eliminados `placehold.co` e `images.unsplash.com` de `images.remotePatterns`. |
 | LEG-01 | `sendComplaint` devuelve `success:false` en producción sin canal de entrega; modo simulado solo fuera de producción. Se quitó el fallback `NEXT_PUBLIC_FORMSPREE_URL`. |
 | LEG-03 | Eliminada la descripción hardcodeada de opciones; solo se muestra `option.description` si existe. |
@@ -57,15 +93,14 @@
 | :--- | :--- |
 | OPS-02 | CI en `.github/workflows/ci.yml` (lint, test, build, audit) y `npm test` con Vitest. |
 | OPS-04 | `engines.node >=20.9.0` y `.nvmrc` con Node 24 LTS. |
-| QLT-06 | 34 tests unitarios de `openHours`, `cartModel`, `cartRules` y `onlineOrders`; faltan los módulos de Fase 2. |
+| QLT-06 | 94 tests unitarios en 12 archivos (dominio, checkout, analítica, Turnstile y juego); CI en verde. |
 
 ### Fase 6 (parcial) — Hooks y presupuesto (2026-10-24)
 
 | ID | Cambio |
 | :--- | :--- |
-| QLT-01 | `page.js` bajó de 996 a 5 líneas (Server Component) y el estado pasó a `HomeClient`; hooks y `checkout/orderMessages.js` extraídos. |
-| QLT-11 | `SiteHeader` compartido entre home y producto; excepción de `max-lines` actualizada a `HomeClient.js`. |
-| QLT-11 | Regla `max-lines` (300) activa con excepción explícita para los 5 archivos pendientes. |
+| QLT-01 | `app/(shop)/page.js` quedó como Server Component de 22 líneas; el estado vive en `ShopProvider` y hooks pequeños. |
+| QLT-11 | `SiteHeader` compartido vía layout `(shop)`; `max-lines` (300) activa con una sola excepción (`ComplaintForm.js`). |
 | PERF-01 | El estado abierto/cerrado del home se refresca cada 30 s y al volver a la pestaña. |
 | DEAD-06 | Eliminada la escritura de `bj_isOpen`; `useOpenStatus` no toca `localStorage`. |
 
@@ -160,13 +195,13 @@
 - **Impacto:** ejecución remota de código / denegación de servicio en producción.
 - **Recomendación:** actualizar `next` y `eslint-config-next` a `^16.4.3` y correr `npm audit fix` (**sin** `--force`, ver regla en AGENTS.md). Verificar con `npm audit --omit=dev` = 0.
 
-### SEC-02 — `/api/online-orders` acepta pedidos de cualquiera, sin protección anti-abuso real · **Alta**
+### SEC-02 — `/api/online-orders` acepta pedidos de cualquiera, sin protección anti-abuso real · **Alta** · ✅ Resuelto (mismo origen + Turnstile; rate-limit persistente en SEC-04)
 - **Dónde:** `app/api/online-orders/route.js:92-243`.
 - **Evidencia:** no hay verificación de `Origin`, CAPTCHA, token ni firma. Cualquiera puede hacer `POST` con SKUs válidos. El ERP **registra la venta y descuenta inventario** por cada pedido (`docs/webhook-pedidos.md`, reglas 3-4).
 - **Impacto:** pedidos falsos que ensucian ventas e inventario del ERP.
 - **Recomendación:** verificar `Origin`/`Referer`, añadir Cloudflare Turnstile (o similar) en el checkout, honeypot, y rate-limit persistente (ver SEC-04).
 
-### SEC-03 — El proxy reenvía campos arbitrarios del cliente al ERP (mass assignment) · **Alta**
+### SEC-03 — El proxy reenvía campos arbitrarios del cliente al ERP (mass assignment) · **Alta** · ✅ Resuelto (`lib/orderRules.js` reconstruye con lista blanca)
 - **Dónde:** `app/api/online-orders/route.js:65-90` (`...payload`), `:211-216`.
 - **Evidencia:** `normalizePayloadForWebhook` hace spread del body completo. Los `items` también se reenvían con cualquier campo extra. Un atacante puede inyectar `source`, `metadata`, `orderDate`, `status`, `totalAmount`, `unitPrice`, `useCatalogPrice:false`, etc. La API legacy del ERP aceptaba `useCatalogPrice=false` + `unitPrice` (`docs/legacy/online-orders-api.md` §3).
 - **Impacto:** si el webhook del ERP honra alguno de esos campos → manipulación de precio/estado. Aunque no los honre hoy, el contrato queda abierto.
@@ -177,7 +212,7 @@
 - **Evidencia:** `ipCache` es un `Map` del proceso. En Vercel cada instancia/cold start tiene su propio mapa. La IP se toma del primer valor de `x-forwarded-for`, que es falsificable si el proxy no lo sobrescribe. Solo se cuentan pedidos que pasan validación.
 - **Recomendación:** rate-limit en store compartido (Upstash Redis / Vercel KV) o en el edge (Vercel Firewall). Usar `request.ip`/cabecera confiable de la plataforma.
 
-### SEC-05 — Reglas de negocio solo en el cliente · **Media**
+### SEC-05 — Reglas de negocio solo en el cliente · **Media** · ✅ Resuelto (`lib/orderRules.js` se ejecuta en servidor)
 - **Dónde:** `app/features/home/checkout/submitOrder.js:58-76` vs. `route.js`.
 - **Evidencia:** horario de atención, "pre-orden solo recojo", "delivery no acepta efectivo", "bebidas solo con hamburguesa" y longitud de campos **no** se validan en el servidor.
 - **Recomendación:** mover la validación a un módulo compartido (`lib/orderRules.js`) y ejecutarlo en el route handler. El cliente solo da feedback temprano.
@@ -188,7 +223,7 @@
 - **Impacto:** email bombing a la cuenta del negocio y consumo de cuota de Gmail.
 - **Recomendación:** Turnstile + rate-limit + validación de formato/longitud (DNI 8 dígitos o CE, email, teléfono).
 
-### SEC-07 — Sin cabeceras de seguridad HTTP · **Media**
+### SEC-07 — Sin cabeceras de seguridad HTTP · **Media** · ✅ Resuelto (CSP + COOP + HSTS + resto en `next.config.mjs`)
 - **Dónde:** `next.config.mjs` (no define `headers()`).
 - **Recomendación:** `Content-Security-Policy` (permitiendo Google Maps embed), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (geolocation=self), `frame-ancestors 'none'`.
 
@@ -197,16 +232,16 @@
 - **Evidencia:** se permiten `placehold.co` e `images.unsplash.com`, pero **todas** las imágenes son locales. Amplía la superficie del optimizador de imágenes (ligado a SEC-01: SSRF/RCE en Image Optimization).
 - **Recomendación:** eliminar ambos patrones.
 
-### SEC-09 — Respuesta del ERP reenviada tal cual al navegador · **Baja**
+### SEC-09 — Respuesta del ERP reenviada tal cual al navegador · **Baja** · ✅ Resuelto
 - **Dónde:** `app/api/online-orders/route.js:218-227`.
 - **Impacto:** puede filtrar mensajes internos/estructura del ERP.
 - **Recomendación:** mapear a `{ success, orderId, duplicated, message }` y loguear el resto en servidor.
 
-### SEC-10 — `eventId` generado en el cliente con `Math.random` · **Baja**
+### SEC-10 — `eventId` generado en el cliente con `Math.random` · **Baja** · ✅ Resuelto (`crypto.getRandomValues`)
 - **Dónde:** `app/lib/onlineOrders.js:8-13`.
 - **Recomendación:** generar con `crypto.randomUUID()`; idealmente en servidor a partir de un id de intento enviado por el cliente (para conservar idempotencia en reintentos).
 
-### SEC-11 — Variables de secreto con 3 nombres alternativos y fallback `NEXT_PUBLIC_` · **Baja**
+### SEC-11 — Variables de secreto con 3 nombres alternativos y fallback `NEXT_PUBLIC_` · **Baja** · ⚠️ Parcial (se quitó el fallback público; quedan alias del webhook)
 - **Dónde:** `route.js:56-63` (`WEBHOOK_MENU_SECRET || WEBHOOK_SECRET || ERP_WEBHOOK_SECRET`), `actions.js:51` (`FORMSPREE_URL || NEXT_PUBLIC_FORMSPREE_URL`).
 - **Impacto:** confusión de configuración; `NEXT_PUBLIC_*` se expone al bundle del navegador.
 - **Recomendación:** un solo nombre por variable, validado al arrancar (`lib/env.js`).
@@ -228,7 +263,7 @@
 - **Impacto:** incumplimiento del deber de atender reclamos; riesgo de multa.
 - **Recomendación:** en producción, fallar con error visible si no hay canal de entrega configurado; persistir el reclamo (DB/ERP) antes de notificar.
 
-### LEG-02 — Libro de Reclamaciones incompleto respecto al reglamento · **Alta**
+### LEG-02 — Libro de Reclamaciones incompleto respecto al reglamento · **Alta** · ⚠️ Pendiente (Fase 1; ruta desactivada mientras tanto)
 - **Dónde:** `app/libro-de-reclamaciones/page.js`, `app/actions.js`.
 - **Evidencia:**
   - No se genera **número correlativo** ni fecha de registro.
@@ -283,7 +318,7 @@
 - **Evidencia:** entre 00:00 y 01:00 `isOpenNow` = true, pero `getNextOpenDate` devuelve las 19:00 del mismo día. Hoy no se ve porque `ClosedNotice` no se muestra si está abierto, pero el valor se persiste en `bj_isOpen`.
 - **Recomendación:** reutilizar `isOpenNow` dentro de `getNextOpenDate` + tests unitarios de bordes (00:30, 01:00, 18:59, 19:00).
 
-### BUG-07 — El paso "Cliente" exige teléfono pero el envío no · **Media**
+### BUG-07 — El paso "Cliente" exige teléfono pero el envío no · **Media** · ⚠️ Decisión D6 pendiente (hoy opcional en todos los puntos)
 - **Dónde:** `CartDrawer.js:90-91` (≥ 9 dígitos para marcar el paso) vs. `submitOrder.js:66-68` (solo nombre).
 - **Recomendación:** decidir si el teléfono es obligatorio (recomendado para delivery) y validar igual en UI, cliente y servidor.
 
@@ -306,7 +341,7 @@
 
 ## 4. Datos inconsistentes (DATA)
 
-### DATA-01 — Cuatro horarios distintos publicados · **Alta**
+### DATA-01 — Cuatro horarios distintos publicados · **Alta** · ✅ Resuelto (una sola fuente: `restaurantInfo.hours`)
 | Fuente | Horario mostrado |
 | :--- | :--- |
 | `app/data/menuData.js:10-18` (**lógica real** de abierto/cerrado y schema SEO) | Todos los días 19:00 – 01:00 |
@@ -315,29 +350,29 @@
 | `app/features/home/components/FooterSection.js:125-131` | Todos los días 18:00 – 01:00 |
 - **Recomendación:** el dueño confirma el horario real; todas las vistas leen de `restaurantInfo.hours` con un formateador común.
 
-### DATA-02 — Identidad legal y dirección contradictorias · **Alta**
+### DATA-02 — Identidad legal y dirección contradictorias · **Alta** · ⚠️ Parcial (dirección centralizada; razón social y RUC pendientes de D2)
 - Razón social: "Big Jack Perú S.A.C." (`FooterSection.js:152`, `layout.js:51`) vs. "BIG JACK" (`libro-de-reclamaciones/page.js:67`). El RUC `15614908278` (`menuData.js:7`) empieza con `15`, prefijo que **no** corresponde a una S.A.C. (las personas jurídicas usan `20`).
 - Dirección: "Centro de Lima" (`menuData.js:24`, hero, footer, textos SEO) vs. "Jr. Bartolomé Herrera 133, **Lince**" (`seo.js:88-89`, `links/page.js:125`). Lince no es Centro de Lima.
 - **Recomendación:** confirmar con el dueño y centralizar en `restaurantInfo` (`legalName`, `ruc`, `address.street`, `address.district`).
 
-### DATA-03 — Números de WhatsApp distintos · **Media**
+### DATA-03 — Números de WhatsApp distintos · **Media** · ✅ Resuelto (`lib/site.js`)
 - `menuData.js:21` → `51997722704` (el que usa la app). `docs/LINKS_PAGE.md` → `51970513912`. Placeholder del libro (`page.js:115`) → `970513912`.
 - **Recomendación:** confirmar número oficial; actualizar docs y placeholder.
 
-### DATA-04 — Tiempos de preparación distintos · **Media**
+### DATA-04 — Tiempos de preparación distintos · **Media** · ✅ Resuelto (`prepTimeMinutes`)
 - "15 min" (`HeroSection.js:87`) vs. "15-20 min" (`CartDrawer.js:397`, `onlineOrders.js:23`, `ProductAddToCart.js:192`, FAQ).
 
-### DATA-05 — Textos y métricas fijas que pueden ser falsos · **Media**
+### DATA-05 — Textos y métricas fijas que pueden ser falsos · **Media** · ✅ Resuelto (estado real, sin rating ni badge fijo)
 - `links/page.js:196` muestra **"ABIERTO"** siempre, aunque esté cerrado.
 - `links/page.js:222` muestra rating **"4.9"** fijo.
 - ✅ `product/[slug]` ya no muestra un badge "Premium" fijo (Fase 6.6).
 - Placeholder del buscador "smash, tocino" (`CategoryFilter.js:62`) contradice la FAQ ("no smash") y el menú usa "bacon".
 - **Recomendación:** derivar de datos reales o eliminar.
 
-### DATA-06 — URL del sitio definida en 4 lugares · **Baja**
+### DATA-06 — URL del sitio definida en 4 lugares · **Baja** · ✅ Resuelto (`SITE_URL` en `lib/site.js`)
 - `DEFAULT_SITE_URL` (`constants.js:20`), `NEXT_PUBLIC_BASE_URL` (`layout.js:34`, `robots.js:2`, `sitemap.js:4`) y literal en `layout.js:61`. El schema JSON-LD usa la constante y ignora la variable de entorno.
 
-### DATA-07 — Comentarios desactualizados · **Baja**
+### DATA-07 — Comentarios desactualizados · **Baja** · ⚠️ Parcial (quedan textos sin tildes en mensajes internos)
 - `page.js:166`: "tarjeta deshabilitada" — la tarjeta está habilitada.
 - `menuData.js:1-2`: "Solo cambia los textos entre comillas" — también hay SKUs/precios que deben coincidir con el ERP.
 
@@ -351,70 +386,61 @@
 | DEAD-02 | ✅ Resuelto (Fases 8 y 6.6): detalle de producto unificado con Anton, `#FCC900`, clases de marca e iconos lucide, sin emojis. | — | Media |
 | DEAD-03 | ✅ Resuelto (Fase 8): componentes eliminados. | — | Baja |
 | DEAD-04 | Sistema de toasts a medias: prop `onToast` nunca se pasa (siempre cae a `alert`/`confirm`); CSS `.toast-*` sin uso. **Resuelto en Fase 6.4** con `useToast` + `Toast`. | `CartDrawer.js`, `globals.css` | Baja |
-| DEAD-05 | `links/metadata.js` no se importa (Next no lee `metadata.js` por convención) → `/links` no tiene metadata propia. | `app/links/metadata.js` | Baja |
+| DEAD-05 | ✅ Resuelto: `/links` define `metadata` propia; el archivo `metadata.js` fue eliminado. | — | Baja |
 | DEAD-06 | ✅ Resuelto (Fase 6): `useOpenStatus` actualiza cada 30 s sin escribir `localStorage`. | `hooks/useOpenStatus.js` | Baja |
 | DEAD-07 | ✅ Resuelto (Fase 8): CSS sin uso y `:focus-visible` duplicado eliminados. | `globals.css` | Baja |
 | DEAD-08 | ✅ Resuelto (Fase 8): eliminados `deliveryAvailable`, `orderType` persistido, `bj_isOpen`, la rama imposible de `normalizePhoneForDisplay` y los imports sin uso. | varios | Baja |
 | DEAD-09 | ✅ Resuelto (Fase 8): `sincomprimir/` movido a `design-assets/` (ignorado) y eliminadas las imágenes huérfanas. | `public/images/` | Baja |
-| DEAD-10 | `app/reto-gamer/leaderboard.js`: "ranking" de un solo registro local; `generateHash`/checksum "anti-cheat" sin valor (todo es editable en el cliente). | `leaderboard.js`, `reto-gamer/page.js:1021-1041` | Baja |
+| DEAD-10 | ✅ Resuelto: el juego se reemplazó por "Arma tu burger"; no hay ranking, nombre ni código de canje. | — | Baja |
 
 ---
 
 ## 6. Calidad de código / malas prácticas (QLT)
 
 ### QLT-01 — `app/page.js` es un "god component" · **Media** · ✅ Resuelto (Fase 6)
-`app/page.js` quedó en 5 líneas como Server Component que compone `HomeClient`. El estado y el markup viven en `HomeClient` (711 líneas), pendiente de nuevas extracciones. `CartDrawer` ya no recibe props, consume `CartContext` (6.3) y se dividió en `components/cart/` (6.8).
+`app/(shop)/page.js` es un Server Component de 22 líneas que compone hero, carta, ubicación y FAQ. El estado vive en `ShopProvider` y en hooks pequeños (`useCart`, `useCheckoutForm`, `useOrderSubmit`…). `CartDrawer` consume el contexto y se divide en `components/cart/`.
 
-### QLT-02 — Lógica duplicada · **Media**
-- Catálogo de SKUs activos construido 3 veces (`route.js:27-46`, `submitOrder.js:5-24`, script PS1).
-- Agregar al carrito: `page.js:409-474` vs. `ProductAddToCart.js:16-48`.
-- Timer de apertura con `setInterval(1000)`: `page.js:246-260` y `ProductAddToCart.js:61-73`.
-- Rango de precios: `seo.js:3-16`, `product/[slug]/page.js:41-49`, `ProductCard.js:27-30`.
-- Etiquetas de métodos de pago: `page.js:41-46`, `page.js:101-106`, `CartDrawer.js:414-419`.
-- `https://wa.me/${...}` armado en ≥ 8 lugares.
-→ Un módulo de dominio por concepto (`catalog`, `cart`, `openHours`, `contact`).
+### QLT-02 — Lógica duplicada · **Media** · ✅ Resuelto (`catalog`, `cartModel`, `orderRules`, `format`, `site`, `schedule`)
+La construcción de SKUs, los topes del carrito, las reglas del pedido, el rango de precios, las URLs de WhatsApp/Instagram y el horario viven ahora en módulos de dominio compartidos. El diagnóstico original detectó duplicación en `page.js`, `ProductAddToCart`, `seo.js` y varios builders; esos puntos se consolidaron en las Fases 2, 3, 4 y 6.
 
-### QLT-03 — `alert()`/`confirm()` como UX (13 usos) · **Media** · ✅ Resuelto en home (Fase 6)
-Home y `CartDrawer` usan `useToast` + `Toast` (info/success/error/confirm accesible, autocierre a 5 s). Queda un `alert` en `reto-gamer/leaderboard.js`, bloqueado por D7.
+### QLT-03 — `alert()`/`confirm()` como UX (13 usos) · **Media** · ✅ Resuelto (Fase 6)
+La tienda usa `useToast` + `Toast` (info/success/error/confirm accesible, autocierre a 5 s). El juego actual no usa `alert` ni `confirm`.
 
-### QLT-04 — Errores tragados en silencio (8 `catch {}` vacíos) · **Media**
+### QLT-04 — Errores tragados en silencio (8 `catch {}` vacíos) · **Media** · ⚠️ Parcial (`safeStorage` cubre lo crítico; quedan catches menores)
 `page.js:208,226,233,255,382,499`, `ClientSearchParams.js:13`, etc.
 → Al menos `console.warn` en desarrollo; wrapper `safeStorage`.
 
-### QLT-05 — Todas las páginas son Client Components · **Media** · ⚠️ Parcial (Fase 6)
-`/` ya es un Server Component que compone `HomeClient`; `/product/[slug]` también era server. `/links`, `/quienes`, `/libro-de-reclamaciones` y `/reto-gamer` siguen con `"use client"` en la raíz, sin `metadata` propia y con más JS al navegador.
-→ Terminar 6.10, 6.11 y 6.12 (bloqueada por D7).
+### QLT-05 — Todas las páginas son Client Components · **Media** · ✅ Resuelto
+Todas las rutas tienen `page.js` como Server Component con `metadata`/canonical propios; el estado está en islas cliente (`ShopProvider`, `OpenStatusBadge`, `BurgerGame`, `ComplaintForm`).
 
-### QLT-06 — Sin tests ni tipos · **Media** · ⚠️ Parcial (Fase 5)
-Reglas de negocio críticas (horario, carrito, payload, validación) sin pruebas. JS sin JSDoc ni TypeScript.
-→ Vitest para `lib/` y `features/home/checkout/`; JSDoc o migración incremental a TS.
-Hecho: 34 tests de `openHours`, `cartModel`, `cartRules` y `onlineOrders`. Pendiente: `orderRules`, `catalog` y validaciones del checkout.
+### QLT-06 — Sin tests ni tipos · **Media** · ✅ Resuelto (94 tests; JS sin tipos sigue siendo decisión de stack)
+`npm test` cubre `openHours`, `cartModel`, `cartRules`, `onlineOrders`, `orderRules`, `analytics`, `format`, `schedule`, `site`, `turnstile`, mensajes del checkout y el motor del juego. JS sin JSDoc ni TypeScript se mantiene como decisión de stack; si se migra, será incremental.
 
-### QLT-07 — Categorías como identificadores · **Baja**
-Strings de UI ("LAS INTOCABLES", "TODOS") usados como claves lógicas; causa directa de BUG-04.
-→ `id` estable + `label`.
+### QLT-07 — Categorías como identificadores · **Baja** · ⚠️ Parcial
+Las claves internas (`LAS INTOCABLES`, `BEBIDAS`) siguen siendo strings estables documentados en `categoryInfo`. Funciona y está cubierto por tests; migrar a `id` + `label` queda como mejora opcional.
 
-### QLT-08 — Estilos con colores hex literales repetidos · **Baja**
+### QLT-08 — Estilos con colores hex literales repetidos · **Baja** · ✅ Resuelto (tokens `@theme`)
 `#FCC900` aparece cientos de veces; existen variables CSS (`--potencia-amarillo`, `--bj-accent`) que no se usan. Ver `DESIGN.md`.
 
 ### QLT-09 — `MenuGrid` renderiza dos árboles completos (móvil y desktop) · **Baja** · ✅ Resuelto (Fase 6)
 `MenuGrid` usa un solo árbol de `CategoryCarousel` en todos los tamaños; se eliminó el grid móvil duplicado (doble DOM e imágenes).
 
-### QLT-10 — Mezcla de idiomas y sin tildes en mensajes · **Baja**
+### QLT-10 — Mezcla de idiomas y sin tildes en mensajes · **Baja** · ⚠️ Parcial (quedan "Vacialo"/"menu" en mensajes internos y "Ubicacion" en notas del payload)
 Mensajes al usuario sin tildes ("presentacion", "exito", "Vacialo") junto a otros con tildes.
 
-### QLT-11 — Monolitos: archivos que mezclan varias responsabilidades · **Media**
+### QLT-11 — Monolitos: archivos que mezclan varias responsabilidades · **Media** · ⚠️ Casi resuelto (solo `ComplaintForm.js`, 302 líneas, con excepción de lint)
 QLT-01 es el caso más visible, pero no el único. Archivos que juntan UI, estado, reglas de negocio y datos en una sola unidad:
 
-| Archivo | Líneas | Qué mezcla |
+| Archivo | Líneas | Estado |
 | :--- | :-: | :--- |
-| `app/reto-gamer/page.js` | 1.670 | Motor del juego (clases `Player`, `Boss`, `Bullet`, colisiones, oleadas, power-ups) dentro de un `useEffect` de ~1.180 líneas + HUD + 4 pantallas/modales + ranking. |
-| `app/page.js` | 968 | Ver QLT-01: 32 `useState`, 8 `useEffect`, carrito, checkout, geolocalización, builders de WhatsApp y todo el markup del header. |
-| ~~`app/features/home/components/CartDrawer.js`~~ | 90 | Resuelto en 6.8: divide en `components/cart/` (`CartItemList`, `CustomerStep`, `DeliveryStep`, `PaymentStep`, `CartSummary`, `ItemThumb`). |
-| `app/libro-de-reclamaciones/page.js` | 315 | Página completa como Client Component; las 3 secciones del formulario y el estado de envío juntos. |
-| `app/links/page.js` | 304 | 5 íconos SVG inline (duplicados en el footer), datos de enlaces, horarios y estado en un archivo cliente. |
-| ~~`app/features/home/components/MenuGrid.js`~~ | 91 | Resuelto en 6.5: carrusel extraído a `CategoryCarousel.js`; ya no duplica árboles. |
-| `app/api/online-orders/route.js` | 243 | Rate-limit, catálogo, validación de reglas, normalización del payload y cliente HTTP del ERP en un handler. |
+| `app/(shop)/libro-de-reclamaciones/ComplaintForm.js` | 302 | Único archivo sobre 300; tiene excepción de `max-lines` y se dividirá al completar la Fase 1. |
+| `app/features/shop/seo.js` | 213 | Dentro del presupuesto; builders de JSON-LD y FAQ. |
+| `app/data/menuData.js` | 188 | Datos del negocio y catálogo (fuente única, sin lógica de UI). |
+| `app/links/page.js` | 182 | Server Component con datos e íconos compartidos. |
+| `app/api/online-orders/route.js` | 166 | Orquesta; reglas y catálogo están en `lib/`. |
+| `app/reto-gamer/BurgerGame.js` | 171 | UI del juego; el motor puro está en `game/engine.js` (133) y el render en `game/render.js` (138). |
+
+Los antiguos monolitos (`page.js`, `CartDrawer.js`, `MenuGrid.js`, `links/page.js`, `libro-de-reclamaciones/page.js`, `reto-gamer/page.js`) se dividieron en las Fases 6 y 9.
 
 Consecuencias: cambios pequeños tocan archivos enormes (conflictos de merge, revisiones difíciles), la lógica no se puede testear sin montar la UI, y la misma regla termina copiada en varios lugares (QLT-02).
 → Ver Fase 6 del plan: presupuesto de tamaño por archivo, separar dominio puro / hooks / componentes de presentación, y componentes compartidos en `app/components/`.
@@ -426,35 +452,35 @@ Consecuencias: cambios pequeños tocan archivos enormes (conflictos de merge, re
 | ID | Hallazgo | Severidad |
 | :--- | :--- | :-: |
 | PERF-01 | ✅ Resuelto (Fase 6): `/` y `/product/*` usan `useOpenStatus` (30 s + `visibilitychange`). | Media |
-| PERF-02 | `burger_hero.png` de 862 KB como imagen LCP con `priority`. Convertir a WebP/AVIF. (El PNG de logo sin uso se eliminó en Fase 8.) | Media |
-| PERF-03 | Ruta `/` completamente cliente: el JS de toda la página (modales, drawer, mapa) se descarga de entrada. Usar `next/dynamic` para modales/drawer/mapa. | Baja |
-| PERF-04 | `/reto-gamer` (1.670 líneas) es una sola unidad; aceptable al ser ruta aislada, pero cualquier cambio es costoso. | Baja |
+| PERF-02 | ✅ Resuelto: `burger-hero.webp` (99 KB) y `og-bigjack.jpg` (101 KB). | Media |
+| PERF-03 | ✅ Resuelto: drawer, hojas y confirmación con `next/dynamic`; secciones estáticas server. | Baja |
+| PERF-04 | ✅ Resuelto: "Arma tu burger" separa motor puro (`game/engine.js`), render y UI; ~440 líneas en total. | Baja |
 
 ## 8. Accesibilidad (A11Y)
 
 | ID | Hallazgo | Severidad |
 | :--- | :--- | :-: |
-| A11Y-01 | Modales/drawer sin *focus trap*, sin cerrar con `Esc`, sin devolver el foco (`CartDrawer`, `ProductModal`, `SuggestionModal`, `OrderConfirmation`, `ClosedNotice`). | Media |
-| A11Y-02 | Inputs sin `<label>` asociado: checkout usa solo `placeholder`; en el Libro de Reclamaciones los `<label>` no tienen `htmlFor` (0 usos en el repo). | Media |
-| A11Y-03 | `SecureMap` bloquea clic derecho y copiar; enlaces solo-icono del footer usan `title` en vez de `aria-label`. | Media |
-| A11Y-04 | `CategoryFilter` usa `sticky top-[73px]` fijo, pero el header móvil es más alto (tiene una fila extra de acciones) → la barra puede quedar tapada. **Verificar en dispositivo.** | Baja |
+| A11Y-01 | ✅ Resuelto: `Dialog` con focus trap, `Esc` y retorno de foco. | Media |
+| A11Y-02 | ✅ Resuelto: `Field` con `<label>` visible en checkout y Libro. | Media |
+| A11Y-03 | ✅ Resuelto: `SecureMap` eliminado; enlaces solo-icono con `aria-label`. | Media |
+| A11Y-04 | ✅ Resuelto: header de altura fija (`--header-h`) y barra de secciones alineada. | Baja |
 
 ## 9. SEO
 
 | ID | Hallazgo | Severidad |
 | :--- | :--- | :-: |
 | SEO-01 | ✅ Resuelto (Fase 0): `/images/og-bigjack.png` (1200×630) ya existe. | Alta |
-| SEO-02 | `/links`, `/quienes`, `/libro-de-reclamaciones`, `/reto-gamer` sin `title`/`description` propios (Client Components, ver QLT-05). | Media |
-| SEO-03 | `verification.google: 'your-google-verification-code'` (placeholder en producción, `layout.js:92`). | Media |
-| SEO-04 | Dirección/NAP inconsistente entre schema y contenido (DATA-02); `keywords` incluye "hamburguesas lince" y "centro de lima" a la vez. | Baja |
+| SEO-02 | ✅ Resuelto: metadata y canonical propios en todas las rutas. | Media |
+| SEO-03 | ✅ Resuelto: la verificación solo se publica si existe `GOOGLE_SITE_VERIFICATION`. | Media |
+| SEO-04 | ✅ Resuelto: NAP consistente en Centro de Lima; keywords actualizados. | Baja |
 
 ## 10. Operación / tooling (OPS)
 
 | ID | Hallazgo | Severidad |
 | :--- | :--- | :-: |
-| OPS-01 | ✅ Resuelto (Fase 0): el script apunta por defecto a localhost. Pendiente el script multiplataforma (5.4). | Alta |
+| OPS-01 | ⚠️ Parcial: el script apunta por defecto a localhost, pero sigue siendo PowerShell. Falta la versión Node multiplataforma (5.4). | Alta |
 | OPS-02 | ✅ Resuelto (Fase 5): CI en `.github/workflows/ci.yml`; tests con Vitest. | Media |
-| OPS-03 | `.env.example` incompleto: falta `FORMSPREE_URL`, `NEXT_PUBLIC_BASE_URL`. | Media |
+| OPS-03 | ✅ Resuelto: `.env.example` incluye webhook, correo, Formspree, URL pública, GTM, GA y Turnstile. | Media |
 | OPS-04 | ✅ Resuelto (Fase 5): `engines.node >=20.9.0` y `.nvmrc` con Node 24 LTS. | Baja |
 
 ## 11. Documentación (DOC)

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentación del proyecto
+    url: https://github.com/sjaquer/big-jack-menu/blob/master/docs/README.md
+    about: PRD, arquitectura, diseño, auditoría y plan de remediación.
+  - name: Cómo contribuir
+    url: https://github.com/sjaquer/big-jack-menu/blob/master/CONTRIBUTING.md
+    about: Flujo de ramas, verificación y convenciones.
+  - name: Reportar un problema de seguridad
+    url: https://github.com/sjaquer/big-jack-menu/blob/master/SECURITY.md
+    about: No uses issues públicos para vulnerabilidades o datos sensibles.

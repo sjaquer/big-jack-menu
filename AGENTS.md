@@ -13,6 +13,8 @@ Instrucciones operativas para trabajar en **Big Jack Menu** (carta digital + che
 | Problemas conocidos (con IDs `SEC-01`, `BUG-03`…) | [`docs/AUDIT.md`](docs/AUDIT.md) |
 | Qué arreglar y en qué orden | [`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md) |
 | Contrato con el ERP | [`docs/webhook-pedidos.md`](docs/webhook-pedidos.md) |
+| Cómo contribuir y verificar un cambio | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| Textos para configuración del repo en GitHub | [`.github/GITHUB_SETUP.md`](.github/GITHUB_SETUP.md) |
 
 ## Comandos
 
@@ -44,7 +46,7 @@ Hay tests con Vitest (`*.test.js` junto al módulo). Si agregas lógica en `app/
 2. **Precios:** el ERP calcula el precio final por SKU. Los precios del front son referenciales; si cambias uno, avisa que debe cambiarse también en el ERP.
 3. **Secretos:** `WEBHOOK_MENU_SECRET`, `GMAIL_PASS`, etc. solo se leen en servidor (`route.js`, `actions.js`). Nunca con prefijo `NEXT_PUBLIC_`. Nunca en el repo.
 4. **Contrato del webhook:** `items` solo con `sku`, `quantity`, `notes`; `eventId` único por intento de pedido (idempotencia). No cambies la forma del payload sin actualizar `docs/webhook-pedidos.md` y coordinar con el ERP.
-5. **Reglas de negocio** (máximos 10/30, bebidas solo con hamburguesa, delivery sin efectivo, pre-orden solo recojo): si las cambias, cámbialas en **todos** los puntos (hoy: `features/shop/constants.js`, `cartRules.js`, `checkout/submitOrder.js`, `hooks/useCartActions.js`, `components/cart/DeliveryStep.js` y `PaymentStep.js`, y `api/online-orders/route.js`) hasta que exista el módulo único `lib/orderRules.js`.
+5. **Reglas de negocio** (máximos 10/30, bebidas solo con hamburguesa, delivery sin efectivo, pre-orden solo recojo): si las cambias, cámbialas en **todos** los puntos. El servidor ya usa el módulo compartido `lib/orderRules.js`; el cliente todavía valida en `features/shop/constants.js`, `cartRules.js`, `checkout/submitOrder.js`, `hooks/useCartActions.js`, `components/cart/DeliveryStep.js` y `PaymentStep.js`. No dejes una regla solo en el cliente.
 6. **Libro de Reclamaciones:** nunca devolver éxito si el reclamo no se entregó/persistió (obligación legal).
 7. **Datos del negocio** (horario, RUC, razón social, dirección, WhatsApp, links de apps): la fuente es `restaurantInfo` en `menuData.js`. Para mostrarlos usa `lib/site.js` (URLs, teléfono, dirección) y `lib/schedule.js` (horario). No escribas horarios, teléfonos ni URLs a mano en componentes.
 
