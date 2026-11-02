@@ -18,7 +18,7 @@ export const PAYMENT_METHODS = [
 ];
 
 // Productos que se ofrecen en el upsell después de agregar una hamburguesa.
-export const UPSELL_SLUGS = ["papas-fritas", "inca-kola", "coca-cola"];
+export const UPSELL_SLUGS = ["inca-kola", "coca-cola"];
 
 export const DAY_NAMES = [
   "Sunday",

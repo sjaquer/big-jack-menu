@@ -57,13 +57,7 @@ export const categoryInfo = {
     id: "hamburguesas",
     title: "Hamburguesas",
     navLabel: "Hamburguesas",
-    subtitle: "Carne gruesa a la plancha. Simple si tienes hambre, doble si tienes más.",
-  },
-  GUARNICIONES: {
-    id: "acompanamientos",
-    title: "Acompañamientos",
-    navLabel: "Papas",
-    subtitle: "Para acompañar. O para no compartir.",
+    subtitle: "Carne gruesa a la plancha. Todas nuestras hamburguesas vienen con papas fritas incluidas.",
   },
   BEBIDAS: {
     id: "bebidas",
@@ -73,7 +67,7 @@ export const categoryInfo = {
   },
 };
 
-export const categories = ["LAS INTOCABLES", "GUARNICIONES", "BEBIDAS"];
+export const categories = ["LAS INTOCABLES", "BEBIDAS"];
 
 // Los SKU deben existir en el ERP. Cambiar `name` o `description` no afecta al ERP;
 // cambiar `slug` exige agregar una redirección en next.config.mjs.
@@ -84,7 +78,7 @@ export const menuItems = [
     slug: "hamburguesa-con-tocino",
     category: "LAS INTOCABLES",
     name: "Hamburguesa con Tocino",
-    description: "Medallón grueso de carne, queso derretido, tocino crocante, pepinillos y salsa de la casa.",
+    description: "Medallón grueso de carne, queso derretido, tocino crocante, pepinillos y salsa de la casa. Incluye papas fritas.",
     image: "/images/baconjack.webp",
     popular: true,
     options: [
@@ -98,7 +92,7 @@ export const menuItems = [
     slug: "hamburguesa-royal",
     category: "LAS INTOCABLES",
     name: "Hamburguesa Royal",
-    description: "Medallón de carne, queso fundido, jamón y huevo frito con la yema cremosa.",
+    description: "Medallón de carne, queso fundido, jamón y huevo frito con la yema cremosa. Incluye papas fritas.",
     image: "/images/royaljack.webp",
     popular: false,
     options: [
@@ -112,7 +106,7 @@ export const menuItems = [
     slug: "hamburguesa-a-lo-pobre",
     category: "LAS INTOCABLES",
     name: "Hamburguesa a lo Pobre",
-    description: "Medallón de carne, queso cheddar, huevo frito y plátano maduro. Dulce y salado a la vez.",
+    description: "Medallón de carne, queso cheddar, huevo frito y plátano maduro. Dulce y salado a la vez. Incluye papas fritas.",
     image: "/images/jackpobre.webp",
     popular: false,
     options: [
@@ -126,7 +120,7 @@ export const menuItems = [
     slug: "hamburguesa-clasica",
     category: "LAS INTOCABLES",
     name: "Hamburguesa Clásica",
-    description: "Medallón de carne a la plancha en pan suave. La de siempre, sin vueltas.",
+    description: "Medallón de carne a la plancha en pan suave. La de siempre, sin vueltas. Incluye papas fritas.",
     image: "/images/lamisia.webp",
     popular: false,
     options: [{ id: "simple", sku: "PRD-LAM-IPH3", label: "Simple (1 carne)", price: 12.90 }],
@@ -137,9 +131,10 @@ export const menuItems = [
     slug: "papas-fritas",
     category: "GUARNICIONES",
     name: "Papas Fritas",
-    description: "Papas amarillas crocantes por fuera y suaves por dentro, con sal y especias.",
+    description: "Papas amarillas crocantes por fuera y suaves por dentro. Vienen incluidas con cada hamburguesa.",
     image: "/images/papas-fritas.webp",
-    popular: true,
+    popular: false,
+    available: false,
     options: [
       { id: "personal", sku: "PRD-PAP-PERS", label: "Personal", price: 7.00 },
       { id: "familiar", sku: "PRD-PAP-FAMI", label: "Familiar", price: 12.00 },
@@ -182,7 +177,8 @@ export const menuItems = [
 
 // Slugs anteriores → nuevos (redirecciones 308 en next.config.mjs).
 export const legacySlugs = {
-  salchipapa: null, // retirada de la carta: redirige a la sección de acompañamientos
+  salchipapa: null, // retirada de la carta: redirige a la carta
+  "papas-fritas": null, // ya vienen incluidas con la hamburguesa: redirige a la carta
   "la-misia": "hamburguesa-clasica",
   "la-bacon": "hamburguesa-con-tocino",
   "la-royal-con-huevo": "hamburguesa-royal",

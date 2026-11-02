@@ -51,7 +51,7 @@ const nextConfig = {
   async redirects() {
     return Object.entries(legacySlugs).map(([from, to]) => ({
       source: `/product/${from}`,
-      destination: to ? `/product/${to}` : "/#acompanamientos",
+      destination: to ? `/product/${to}` : "/#menu",
       permanent: true,
     }));
   },

@@ -186,6 +186,10 @@ export function getFaqItems() {
       answer: "No. Acá la carne es gruesa y se hace a la plancha, con todo su jugo. La smash es otra película.",
     },
     {
+      question: "¿La hamburguesa viene con papas?",
+      answer: "Sí, todas salen con su porción de papas fritas amarillas doradas incluidas. No tienes que agregarlas aparte.",
+    },
+    {
       question: "¿Puedo pedir solo una gaseosa?",
       answer: "Las bebidas van con hamburguesa. Así es la casa.",
     },

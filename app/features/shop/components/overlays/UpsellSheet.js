@@ -18,9 +18,9 @@ export default function UpsellSheet() {
       <div className="flex items-start justify-between gap-3 border-b border-neutral-800 p-5">
         <div>
           <h2 id="upsell-title" className="font-anton text-2xl uppercase text-white">
-            ¿Le pones papas y gaseosa?
+            ¿Le sumas una gaseosa helada?
           </h2>
-          <p className="mt-1 text-sm text-neutral-400">La hamburguesa ya está en tu pedido.</p>
+          <p className="mt-1 text-sm text-neutral-400">Tu hamburguesa ya incluye papas fritas.</p>
         </div>
         <button
           type="button"

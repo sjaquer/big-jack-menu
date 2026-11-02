@@ -21,9 +21,8 @@ export default function useUpsell() {
 
   const maybeShow = useCallback((product, cart) => {
     if (shownRef.current || !PRIMARY_CATEGORIES.includes(product.category)) return;
-    const hasSide = cart.some((item) => item.category === SIDES_CATEGORY);
     const hasDrink = cart.some((item) => isDrink(item.category));
-    if (hasSide && hasDrink) return;
+    if (hasDrink) return;
 
     shownRef.current = true;
     setQuantities({});
