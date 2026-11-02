@@ -10,6 +10,7 @@ const STATIC_ROUTES = [
   { path: "/links", priority: 0.5, changeFrequency: "monthly" },
   ...(FEATURES.complaintsBook ? [{ path: "/libro-de-reclamaciones", priority: 0.3, changeFrequency: "yearly" }] : []),
   { path: "/reto-gamer", priority: 0.3, changeFrequency: "monthly" },
+  { path: "/privacidad", priority: 0.3, changeFrequency: "yearly" },
 ];
 
 export default function sitemap() {
