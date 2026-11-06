@@ -120,7 +120,7 @@ export const menuItems = [
     slug: "hamburguesa-clasica",
     category: "LAS INTOCABLES",
     name: "Hamburguesa Clásica",
-    description: "Medallón de carne a la plancha en pan suave. La de siempre, sin vueltas. Incluye papas fritas.",
+    description: "Medallón de carne, queso cheddar, lechuga, tomate y crema especial en pan dorado con mantequilla. Incluye papas fritas.",
     image: "/images/lamisia.webp",
     popular: false,
     options: [{ id: "simple", sku: "PRD-LAM-IPH3", label: "Simple (1 carne)", price: 12.90 }],

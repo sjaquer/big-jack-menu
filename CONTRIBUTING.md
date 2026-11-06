@@ -90,4 +90,4 @@ No abras issues públicos con credenciales, tokens, datos personales ni detalles
 
 ## ¿Dudas?
 
-Abre un issue con la etiqueta `question` o escribe al WhatsApp del negocio que aparece en la web. Para temas de marca, consulta [`docs/marca/`](docs/marca/README.md).
+Abre un issue con la etiqueta `question` o escribe al WhatsApp del negocio que aparece en la web. Para temas de marca, escríbenos por ese mismo WhatsApp: los manuales de marca son internos y no están en este repositorio.

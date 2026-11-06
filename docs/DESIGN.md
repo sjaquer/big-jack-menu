@@ -4,7 +4,7 @@
 
 ## 1. Concepto
 
-> La identidad de marca (concepto, voz, fotografía, uso del logo) está en [`marca/MANUAL_DE_MARCA.md`](./marca/MANUAL_DE_MARCA.md). Este documento cubre cómo se implementa en la web; ante conflicto de marca, manda el manual.
+> La identidad de marca (concepto, voz, fotografía, uso del logo) está en `bigjack/marca/MANUAL_DE_MARCA.md` (carpeta local, fuera de git). Este documento cubre cómo se implementa en la web; ante conflicto de marca, manda el manual.
 
 **Menos es más.** La comida es la protagonista; la interfaz se aparta. Fondo casi negro, amarillo de marca solo para lo que importa (precio destacado, acción principal), tipografía Anton enorme para crear jerarquía y mucho aire entre bloques. Desde el rediseño del 2026-10-31 la web es **una sola columna vertical** (`max-w-3xl`) también en desktop.
 

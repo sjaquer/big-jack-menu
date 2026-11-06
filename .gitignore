@@ -49,3 +49,6 @@ next-env.d.ts
 /Manual de Identidad*.pdf
 /design-assets/
 /archive/
+
+# base de conocimiento de la marca: recetas, manuales y fotos (solo local, nunca al repo público)
+/bigjack/

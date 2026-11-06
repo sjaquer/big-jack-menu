@@ -8,7 +8,7 @@ Instrucciones operativas para trabajar en **Big Jack Menu** (carta digital + che
 | :--- | :--- |
 | Qué hace el producto y sus reglas de negocio | [`docs/PRD.md`](docs/PRD.md) |
 | Cómo está construido (rutas, datos, flujo, API, env) | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| Identidad de marca, voz y tono, textos al cliente, redes | [`docs/marca/MANUAL_DE_MARCA.md`](docs/marca/MANUAL_DE_MARCA.md) |
+| Identidad de marca, voz y tono, textos al cliente, redes | `bigjack/marca/MANUAL_DE_MARCA.md` (carpeta local, fuera de git; índice en `bigjack/README.md`) |
 | Colores, tipografía, componentes de marca (en código) | [`docs/DESIGN.md`](docs/DESIGN.md) |
 | Problemas conocidos (con IDs `SEC-01`, `BUG-03`…) | [`docs/AUDIT.md`](docs/AUDIT.md) |
 | Qué arreglar y en qué orden | [`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md) |
@@ -38,7 +38,7 @@ Hay tests con Vitest (`*.test.js` junto al módulo). Si agregas lógica en `app/
 - Imágenes con `next/image`; assets en `public/images/` en WebP.
 - Prefiere Server Components; usa `"use client"` solo en el componente que necesita estado/efectos.
 - **Nada de monolitos:** separa dominio puro (`lib/`), hooks, componentes de presentación y página. Presupuesto orientativo: componente ≤ 250 líneas, página ≤ 150. No agregues lógica a los archivos grandes listados en `AUDIT.md` QLT-11; extrae primero (ver Fase 6 del plan).
-- Textos visibles al usuario con la voz de marca de `docs/marca/MANUAL_DE_MARCA.md` (§5 y §11), sin sacrificar claridad.
+- Textos visibles al usuario con la voz de marca de `bigjack/marca/MANUAL_DE_MARCA.md` (§5 y §11), sin sacrificar claridad.
 
 ## Invariantes — no romper
 
@@ -58,6 +58,7 @@ Hay tests con Vitest (`*.test.js` junto al módulo). Si agregas lógica en `app/
 - Agregar dominios a `images.remotePatterns` sin necesidad.
 - Agregar `alert()`/`confirm()` nuevos (usar UI en página; ver QLT-03).
 - Commits con `.env*` (salvo `.env.example`).
+- Copiar contenido de `bigjack/` (recetas, costos, proveedores) a archivos versionados: el repo es público y esa carpeta está en `.gitignore` a propósito.
 
 ## Cómo trabajar un cambio
 

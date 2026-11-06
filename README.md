@@ -164,7 +164,7 @@ Empieza por [`docs/README.md`](docs/README.md).
 | [`docs/AUDIT.md`](docs/AUDIT.md) | Auditoría técnica con IDs y estado de cada hallazgo. |
 | [`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md) | Plan por fases y decisiones pendientes. |
 | [`docs/webhook-pedidos.md`](docs/webhook-pedidos.md) | Contrato con el ERP. |
-| [`docs/marca/`](docs/marca/README.md) | Manual de marca, voz y comunicación. |
+| `bigjack/` | Base de conocimiento de la marca (manuales, recetas, fotos). Carpeta local, fuera de git. |
 | [`AGENTS.md`](AGENTS.md) | Reglas para agentes de IA y colaboradores. |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Cómo proponer cambios, ramas y PRs. |
 | [`SECURITY.md`](SECURITY.md) | Cómo reportar vulnerabilidades. |

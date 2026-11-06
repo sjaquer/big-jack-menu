@@ -13,7 +13,7 @@
 | [REMEDIATION_PLAN.md](./REMEDIATION_PLAN.md) | Plan por fases para cerrar la auditoría + decisiones de negocio pendientes. | 2026-11-02 |
 | [webhook-pedidos.md](./webhook-pedidos.md) | Contrato del webhook de pedidos con el ERP (hoy desactivado por flag). | 2026-11-02 |
 | [LINKS_PAGE.md](./LINKS_PAGE.md) | Página `/links`: objetivo, secciones, datos y personalización. | 2026-11-02 |
-| [marca/MANUAL_DE_MARCA.md](./marca/MANUAL_DE_MARCA.md) | Manual de marca v3: identidad, voz y tono, visual, redes, atención y empaque. Índice en [`marca/`](./marca/README.md). | 2026-10-31 |
+| `bigjack/marca/MANUAL_DE_MARCA.md` | Manual de marca v3: identidad, voz y tono, visual, redes, atención y empaque. Carpeta local, fuera de git; índice en `bigjack/README.md`. | 2026-11-05 |
 | [../AGENTS.md](../AGENTS.md) | Reglas operativas para agentes de IA y colaboradores. | 2026-11-02 |
 | [../CONTRIBUTING.md](../CONTRIBUTING.md) | Flujo de ramas, PRs, commits y verificación. | 2026-11-02 |
 | [../SECURITY.md](../SECURITY.md) | Reporte responsable de vulnerabilidades. | 2026-11-02 |
