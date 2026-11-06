@@ -79,7 +79,7 @@ export const menuItems = [
     category: "LAS INTOCABLES",
     name: "Hamburguesa con Tocino",
     description: "Medallón grueso de carne, queso derretido, tocino crocante, pepinillos y salsa de la casa. Incluye papas fritas.",
-    image: "/images/baconjack.webp",
+    image: "/images/hamburguesa-con-tocino.webp",
     popular: true,
     options: [
       { id: "simple", sku: "PRD-LAB-JFSY", label: "Simple (1 carne)", price: 17.90 },
@@ -93,7 +93,7 @@ export const menuItems = [
     category: "LAS INTOCABLES",
     name: "Hamburguesa Royal",
     description: "Medallón de carne, queso fundido, jamón y huevo frito con la yema cremosa. Incluye papas fritas.",
-    image: "/images/royaljack.webp",
+    image: "/images/hamburguesa-royal.webp",
     popular: false,
     options: [
       { id: "simple", sku: "PRD-LAR-LUS0", label: "Simple (1 carne)", price: 15.90 },
@@ -107,7 +107,7 @@ export const menuItems = [
     category: "LAS INTOCABLES",
     name: "Hamburguesa a lo Pobre",
     description: "Medallón de carne, queso cheddar, huevo frito y plátano maduro. Dulce y salado a la vez. Incluye papas fritas.",
-    image: "/images/jackpobre.webp",
+    image: "/images/hamburguesa-a-lo-pobre.webp",
     popular: false,
     options: [
       { id: "simple", sku: "PRD-ALO-KC88", label: "Simple (1 carne)", price: 16.90 },
@@ -121,7 +121,7 @@ export const menuItems = [
     category: "LAS INTOCABLES",
     name: "Hamburguesa Clásica",
     description: "Medallón de carne, queso cheddar, lechuga, tomate y crema especial en pan dorado con mantequilla. Incluye papas fritas.",
-    image: "/images/lamisia.webp",
+    image: "/images/hamburguesa-clasica.webp",
     popular: false,
     options: [{ id: "simple", sku: "PRD-LAM-IPH3", label: "Simple (1 carne)", price: 12.90 }],
   },
