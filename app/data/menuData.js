@@ -92,7 +92,7 @@ export const menuItems = [
     slug: "hamburguesa-royal",
     category: "LAS INTOCABLES",
     name: "Hamburguesa Royal",
-    description: "Medallón de carne, queso fundido, jamón y huevo frito con la yema cremosa. Incluye papas fritas.",
+    description: "Medallón de carne, queso cheddar, jamón inglés, huevo frito, tomate y crema especial en pan dorado con mantequilla. Incluye papas fritas.",
     image: "/images/hamburguesa-royal.webp",
     popular: false,
     options: [
@@ -106,7 +106,7 @@ export const menuItems = [
     slug: "hamburguesa-a-lo-pobre",
     category: "LAS INTOCABLES",
     name: "Hamburguesa a lo Pobre",
-    description: "Medallón de carne, queso cheddar, huevo frito y plátano maduro. Dulce y salado a la vez. Incluye papas fritas.",
+    description: "Medallón de carne, queso cheddar, huevo frito, plátano, tomate y crema especial. Dulce y salado a la vez. Incluye papas fritas.",
     image: "/images/hamburguesa-a-lo-pobre.webp",
     popular: false,
     options: [
